@@ -1,0 +1,2586 @@
+{
+  "catalog": {
+    "career": {
+      "title": "Glizzy Manager"
+    },
+    "modes": {
+      "single": "Single player",
+      "multi": "Multiplayer"
+    }
+  },
+  "shared": {
+    "language": {
+      "title": "Language",
+      "en": "English",
+      "sr": "Srpski"
+    },
+    "and": "and",
+    "ordinal": {
+      "one": "{n}st",
+      "two": "{n}nd",
+      "few": "{n}rd",
+      "other": "{n}th"
+    },
+    "close": "Close",
+    "settings": "Settings",
+    "seasons": [
+      "Winter",
+      "Spring",
+      "Summer",
+      "Autumn"
+    ],
+    "reset": {
+      "confirm": "Sure? This wipes it all",
+      "label": "Reset game",
+      "title": "Reset all games and achievements",
+      "yes": "Yes, wipe it",
+      "no": "Keep it"
+    },
+    "theme": {
+      "title": "Theme",
+      "dark": "Dark",
+      "light": "Light"
+    },
+    "more": "More",
+    "showTutorial": "Show the tutorial again",
+    "backToHub": "Back to the hub",
+    "audio": {
+      "title": "Sound",
+      "mute": "Mute sound",
+      "unmute": "Unmute sound",
+      "volume": "Broadcast volume",
+      "master": "Volume",
+      "on": "On",
+      "off": "Off",
+      "channels": {
+        "sfx": {
+          "label": "Sound effects",
+          "volume": "Effects volume"
+        },
+        "music": {
+          "label": "Music",
+          "volume": "Music volume"
+        },
+        "voice": {
+          "label": "Voices",
+          "volume": "Voice volume"
+        }
+      }
+    },
+    "broadcast": {
+      "title": "Broadcast",
+      "commentator": "Commentator",
+      "cutscenes": "Cutscenes"
+    },
+    "hold": {
+      "stay": "Stay",
+      "continue": "Continue",
+      "continueIn": "Continue ({seconds})"
+    },
+    "fullscreen": {
+      "enter": "Fullscreen",
+      "exit": "Exit fullscreen"
+    }
+  },
+  "duel": {
+    "spots": {
+      "hat": "Hat",
+      "sock": "Sock",
+      "box": "Box"
+    },
+    "roles": {
+      "placing": "Hiding",
+      "guessing": "Dodging"
+    }
+  },
+  "cup": {
+    "roundNames": [
+      "Round of 16",
+      "Quarterfinals",
+      "Semifinals",
+      "Final"
+    ],
+    "chips": {
+      "noStake": "None"
+    },
+    "elimination": {
+      "toFinal": "Skip to the end"
+    },
+    "controls": {
+      "skipRemaining": "Skip remaining matches",
+      "nextRound": "Next round",
+      "podium": "Podium"
+    },
+    "bracket": {
+      "watch": "Watch",
+      "yourMatch": "Your match",
+      "betTitle": "Bet on the win",
+      "betOddsTitle": "Bet on the win, odds x{odds}",
+      "betWon": "Bet +{payout}",
+      "betLost": "Bet -{stake}",
+      "inForm": "In form"
+    },
+    "viewer": {
+      "start": "Match starting...",
+      "end": "Match over",
+      "round": "Round {round}",
+      "overtimeRound": "Overtime, round {round}",
+      "winner": "Winner: {name}",
+      "continue": "Continue",
+      "skip": "Skip to result",
+      "sniffLabel": "Caught a whiff of glizzy and pulled the hand back",
+      "sniffSpot": "Something smells like glizzy here",
+      "bite": "NOM!",
+      "events": {
+        "meltdown": "Cholesterol meltdown! The stretcher is rolling into the studio!",
+        "overfull-forfeit": "Not one more bite! Stuffed with glizzies, forfeiting the match!",
+        "police": "Police on the scene! Hauled off for questioning mid-match!",
+        "removed": "Never even sat down! Escorted off the set before the first glizzy!",
+        "tiebreak": "Overtime! Two glizzies on the table. First to bite one loses."
+      },
+      "reasons": {
+        "meltdown": "Forfeit: nervous breakdown",
+        "overfull-forfeit": "Forfeit: ate too much",
+        "police": "Forfeit: detained mid-match",
+        "withdrawn": "Forfeit: withdrew from the cup",
+        "removed": "Forfeit: removed before the match"
+      }
+    },
+    "podium": {
+      "fallen": "Eliminated",
+      "screenTitle": "Champion"
+    },
+    "studio": {
+      "live": "Live",
+      "title": "GLIZZY CUP",
+      "themes": [
+        "Frozen Edition",
+        "Bloody Edition",
+        "Summer Edition",
+        "Eggplant Edition"
+      ]
+    }
+  },
+  "career": {
+    "broadcast": {
+      "title": "Cup preview",
+      "record": "Record",
+      "titles": "Titles",
+      "meltdowns": "Meltdowns",
+      "continue": "Continue",
+      "chance": "Chance",
+      "h2h": "Head to head",
+      "form": "Last 5",
+      "eaten": "Eaten",
+      "edition": "This edition",
+      "pace": "Avg moves",
+      "tiebreaks": "Tiebreaks",
+      "punishments": "Penalties",
+      "forfeits": "Forfeits",
+      "seed": "{seed} seed",
+      "badges": {
+        "inForm": "Their season",
+        "rival": "Derby",
+        "titleHolder": "Defending champ"
+      },
+      "inFormHint": "{theme} suits them",
+      "streaks": "Streaks",
+      "inForm": "Their season",
+      "editionRecord": "This edition",
+      "editionNone": "debut",
+      "buffStress": "{drop} stress walking in",
+      "buffGain": "match stress x{scale}",
+      "pastChampions": "Past champions of this edition",
+      "championYear": "year {year}",
+      "titleChance": "Title chance",
+      "weatherTitle": "Weather forecast",
+      "streakHot": "Hot streak",
+      "streakCold": "Cold streak",
+      "tape": "Tale of the tape",
+      "live": "Live",
+      "weatherReports": [
+        [
+          "Blizzard all evening. The glizzies steam twice as hard.",
+          "Ice on the table, ice in the stomachs. First to shiver, first to go home.",
+          "Snow up to the knees, and the knees are shaking. A glizzy only warms you from the inside."
+        ],
+        [
+          "Red sky, and the wind is blowing leaves across the table.",
+          "Fog has settled on the valley. You can see exactly as far as you need to: the glizzy.",
+          "Leaves rustling, rain threatening. Nobody brought an umbrella. Everybody brought glizzies."
+        ],
+        [
+          "A tropical night. The table is hot, the appetites hotter.",
+          "Muggy since morning. The mustard melts before it reaches the bun.",
+          "Not a breath of wind. The mosquitoes counted the contestants before the judges did."
+        ],
+        [
+          "Everything is in bloom and smells lovely. The glizzy smells strongest.",
+          "Pollen in the air, tears in the eyes. Some from allergies, some from the draw.",
+          "First real sun of the year. The eggplants are glowing, and so are the contestants."
+        ]
+      ]
+    },
+    "page": {
+      "eyebrow": "Glizzy games",
+      "intro": "You're the coach. Pick a character from the classifieds, run them season after season, and train them all the way to Glizzy Overlord."
+    },
+    "start": {
+      "screen": "Career",
+      "button": "New career",
+      "resume": "Continue",
+      "confirmNew": "Your current career will be wiped. Start over?",
+      "confirmYes": "Yes, wipe and go",
+      "confirmNo": "Never mind",
+      "slot": "Slot {n}",
+      "slots": "Slots",
+      "delete": "Delete",
+      "deleteTitle": "Delete slot {n}",
+      "deleteConfirm": "The career in this slot is gone for good. Sure?",
+      "deleteYes": "Yes, delete",
+      "league": "The Glizzy League"
+    },
+    "intro": {
+      "headlines": [
+        {
+          "title": "WHITE DWARF BACK IN THE LEAGUE",
+          "text": "Black Dwarf Corporation is back as league sponsor after a 10-year ban for blackmail. By the book this time, they insist."
+        },
+        {
+          "title": "GLIZZY CRISIS HITS THE VALLEY",
+          "text": "Glizzy prices jump for the third time this winter."
+        },
+        {
+          "title": "THE RABBIT BACK AT THE BLUE CABIN?",
+          "text": "Fresh tracks in the snow and a pantry without a single glizzy left. Mr Bones refuses to testify."
+        }
+      ],
+      "ad": {
+        "title": "COACH WANTED",
+        "text": "The league is starting up again, and one competitor is coming back after a long break and needs a coach.",
+        "cta": "Answer the ad"
+      }
+    },
+    "select": {
+      "masthead": "THE GLIZZY GAZETTE",
+      "section": "Classifieds · Coach wanted",
+      "hint": "Who needs a coach?"
+    },
+    "hud": {
+      "year": "Year {year}",
+      "balance": {
+        "one": "{amount} glizar",
+        "few": "{amount} glizars",
+        "other": "{amount} glizars"
+      },
+      "coach": "Coach: {name}",
+      "currency": "glizars",
+      "overlord": "Glizzy Overlord",
+      "overlordBy": "Glizzy Overlord: {name}"
+    },
+    "cutscene": {
+      "kicker": "This month",
+      "continue": "Continue"
+    },
+    "quoteCutscene": {
+      "skip": "Skip",
+      "skipAll": "Skip all",
+      "breaking": "Breaking news",
+      "bang": "BANG",
+      "tvWinner": "Winner",
+      "brainBig": "{name} brain",
+      "brainNormal": "Normal brain",
+      "ticker": [
+        "Special report",
+        "Live from the arena"
+      ]
+    },
+    "quoteScenes": {
+      "streak-broken": {
+        "headline": "{name} ENDS THE LOSING RUN",
+        "lines": [
+          [
+            "Finally, a reason to get up.",
+            "Alarm went off. So did I.",
+            "Morning. Mind the body on the floor."
+          ]
+        ]
+      },
+      "opponent-burst": {
+        "headline": "{other} BURSTS, {name} CHEERS",
+        "headlineByVariant": {
+          "puke": "{other} PUKES, {name} CHEERS"
+        },
+        "lines": [
+          [
+            "Heh heh heh... HA HA HA HA!",
+            "Hee hee hee... HO HO HO HO!",
+            "Mwahaha... MWAHAHAHAHA!"
+          ]
+        ]
+      },
+      "opponent-removed": {
+        "headline": "{name}'S OPPONENT TAKEN AWAY",
+        "lines": [
+          [
+            "Officer, this man dented my car.",
+            "I braked. Eventually.",
+            "Wrong place, wrong time, right bumper."
+          ]
+        ]
+      },
+      "favorite-wins": {
+        "headline": "{name} WINS IN STYLE",
+        "lines": [
+          [
+            "Not a hair out of place.",
+            "Winning is a dress code.",
+            "Cameras this way. Loser that way."
+          ]
+        ]
+      },
+      "underdog-wins": {
+        "headline": "{name} TOPPLES THE FAVORITE",
+        "lines": [
+          [
+            "Bonk. That's the whole strategy.",
+            "Favorites bruise like everyone else.",
+            "One spoon beats all the odds."
+          ]
+        ]
+      },
+      "photo-finish": {
+        "headline": "{name} WINS BY A CRUMB",
+        "lines": [
+          [
+            "Won by a crumb. Still counts.",
+            "Can't lift my head. Finger works.",
+            "Photo finish. Frame it."
+          ]
+        ]
+      },
+      "loss-collapse": {
+        "headline": "{name} COLLAPSES MID-MATCH",
+        "headlineByVariant": {
+          "cholesterol": "CHOLESTEROL STOPS {name}",
+          "puke": "{name} LOSES THEIR LUNCH",
+          "surrender": "{name} FORFEITS THE MATCH"
+        },
+        "lines": [
+          [
+            "I'm fine. This floor is fine.",
+            "Don't move me. I live here now.",
+            "Tell them I'm resting. Indefinitely."
+          ]
+        ]
+      },
+      "first-match-exit": {
+        "headline": "{name} OUT AT FIRST HURDLE",
+        "lines": [
+          [
+            "I keep seeing that first bite.",
+            "Out in round one. On repeat.",
+            "One match. A lifetime of replays."
+          ]
+        ]
+      },
+      "upset-loss": {
+        "headline": "{name} LOSES TO AN UNDERDOG",
+        "lines": [
+          [
+            "Fair result... TURN THAT OFF!",
+            "No hard feelings... WHO PUT THIS ON?!",
+            "Well played... GIVE ME THE REMOTE!"
+          ]
+        ]
+      },
+      "heavy-loss-escape": {
+        "headline": "{name} FLEES AFTER DEFEAT",
+        "lines": [
+          [
+            "If anyone asks, I was never here.",
+            "Doors are for winners.",
+            "Window's faster. Trust me."
+          ]
+        ]
+      },
+      "heavy-loss-pillory": {
+        "headline": "{name} IN THE PILLORY",
+        "lines": [
+          [
+            "Easy with the tomatoes, people!",
+            "Fine, I deserved it. Not the eye!",
+            "Okay! Message received!"
+          ]
+        ]
+      },
+      "losing-streak": {
+        "headline": "{name} STACKS UP LOSSES",
+        "lines": [
+          [
+            "Another one for the wall.",
+            "Running out of wall. And chalk.",
+            "The chalk broke before I did."
+          ]
+        ]
+      },
+      "tax-office": {
+        "headline": "{name} SETTLES THE TAX BILL",
+        "lines": [
+          [
+            "Money comes, money goes. Mostly goes.",
+            "Take it all. Leave the watch.",
+            "Pockets? Also empty. Go ahead, check."
+          ]
+        ]
+      },
+      "champion-trophy": {
+        "headline": "{name} WINS THE CUP",
+        "lines": [
+          [
+            "There you are, gorgeous.",
+            "Mine. All mine.",
+            "Been looking for you all season."
+          ]
+        ]
+      },
+      "champion-chicken": {
+        "headline": "{name} WINS, SERVES CHICKEN",
+        "lines": [
+          [
+            "Cup for me, chicken for you.",
+            "Second place eats first. Enjoy.",
+            "Roast chicken. The loser's portion."
+          ]
+        ]
+      },
+      "champion-egg": {
+        "headline": "{name} WINS CUP, NO SWEAT",
+        "lines": [
+          [
+            "Easy.",
+            "Over easy.",
+            "Nothing to it."
+          ]
+        ]
+      },
+      "champion-brain": {
+        "headline": "{name} OUTTHINKS THE FIELD",
+        "lines": [
+          [
+            "All brains, no sweat.",
+            "Pure science.",
+            "Think first, eat second."
+          ]
+        ]
+      },
+      "champion-crowd": {
+        "headline": "{name} WINS, CROWD GOES WILD",
+        "lines": [
+          [
+            "Careful, the cup is fragile!",
+            "Carry me home, you know the way!",
+            "Drop me if you must. Not the cup!"
+          ]
+        ]
+      },
+      "runner-up": {
+        "headline": "{name} SETTLES FOR SILVER",
+        "lines": [
+          [
+            "Silver is gold with a frown.",
+            "Second place. First of the losers.",
+            "Congrats. I'll be staring at a wall."
+          ]
+        ]
+      },
+      "wooden-spoon": {
+        "headline": "{name} WINS THE WOODEN SPOON",
+        "lines": [
+          [
+            "Wooden, but mine.",
+            "Dead last. Still got hardware.",
+            "Great, I needed a spoon anyway."
+          ]
+        ]
+      },
+      "sponsor-signed": {
+        "headline": "{name} SIGNS A SPONSOR",
+        "lines": [
+          [
+            "Works for me.",
+            "Deal.",
+            "Where do I sign?"
+          ]
+        ]
+      },
+      "price-crash": {
+        "headline": "{name}'S TRUCK SINKS PRICES",
+        "lines": [
+          [
+            "Spill it and it's half price.",
+            "A tragedy. What a bargain.",
+            "Floor prices, straight off the floor."
+          ]
+        ]
+      }
+    },
+    "hitCutscene": {
+      "kicker": "Overnight",
+      "counter": "{n} of {total}",
+      "levels": {
+        "one": "{training} -{n} level",
+        "few": "{training} -{n} levels",
+        "other": "{training} -{n} levels"
+      },
+      "sessions": {
+        "one": "{training} -{n} session",
+        "few": "{training} -{n} sessions",
+        "other": "{training} -{n} sessions"
+      },
+      "blocked": "The security crew earned its pay"
+    },
+    "actions": {
+      "training": "Training",
+      "media": "Media",
+      "mediaTitle": "What kind of media stunt?",
+      "mediaInterview": "Interview",
+      "mediaInterviewDesc": {
+        "one": "Earn {pay} glizar. Fame +{fameMin} to +{fameMax}, ego +{ego}, ambition +{amb}, appetite +{appetite}, cholesterol +{stress}.",
+        "few": "Earn {pay} glizars. Fame +{fameMin} to +{fameMax}, ego +{ego}, ambition +{amb}, appetite +{appetite}, cholesterol +{stress}.",
+        "other": "Earn {pay} glizars. Fame +{fameMin} to +{fameMax}, ego +{ego}, ambition +{amb}, appetite +{appetite}, cholesterol +{stress}."
+      },
+      "mediaScandal": "Cause a Scandal",
+      "mediaScandalDesc": {
+        "one": "Earn {pay} glizar. Fame +{fameMin} to +{fameMax}, ego +{ego}, ambition +{amb}, appetite +{appetite}, cholesterol +{stress}. {backfire}% of the time it backfires: fame {backfireFameMin} to {backfireFameMax}, ego -{ego}, cholesterol +{backfireStress}.",
+        "few": "Earn {pay} glizars. Fame +{fameMin} to +{fameMax}, ego +{ego}, ambition +{amb}, appetite +{appetite}, cholesterol +{stress}. {backfire}% of the time it backfires: fame {backfireFameMin} to {backfireFameMax}, ego -{ego}, cholesterol +{backfireStress}.",
+        "other": "Earn {pay} glizars. Fame +{fameMin} to +{fameMax}, ego +{ego}, ambition +{amb}, appetite +{appetite}, cholesterol +{stress}. {backfire}% of the time it backfires: fame {backfireFameMin} to {backfireFameMax}, ego -{ego}, cholesterol +{backfireStress}."
+      },
+      "island": "Island Weekend",
+      "islandDesc": "A little boat to The Island, where nobody counts the money. Cholesterol to zero, appetite and ambition maxed. Costs no month, once a year.",
+      "islandDescEveryWindow": "A little boat to The Island, where nobody counts the money. Cholesterol to zero, appetite and ambition maxed. Costs no month, once per off-season.",
+      "islandFree": "Free, costs no month",
+      "guard": "Security crew",
+      "guarded": "Protected",
+      "calendar": "Calendar",
+      "close": "Close",
+      "cancel": "Cancel",
+      "openLetter": "Open letter",
+      "settings": "Settings",
+      "restTitle": "What kind of rest?",
+      "restDesc": "Cholesterol -{stressMin} to -{stressMax}, appetite {appetiteMin} to +{appetiteMax} and ambition up to ±{drift}, it depends. Ego moves up to {drift} toward {ego}, fame -{fame}.",
+      "fast": "Fast",
+      "fastDesc": "+{gain} appetite and +{amb} ambition, cholesterol +{stress}.",
+      "invest": "Investments"
+    },
+    "toast": {
+      "progress": "{training}",
+      "levelUp": "{training}: LVL UP",
+      "regression": "{training}: OVERTRAINED, lvl down",
+      "rest": "Got some rest",
+      "media": "Media appearance",
+      "mediaScandal": "Scandalous appearance",
+      "mediaScandalBackfire": "The scandal got out of hand. It's all ash and smoke now.",
+      "guard": "Security crew hired, stops {pct}% of attacks",
+      "sabotage": "Job's arranged. Watch the news.",
+      "island": "Island Weekend, body good as new",
+      "moneyUp": {
+        "one": "+{n} glizar",
+        "few": "+{n} glizars",
+        "other": "+{n} glizars"
+      },
+      "moneyDown": {
+        "one": "-{n} glizar",
+        "few": "-{n} glizars",
+        "other": "-{n} glizars"
+      },
+      "skillProgress": "{name}",
+      "skillLevelUp": "{name}: LVL UP",
+      "skillLevelDown": "{name}: lvl down",
+      "fast": "Appetite's up",
+      "invest": "{name}: contract signed",
+      "investPayout": "Investments",
+      "egoHijack": "Ego over {threshold}: signed up for {training} without asking",
+      "slumpGuard": "Ambition under {threshold}: paid a security crew to be left alone, stops {pct}% of attacks",
+      "slumpFast": "Ambition under {threshold}: no money for a security crew, so it's a fast"
+    },
+    "offseason": {
+      "months": [
+        [
+          "January",
+          "February",
+          "March"
+        ],
+        [
+          "April",
+          "May",
+          "June"
+        ],
+        [
+          "July",
+          "August",
+          "September"
+        ],
+        [
+          "October",
+          "November",
+          "December"
+        ]
+      ],
+      "actionsTitle": "Monthly activities",
+      "overtrainWarning": "Overtraining risk: {pct}%",
+      "cost": {
+        "one": "{cost} glizar",
+        "few": "{cost} glizars",
+        "other": "{cost} glizars"
+      },
+      "buy": {
+        "one": "Pay {cost} glizar",
+        "few": "Pay {cost} glizars",
+        "other": "Pay {cost} glizars"
+      },
+      "spendMonth": "Spend the month",
+      "partyChip": "Party {pct}",
+      "level": "Lvl {level}",
+      "maxLevel": "MAX",
+      "noFunds": "Not enough glizars",
+      "yearCalendar": {
+        "prevYear": "Previous year",
+        "nextYear": "Next year",
+        "cupSoon": "Soon",
+        "cupLive": "Underway",
+        "yourPlace": "{place} place",
+        "semifinal": "Semifinal",
+        "quarterfinal": "Quarterfinal",
+        "roundOf16": "Round of 16",
+        "free": "Free",
+        "egoSlot": "Ego: {training}",
+        "slumpSlot": "No drive: {action}"
+      },
+      "newsButton": "League news",
+      "cupButton": "Head to the cup",
+      "lastPaper": "Latest paper",
+      "electionButton": "Election night",
+      "rivalButton": "Rival pick",
+      "glizacija": {
+        "title": "Glizzflation",
+        "vsStart": "vs. the start",
+        "ranges": {
+          "y1": "1 yr",
+          "y2": "2 yrs",
+          "y5": "5 yrs",
+          "all": "All"
+        },
+        "rangeChange": "{pct} in this period",
+        "high": "High",
+        "low": "Low",
+        "lastMove": "Last Move",
+        "infoTitle": "What is Glizzflation",
+        "info": {
+          "what": "The price index of a glizzy in town, measured against the day the career began. When the glizzy gets pricier, so does everything the city charges for.",
+          "moves": "Every off-season there is a {chance}% chance of news: the glizzy goes up or down by {min} to {max}%. Changes multiply, and the index never drops below {floor}% or climbs above {ceiling}% of the starting price.",
+          "prices": "Multiplies the prices of: {categories}. Seasonal prices stack on top.",
+          "notPrices": "Doesn't touch: media pay, donations and prize money.",
+          "rating": "A price hike costs the ruling party {hikeMin} to {hikeMax} rating, a price drop earns it {dropMin} to {dropMax}. With no government, there is no one to blame.",
+          "now": "Today: prices x{scale} ({pct})",
+          "nowFlat": "Today: everything at the starting price"
+        },
+        "start": "start",
+        "yearTick": "Yr {year}"
+      },
+      "seasonPrices": {
+        "infoTitle": "Seasonal prices",
+        "intro": "Every edition changes the price of something.",
+        "categories": {
+          "training": "Training",
+          "media": "Media",
+          "guard": "Security",
+          "sabotage": "Sabotage",
+          "investment": "Investments"
+        },
+        "cheaper": "cheaper",
+        "pricier": "pricier",
+        "paysMore": "pays more",
+        "paysLess": "pays less",
+        "range": "{category}: {min} to {max}",
+        "current": "This season: {pct}% {direction}",
+        "chipNow": "{category} {pct}",
+        "chipRange": "{category} {min} to {max}",
+        "cardChip": "Season {pct}",
+        "gliziChip": "Glizzflation {pct}",
+        "chipNone": "No seasonal prices",
+        "none": "First season: everything at list price"
+      }
+    },
+    "meters": {
+      "title": "Player chart",
+      "stress": "Cholesterol",
+      "appetite": "Appetite",
+      "ambition": "Ambition",
+      "ego": "Ego",
+      "fame": "Fame",
+      "stressDanger": "Gonna blow",
+      "ambitionLow": "No drive",
+      "egoHigh": "In charge",
+      "appetiteLow": "Stuffed",
+      "appetiteHigh": "Starving",
+      "infoTitle": "Skills and traits",
+      "info": {
+        "stress": "Rises with matches, training and risky moves. Over 80 is the red zone, where every move risks a collapse. At 100 a collapse and a forfeit are guaranteed. Rest brings it down.",
+        "appetite": "How much gets eaten in a match: best around the middle. Under 20 is stuffed and may forfeit, over 80 is starving. Matches, rest and fasting move it.",
+        "ambition": "The will to compete. Under 15 there's a risk of forfeiting without a fight, and at the start of the off-season your character pays for the cheapest security crew alone or, if broke, fasts.",
+        "ego": "Over 75 the ego takes over and spends the first off-season slot on its own. Under 15 it's stage fright: extra cholesterol and a forfeit risk. Rest pulls it toward {target}, a security crew and sabotage push it up.",
+        "fame": "Required for sponsor offers (50+) and part of your points in the standings. Media, wins and a high cup finish raise it, a poor finish drops it. Every rest costs {drop}, because the papers forget you fast.",
+        "skillsTitle": "Skills",
+        "skillsIntro": "A skill levels up after 3 trainings, up to level 3. Repeating the same training without rest risks losing a level."
+      }
+    },
+    "trainings": {
+      "stomach": {
+        "name": "Stomach Capacity",
+        "desc": "One more glizzy per level."
+      },
+      "sniffer": {
+        "name": "Super Sniffer",
+        "desc": "Sometimes smells the glizzy and dodges it better."
+      },
+      "nutrition": {
+        "name": "Nutritionist",
+        "desc": "Appetite drops less per bite."
+      },
+      "fans": {
+        "name": "Media Training",
+        "desc": "More money and fame from media, less cholesterol. From level 2, two appearances per off-season."
+      },
+      "sparring": {
+        "name": "Sparring",
+        "desc": "Random progress. Nudges ego up."
+      },
+      "rest": {
+        "name": "Rest"
+      }
+    },
+    "investments": {
+      "title": "Permanent investments",
+      "current": "Now: {effect}",
+      "next": "Next level: {effect}",
+      "names": {
+        "security": "Full-time bodyguards",
+        "spa": "Spa membership",
+        "assistant": "Assistant coach",
+        "scout": "League informant"
+      },
+      "descs": {
+        "security": "Guards at the door around the clock. They work even in a season when you skip the security crew.",
+        "spa": "Straight to the spa after every cup: steam, mud and a long soak.",
+        "assistant": "Runs training sessions while you're away. Costs no month and no risk of overtraining.",
+        "scout": "Hangs around the taverns, listens in and reports it all back to you. You get a look at other people's business."
+      },
+      "effects": {
+        "security": "stops {pct}% of sabotage",
+        "spa": "-{drop} cholesterol at the start of every off-season",
+        "assistant": "free trainings per off-season: {n}",
+        "scout1": "see the whole league's skills",
+        "scout2": "also see the chart: cholesterol, appetite, ego",
+        "scout3": "also see temper, contracts and cash"
+      }
+    },
+    "cup": {
+      "withdraw": "Withdraw from the cup",
+      "withdrawConfirm": "Withdrawing forfeits the next match and ends your cup. Sure?",
+      "withdrawYes": "Yes, pull out",
+      "withdrawNo": "We're staying",
+      "stake": "Stake per match",
+      "betAgainstWarning": "You're betting AGAINST your own character. If word gets out, cholesterol goes through the roof and ego drops to the basement.",
+      "scandalToast": "It leaked. Your character knows you bet against them.",
+      "withdrawToast": "You pulled your character out of the cup."
+    },
+    "mail": {
+      "title": "Mail",
+      "empty": "No new letters.",
+      "markRead": "OK",
+      "clearAll": "Clear all",
+      "take": {
+        "one": "Collect {amount} glizar",
+        "few": "Collect {amount} glizars",
+        "other": "Collect {amount} glizars"
+      },
+      "welcome": {
+        "subject": "Previous coach: Just so you know",
+        "body": {
+          "one": "Here's the key to the gym and the {amount} glizar left in the till. Each off-season has three months, one thing per month: training, rest, media, or something smarter. Watch the cholesterol, read the paper, then head to the cup. A sponsor calls once you're worth something. I'm off to make tea.",
+          "few": "Here's the key to the gym and the {amount} glizars left in the till. Each off-season has three months, one thing per month: training, rest, media, or something smarter. Watch the cholesterol, read the paper, then head to the cup. A sponsor calls once you're worth something. I'm off to make tea.",
+          "other": "Here's the key to the gym and the {amount} glizars left in the till. Each off-season has three months, one thing per month: training, rest, media, or something smarter. Watch the cholesterol, read the paper, then head to the cup. A sponsor calls once you're worth something. I'm off to make tea."
+        }
+      },
+      "overlord": {
+        "subject": "Federation: The League Crown",
+        "body": {
+          "one": "The Federation hereby informs all coaches about the league crown. The first to collect {points} point on the league table is proclaimed Glizzy Overlord.",
+          "few": "The Federation hereby informs all coaches about the league crown. The first to collect {points} points on the league table is proclaimed Glizzy Overlord.",
+          "other": "The Federation hereby informs all coaches about the league crown. The first to collect {points} points on the league table is proclaimed Glizzy Overlord."
+        }
+      },
+      "stipend": {
+        "subject": "League: Solidarity Stipend",
+        "body": {
+          "one": "You still have no sponsor, so like anyone without a sponsor you are paid {amount} glizar from the solidarity fund.",
+          "few": "You still have no sponsor, so like anyone without a sponsor you are paid {amount} glizars from the solidarity fund.",
+          "other": "You still have no sponsor, so like anyone without a sponsor you are paid {amount} glizars from the solidarity fund."
+        }
+      },
+      "stipendCut": {
+        "subject": "League: Stipend Cancelled",
+        "body": "We were pleased to hear that you finally found a sponsor. We are even more pleased to tell you that, as of today, we no longer pay your stipend. Congratulations!"
+      },
+      "rivalTaunt": {
+        "subject": "League: Derby of the Year",
+        "body": {
+          "one": "The Federation has assigned you a rival for this year: {name}. Your cup match is a derby. Win it: +{fame} fame, +{ego} ego and {money} glizar from the fund. Lose it: +{stress} cholesterol and -{egoLoss} ego. Rivals aim sabotage at you, so a security crew is not a bad idea. The rival changes every year.",
+          "few": "The Federation has assigned you a rival for this year: {name}. Your cup match is a derby. Win it: +{fame} fame, +{ego} ego and {money} glizars from the fund. Lose it: +{stress} cholesterol and -{egoLoss} ego. Rivals aim sabotage at you, so a security crew is not a bad idea. The rival changes every year.",
+          "other": "The Federation has assigned you a rival for this year: {name}. Your cup match is a derby. Win it: +{fame} fame, +{ego} ego and {money} glizars from the fund. Lose it: +{stress} cholesterol and -{egoLoss} ego. Rivals aim sabotage at you, so a security crew is not a bad idea. The rival changes every year."
+        }
+      },
+      "derbyWin": {
+        "subject": "League: The Derby Is Yours",
+        "body": {
+          "one": "The derby of the year against your rival ({name}) is won, and the Federation pays out {amount} glizar from the derby fund.",
+          "few": "The derby of the year against your rival ({name}) is won, and the Federation pays out {amount} glizars from the derby fund.",
+          "other": "The derby of the year against your rival ({name}) is won, and the Federation pays out {amount} glizars from the derby fund."
+        }
+      },
+      "investmentsUnlocked": {
+        "subject": "League: Investment Fund Approved",
+        "body": "Now that a sponsor stands behind you, the Federation also allows you permanent contracts: a security crew, a spa and an assistant coach."
+      },
+      "underworldUnlocked": {
+        "subject": "League: Off-Season Warning",
+        "body": "The Federation has received reports that certain competitors get up to illegal activities in the off-season. The Federation condemns any form of sabotage or unsportsmanlike conduct in the strongest terms. Anyone caught will pay a fine."
+      },
+      "tapeUnlocked": {
+        "subject": "League: New Broadcast Graphics",
+        "body": "Starting next cup, the broadcast gets an intro board before every match: odds, form and head-to-head record, all in one place."
+      },
+      "studioUnlocked": {
+        "subject": "League: The Studio Is Finished",
+        "body": "Starting next cup, we open the tournament live: title odds, the weather forecast and a little gossip, all before the first match."
+      },
+      "seasonPrices": {
+        "subject": "League: Prices for {season}",
+        "bodies": [
+          "It's winter and the guards want winter gear. Security costs {pct}% more than usual this season.",
+          "The gyms are empty and the trainers are hungry for work. All training is {pct}% cheaper this season.",
+          "It's summer, there's no news, and every interview is front-page material. Media pays {pct}% more this season.",
+          "Due to a backlog at the Federation's investigations department, only urgent cases will be looked into this season. (Sabotage costs {pct}% less this season.)"
+        ],
+        "reversedBodies": [
+          "It's winter and the guards are sitting around in taverns with nothing to do. Security costs {pct}% less than usual this season.",
+          "The gyms are packed and the trainers get to pick their clients. All training is {pct}% pricier this season.",
+          "It's summer, everyone is at the seaside and nobody reads the paper. Media pays {pct}% less this season.",
+          "The Federation's investigations department has new hires and is checking every report this season. (Sabotage costs {pct}% more this season.)"
+        ]
+      },
+      "bettingUnlocked": {
+        "subject": "League: Betting Allowed Again",
+        "body": "Please be informed that the ban on match betting is officially lifted. The commission has finished its work and the culprits have been swept out, so the bookie reopens with the next cup."
+      },
+      "donation": {
+        "subject": "{sponsor}: Campaign Call",
+        "bodies": {
+          "zidari": "Dear friend, the Masons are running for the Leskovac Assembly and we are counting on you. Our platform is simple: a wall around every street that votes for us, and peace and quiet behind it. Every glizar you put into the campaign is one more brick, and the boss personally remembers everyone who built with us. Join in, so that after the election we all sit on the right side of the wall.",
+          "ostrvo": "Esteemed guest, this time The Island is running in the election. We promise nothing, only discretion for those who back us and for the accounts they keep with us. Your campaign contribution passes through no ledger at all, and your name goes on the list of friends of the house.",
+          "korporacija": "This is a call for voluntary support of the Black Dwarf Corporation electoral list. Our platform: order in housing, order in debts, order in the Assembly. You choose the amount, we keep the records. A reminder that your relatives live in our apartments, and we will gladly inform them that you supported the stability of the city. Thanking you in advance.",
+          "stranka": "Friend in freedom, Pčinja is voting and your face is already on the poster. The People's List is running for a free Leskovac. There is no freedom without a campaign, and no campaign without glizars. Whatever you give, state media will read out tomorrow as proof that you are on the right side. Back us and be part of the victory."
+        },
+        "later": "Not now",
+        "give": "Donate {amount}",
+        "favorTerms": "The party remembers who paid for the campaign: from {min} glizars in its coffers it owes you one favor a year, one more for each further threshold, up to five at {top}. You cash a favor in before a cup match, while the party is in government."
+      },
+      "campaign": {
+        "subject": "Election campaign: the coffers are open",
+        "body": "You have no party, but it's election season and every campaign takes money from anyone. An outsider's contribution is booked at a tenth of its value, but it lets you show some love and maybe land a contract.",
+        "give": "Donate {amount} ({pct}%)"
+      },
+      "campaignDeclined": {
+        "subject": "{sponsor}: Donation Received",
+        "body": "Your contribution is booked and the party thanks you. Unfortunately, there is no room for a new contract right now."
+      },
+      "election": {
+        "subject": "Leskovac Assembly: Election Result",
+        "bodies": {
+          "leader": "Victory. Your party leads the government of Leskovac and you can already feel it: your sponsor's perk is stronger, the table gives you +15 points for your sponsor, and twenty glizars a season arrive from the city budget. Thank you for being part of the campaign.",
+          "partner": "We are in the government as a junior partner. Nothing is taken away, nothing is added, and the biggest party knows you are their ally. Mind you, nobody can touch them, and they can touch you. The campaign paid off. Next time we aim for first place.",
+          "opposition": "Not this time. Your party sits in opposition for the next two years: your sponsor's perk is weaker, the table gives you +5 points for your sponsor, and the Federation takes ten glizars a season as a solidarity contribution. The government sees you as an opponent.",
+          "none": "The city voted and you were not on anyone's list. The new government owes you nothing and protects you from no one. Try to sign with somebody before the next election."
+        }
+      },
+      "favor": {
+        "subject": "{sponsor}: Much Obliged",
+        "bodies": {
+          "zidari": "We built together, and now we hold the gate of the arena. As our donor, you are owed {favors} a year: give us a name before a match and that person does not get through the gate. The boss never forgets family.",
+          "ostrvo": "Your contribution is neatly hidden, and The Island pays its debts. Every year you get {favors} on the boat for whoever you like: give us a name before a match and that person is urgently summoned to The Island to explain an account balance. Discreet as always.",
+          "korporacija": "Your support has been recorded and the government is ours. As a donor you are entitled to {favors} a year, before a match of your choosing.",
+          "stranka": "Freedom has won and you were part of it. The Leskovac registry is in our hands, and as a donor you are owed {favors} a year: tell us before a match who to strike off, and that person vanishes from that cup."
+        },
+        "counts": {
+          "zidari": [
+            "one favor",
+            "two favors",
+            "three favors",
+            "four favors",
+            "five favors"
+          ],
+          "ostrvo": [
+            "one seat",
+            "two seats",
+            "three seats",
+            "four seats",
+            "five seats"
+          ],
+          "korporacija": [
+            "one bailiff visit",
+            "two bailiff visits",
+            "three bailiff visits",
+            "four bailiff visits",
+            "five bailiff visits"
+          ],
+          "stranka": [
+            "one name",
+            "two names",
+            "three names",
+            "four names",
+            "five names"
+          ]
+        }
+      },
+      "tax": {
+        "subject": "Corporation: City Stability Contribution",
+        "body": {
+          "one": "The Black Dwarf Corporation government is introducing a city stability contribution, mandatory for everyone not in government. The bill for this off-season comes to {amount} glizar, deducted from your account. Appeals are not permitted. Gratitude is.",
+          "few": "The Black Dwarf Corporation government is introducing a city stability contribution, mandatory for everyone not in government. The bill for this off-season comes to {amount} glizars, deducted from your account. Appeals are not permitted. Gratitude is.",
+          "other": "The Black Dwarf Corporation government is introducing a city stability contribution, mandatory for everyone not in government. The bill for this off-season comes to {amount} glizars, deducted from your account. Appeals are not permitted. Gratitude is."
+        }
+      },
+      "taxRefund": {
+        "subject": "Corporation: Loyalty Reward",
+        "body": {
+          "one": "The Black Dwarf Corporation government rewards its own: as our client you are exempt from the city stability contribution, and the difference of {amount} glizar is refunded to you. Your relatives in our apartments send their regards and thank you for your choice.",
+          "few": "The Black Dwarf Corporation government rewards its own: as our client you are exempt from the city stability contribution, and the difference of {amount} glizars is refunded to you. Your relatives in our apartments send their regards and thank you for your choice.",
+          "other": "The Black Dwarf Corporation government rewards its own: as our client you are exempt from the city stability contribution, and the difference of {amount} glizars is refunded to you. Your relatives in our apartments send their regards and thank you for your choice."
+        }
+      }
+    },
+    "podium": {
+      "prize": {
+        "one": "Prize: +{amount} glizar",
+        "few": "Prize: +{amount} glizars",
+        "other": "Prize: +{amount} glizars"
+      },
+      "playerPlace": "{name} finishes in {place} place.",
+      "champion": "{name} is the champion!",
+      "continue": "Next",
+      "backToOffSeason": "Back to the off-season",
+      "toTable": "On to the standings",
+      "streak": "Titles in a row: {streak}"
+    },
+    "matchStats": {
+      "skills": {
+        "stomach": "Stomach",
+        "sniffer": "Nose",
+        "nutrition": "Diet",
+        "fans": "Media"
+      },
+      "level": "{name}: {level}/3",
+      "needSkills": "Pay an informant for more intel.",
+      "needMeters": "A level 2 informant also opens the chart: cholesterol, appetite, ego.",
+      "flags": {
+        "stressHigh": "Cholesterol maxed, every move is a risk",
+        "stressLow": "Calm as a baby",
+        "appetiteLow": "Stuffed, may forfeit the match",
+        "appetiteHigh": "Starving, eats everything in sight",
+        "ambitionLow": "No drive, couldn't care less about the match",
+        "egoHigh": "Ego is doing the thinking",
+        "egoLow": "Stage fright, staring at the floor",
+        "fameHigh": "Owns the crowd"
+      }
+    },
+    "dossier": {
+      "title": "Opponent file",
+      "openHint": "Click a name in the table to open their file.",
+      "place": "{place} place",
+      "unknown": "?",
+      "noScout": "Without an informant, all you know is what the table says.",
+      "scoutLevel": "Informant, level {level}",
+      "temper": "Temperament",
+      "contracts": "Permanent investments",
+      "noContracts": "Hasn't invested in anything.",
+      "money": "Cash",
+      "sponsor": "Sponsor",
+      "noSponsor": "No sponsor",
+      "rival": "Rival",
+      "self": "Your character",
+      "personalities": {
+        "grinder": {
+          "name": "Grinder",
+          "desc": "Really loves to train."
+        },
+        "showman": {
+          "name": "Showman",
+          "desc": "Loves the spotlight."
+        },
+        "schemer": {
+          "name": "Schemer",
+          "desc": "Spends money wrecking other careers."
+        },
+        "paranoid": {
+          "name": "Paranoid",
+          "desc": "Plays it safe. Always."
+        },
+        "pro": {
+          "name": "Professional",
+          "desc": "Nothing to extremes."
+        },
+        "hedonist": {
+          "name": "Hedonist",
+          "desc": "Body of a statue, bottomless appetite, zero training."
+        },
+        "miser": {
+          "name": "Cheapskate",
+          "desc": "Only cheap, only on sale."
+        },
+        "bruiser": {
+          "name": "Bruiser",
+          "desc": "Sparring and ego."
+        }
+      }
+    },
+    "table": {
+      "title": "League table",
+      "finalTitle": "Final season table",
+      "headers": {
+        "character": "Character",
+        "points": "Points",
+        "titles": "Titles",
+        "record": "Record",
+        "punishments": "Penalties",
+        "sponsor": "Sponsor"
+      },
+      "noSponsor": "-",
+      "rival": "Your rival this year",
+      "goal": {
+        "one": "Goal: first to {points} point",
+        "few": "Goal: first to {points} points",
+        "other": "Goal: first to {points} points"
+      },
+      "goalProgress": {
+        "one": "{points}/{goal} point · Now in {place} place",
+        "few": "{points}/{goal} points · Now in {place} place",
+        "other": "{points}/{goal} points · Now in {place} place"
+      },
+      "pointsHint": "Titles, wins, fame and a sponsor earn points."
+    },
+    "rival": {
+      "title": "New Year, New Rival",
+      "question": "Who're you fixing to hate this year?",
+      "pick": "Who are you calling out?",
+      "choose": "This one",
+      "stamp": "Rival",
+      "continue": "Continue",
+      "help": {
+        "title": "What a rival brings",
+        "win": {
+          "one": "Win the derby: +{fame} fame, +{ego} ego, {money} glizar",
+          "few": "Win the derby: +{fame} fame, +{ego} ego, {money} glizars",
+          "other": "Win the derby: +{fame} fame, +{ego} ego, {money} glizars"
+        },
+        "loss": "Lose the derby: +{stress} cholesterol, -{egoLoss} ego",
+        "plot": "Sabotages you more"
+      },
+      "reasons": {
+        "eliminated": "Knocked you out",
+        "sabotage": "Sabotaged you",
+        "champion": "Champion",
+        "table": "Above you",
+        "chaser": "Chasing you",
+        "lore": "Old grudge"
+      }
+    },
+    "overlord": {
+      "title": "GLIZZY OVERLORD!",
+      "body": {
+        "one": "{name} got to {points} points first and is the new Glizzy Overlord.",
+        "few": "{name} got to {points} points first and is the new Glizzy Overlord.",
+        "other": "{name} got to {points} points first and is the new Glizzy Overlord."
+      },
+      "won": "You're going in the history books.",
+      "subLost": "{player} finished in {place} place.",
+      "viewReport": "View report"
+    },
+    "report": {
+      "kicker": "Campaign report",
+      "won": "You're going in the history books.",
+      "youLine": "{name} finished in {place} place, titles: {titles}, record {w}-{l}.",
+      "chartTitle": "Campaign timeline",
+      "modes": {
+        "place": "Table position",
+        "points": "Points"
+      },
+      "pickHint": "Pick up to {max} characters for the chart.",
+      "yearShort": "Yr {year}",
+      "noCharts": "Not enough data for a chart",
+      "legend": {
+        "goal": "crown"
+      },
+      "hoverHint": "Hover over a line or tap it to see whose it is.",
+      "hoverPlace": "{name}: best {best} place, worst {worst}, finished {last}.",
+      "hoverPoints": "{name}: {last} points at the end, biggest jump in a single cup +{gain}.",
+      "you": "you",
+      "tiles": {
+        "points": "Points",
+        "titles": "Titles",
+        "record": "Record",
+        "sponsor": "Sponsor"
+      },
+      "awardsTitle": "Who Was What",
+      "awards": {
+        "titles": "Most titles",
+        "streak": "Longest title streak",
+        "winRate": "Best win rate",
+        "eaten": "Biggest eater",
+        "fame": "Most famous",
+        "money": "Richest",
+        "punished": "Most penalized",
+        "meltdowns": "Meltdown Champ",
+        "forfeits": "Most forfeits",
+        "nemesis": "Your Nemesis",
+        "victim": "Your Victim"
+      },
+      "awardValues": {
+        "titles": "titles: {n}",
+        "streak": "{n} in a row",
+        "winRate": "{pct}% ({w}-{l})",
+        "eaten": "eaten: {n}",
+        "fame": "fame: {n}",
+        "money": {
+          "one": "{n} glizar",
+          "few": "{n} glizars",
+          "other": "{n} glizars"
+        },
+        "punished": "penalties: {n}",
+        "meltdowns": "meltdowns: {n}",
+        "forfeits": "forfeits: {n}",
+        "nemesis": "{w}-{l} against you",
+        "victim": "{w}-{l} for you"
+      },
+      "tableTitle": "Final table",
+      "headers": {
+        "character": "Character",
+        "sponsor": "Sponsor",
+        "points": "Points",
+        "titles": "Titles",
+        "record": "Record",
+        "pct": "%",
+        "eaten": "Eaten",
+        "exits": "Meltdowns",
+        "punishments": "Penalties",
+        "fame": "Fame",
+        "money": "Cash",
+        "vsYou": "Vs. you",
+        "betsHit": "Bets",
+        "betsNet": "Bookie"
+      },
+      "tableHint": "Vs. you: their wins, then yours.",
+      "newCareer": "New career",
+      "issue": "Special Edition · Year {year}",
+      "headline": "{name} Is the Glizzy Overlord",
+      "yourColumn": "Your character",
+      "championsTitle": "Champions by cup",
+      "governmentsTitle": "Governments",
+      "yearsInPower": "Years in power",
+      "yearsValue": "{years} yr",
+      "priceTitle": "Glizzflation",
+      "download": {
+        "fileName": "glizzy-report-{year}",
+        "fileNameRivals": "glizzy-rivals-report-{year}",
+        "png": "Save as image",
+        "pdf": "Save as PDF",
+        "busy": "Generating...",
+        "failed": "Couldn't generate it."
+      }
+    },
+    "sponsors": {
+      "title": "Sponsor",
+      "none": "No sponsor",
+      "names": {
+        "zidari": "Masons' Guild",
+        "ostrvo": "The Island",
+        "korporacija": "Black Dwarf Corporation",
+        "stranka": "The People's List"
+      },
+      "pitches": {
+        "zidari": "Your results are as solid as our concrete, and we hear you carry the guild in your heart and put up walls even where nobody asked. People like that build with us: 70 glizars a season, and our boys guard your door day and night.",
+        "ostrvo": "From The Island we follow your results and, discreetly, your bank account. We like you: 80 glizars a season, no taxes and no questions, a boat all to yourself once a year, and any little jobs you order come at a discount. Whatever we agree on stays on The Island.",
+        "korporacija": "Your performance has passed our checks, congratulations. Incidentally, so have your relatives who live in our apartments: for now, they live in peace. 60 glizars a season plus 40 per cup win. We warmly recommend signing.",
+        "stranka": "The results are there, and the Party also values your love of freedom, and Pčinja is the symbol of freedom. 60 glizars a season from the party coffers, and state media always has a slot for you, at double the rate."
+      },
+      "perks": {
+        "zidari": "Permanent security crew: blocks 60% of sabotage.",
+        "ostrvo": "An island weekend once a year that doesn't use up a month. Sabotage 25% cheaper, no fine for a miss. While The Island is in government, evidence against you never reaches an indictment.",
+        "korporacija": "+40 glizars for every cup win.",
+        "stranka": "Media pays double, as many times as you like."
+      },
+      "offerSubject": "Offer: {sponsor}",
+      "offerWildcardSubject": "Surprise offer: {sponsor}",
+      "wildcardPitches": {
+        "zidari": "Our people heard you telling friends how much you love the smell of fresh mortar, and that you'd put up a wall the moment you spot an empty lot. The boss wept in the middle of the building site. Love like that is not forgotten around here: the contract is ready, and one day we'll wall you in too.",
+        "ostrvo": "Stories have reached The Island about your, shall we say, very creative tax returns, and about your tab at the bookie. Not to worry, nobody judges here. Here everything gets tidily hidden. People with your style are always welcome: sign, and your debts become our shared secret.",
+        "korporacija": "A review of our tenant registry shows that several of your relatives live in our apartments. Think of them while you read this offer. If you sign, we will harass them by standard procedure. If you do not, we add extra shifts, and you can read about the other consequences in the paper.",
+        "stranka": "The Party values a love of freedom, and you freely chose not to show up anywhere for years. That is a stance. Pčinja is freedom, and freedom is you: a spot on the poster is waiting, offer enclosed."
+      },
+      "accept": "Sign the contract",
+      "decline": "Decline",
+      "pay": {
+        "one": "Sponsor payment: +{amount} glizar.",
+        "few": "Sponsor payment: +{amount} glizars.",
+        "other": "Sponsor payment: +{amount} glizars."
+      },
+      "fameGate": "Offers need fame 50+",
+      "infoTitle": "How sponsors work",
+      "info": {
+        "intro": "A sponsor pays a fee at the end of every season and brings +10 points on the table, +10 fame on signing, and its own perk. Offers come by mail at fame 50+: in year one, a 30% chance if you reach a cup final, and from year two, 50% every off-season while you're in the table's top 5.",
+        "sponsors": {
+          "zidari": "70 glizars a season. Permanent security crew: a 60% chance that sabotage against you gets stopped.",
+          "ostrvo": "80 glizars a season. Once a year, an island weekend that doesn't use up a month: cholesterol to zero, appetite and ambition to the max. Sabotage 25% cheaper, and a botched job brings no fine and no hit to the party. While The Island sits in government, planted evidence against you never reaches an indictment.",
+          "korporacija": "60 glizars a season plus 40 for every cup win.",
+          "stranka": "60 glizars a season. State media: appearances pay double, and the once-a-season limit is gone."
+        }
+      },
+      "shortNames": {
+        "zidari": "Masons",
+        "ostrvo": "The Island",
+        "korporacija": "Corporation",
+        "stranka": "Party"
+      }
+    },
+    "news": {
+      "signing": "OFFICIAL: {name} signs with {sponsor}!",
+      "poison-glizimaker": "The cook who fed {name} since childhood took a bribe and spiked the batch. A night over a bucket followed.",
+      "poison-kafana": "{name} cashed in an ALL YOU CAN EAT voucher at the Corner Tavern and ended up on a drip. The voucher was fake.",
+      "witch-curse": "A witch walked three laps around the house of {name} and spilled something on the doorstep. The nose is gone.",
+      "nutrition-bribed": "The nutritionist working for {name} took a bribe and rewrote the meal plan: greasy, fried, after midnight.",
+      "fans-rumor": "Ugly rumors are going around about {name}. Bro is fuming.",
+      "catfish-date": "SCANDAL: {name} went on a date with a fake profile set up by a rival. The whole town has seen the video.",
+      "catfish-zeka": "{name} went to the Blue Cabin for a free round and met the forest beast. It ate the glizzies and the sneakers.",
+      "catfish-demons": "Demons besieged the house of {name} all night. The neighbors brought salt. Nobody knows who sent them.",
+      "police-tax": "RAID: the Pčinja tax inspector has a tip about undeclared income in the locker room of {name}. No ruling yet.",
+      "police-stash": "INVESTIGATION: a tip claims {name} keeps a garage full of unregistered glizzies. {name} calls it winter stock.",
+      "police-island": "LEAK: police seized a ledger from The Island. Next to a sum nobody ever declared sits the name {name}.",
+      "police-smuggling": "SMUGGLING: inspectors suspect {name} of running cooking oil across the border. The tip came in last night.",
+      "sabotageBlocked": "The security crew guarding {name} stood like a brick wall and stopped an incident this off-season.",
+      "media-interview": "{name} gave the interview of the week and half the town already knows it by heart.",
+      "media-scandal": "A fresh scandal for {name}.",
+      "korp-vendetta": "REVENGE: one week after a rejected offer, a detailed tip came in against {name}. The judge has not ruled yet.",
+      "korp-vendetta-failed": "The plot to plant evidence on {name} fell apart overnight. Black Dwarf's only comment: the rent is still due.",
+      "sabotageCaught": "{name} was caught attempting sabotage! The league is collecting a fine of {fine} glizars.",
+      "sabotageHushed": "{name} was caught at sabotage, but the evidence vanished overnight. Officially it never existed. No fine.",
+      "sabotageCaughtHard": "{name} was caught at sabotage for the SECOND time in short order! The fine: {fine} glizars.",
+      "scandal": "BOMBSHELL: word leaked that the coach bet AGAINST their own character. {name} is beside themselves.",
+      "cupChampion": "{name} is the cup champion! The trophy went up, the last glizzy went down, and the arena refuses to go home.",
+      "cupPlace-finalist": "{name} loses the final and takes 2nd place in the cup. The town put the fireworks back in storage.",
+      "cupPlace-semis": "{name} goes out in the semifinals and finishes the cup in {place} place. Two bites from the final.",
+      "cupPlace-quarters": "{name} goes out in the quarterfinals and finishes in {place} place. No disgrace, nothing to brag about either.",
+      "cupPlace-early": "{name} finishes the cup in {place} place after a first-round exit. The coach declines to comment.",
+      "cup-meltdown": "{name} cracked mid-match! Cholesterol did its thing and the stretcher came out once again.",
+      "cup-overfull-forfeit": "{name}, stuffed full of glizzies, threw up a little in the middle of a match.",
+      "cup-police": "{name} was taken in for questioning MID-MATCH and had to forfeit. The referee says: \"we can't wait\".",
+      "cup-withdrawn": "{name} has withdrawn from the tournament. Officially: fatigue. Unofficially...",
+      "tableClimb": {
+        "one": "{name} jumped {places} spot and now sits {place} in the table.",
+        "few": "{name} jumped {places} spots and now sits {place} in the table.",
+        "other": "{name} jumped {places} spots and now sits {place} in the table."
+      },
+      "tableFall": {
+        "one": "{name} dropped {places} spot and is now {place} in the table. The coach blames Mercury in retrograde.",
+        "few": "{name} dropped {places} spots and is now {place} in the table. The coach blames Mercury in retrograde.",
+        "other": "{name} dropped {places} spots and is now {place} in the table. The coach blames Mercury in retrograde."
+      },
+      "factRecord": {
+        "one": "Best record in the league belongs to {name}: {wins} win, losses {losses}.",
+        "few": "Best record in the league belongs to {name}: {wins} wins, losses {losses}.",
+        "other": "Best record in the league belongs to {name}: {wins} wins, losses {losses}."
+      },
+      "factRecordWorst": {
+        "one": "Worst record in the league belongs to {name}: {wins} win, losses {losses}. Please don't read it out loud.",
+        "few": "Worst record in the league belongs to {name}: {wins} wins, losses {losses}. Please don't read it out loud.",
+        "other": "Worst record in the league belongs to {name}: {wins} wins, losses {losses}. Please don't read it out loud."
+      },
+      "factStreak": "{name} is after the {streak} title in a row. The old Glizzy Overlords are squirming in their chairs.",
+      "trainUp-stomach": "{name} trained the stomach and took capacity to a new level. Portions are growing, rivals are shaking.",
+      "trainUp-sniffer": "{name} sharpened the nose to a new level. Can smell a glizzy from 20 meters.",
+      "trainUp-nutrition": "{name} took nutrition to a new level. Now eating by the schedule, not by the smell.",
+      "trainUp-fans": "{name} is media-trained to a new level. The cameras are in love.",
+      "trainDown-stomach": "{name} overdid it and now has a stomach bug.",
+      "trainDown-sniffer": "{name} overdid the nose training. Now it sneezes at fresh air.",
+      "trainDown-nutrition": "{name} ate way too much greasy food.",
+      "trainDown-fans": "{name} lost the aura.",
+      "stressWarning": "{name} is on the edge of a breakdown. Cholesterol dangerously high, everyone nearby is walking on eggshells.",
+      "factStressHigh": "{name} has the highest cholesterol in the league: {value}. The pharmacy is working double shifts.",
+      "factAppetiteHigh": "{name} has the biggest appetite in the league: {value}. The cooks want a raise.",
+      "factAppetiteLow": "{name} can barely look at food: appetite {value}, lowest in the league.",
+      "factAmbitionHigh": "{name} has the highest ambition in the league: {value}. Goal: everything. Deadline: yesterday.",
+      "factEgoHigh": "{name} has the biggest ego in the league: {value}. The arena doors are being widened.",
+      "factEgoLow": "{name} has the smallest ego in the league: {value}. Apologizes when the referee says hello.",
+      "factFameHigh": "{name} is the most famous in the league: fame {value}. Can't go to the store without sunglasses.",
+      "factFameLow": "{name} is the least noticed in the league: fame {value}. Even the home locker room asks for ID.",
+      "factAmbitionLow": "{name} has the lowest ambition in the league: {value}. Season goal: don't finish last.",
+      "factStomachBest": "{name} has the best-trained stomach in the league: level {value}. The cooks are scared.",
+      "factSnifferBest": "{name} has the best nose in the league: level {value}. Can smell a glizzy through a wall.",
+      "factNutritionBest": "{name} has the most disciplined diet in the league: level {value}.",
+      "factFansBest": "{name} is the most media-trained in the league: level {value}. The cameras follow all the way to the tavern.",
+      "comeback": "{name} is back after a long break, with a coach who has zero references. Return to form, or new charity case?",
+      "comeback-mp": "{name} is back after a long break, coached by {coach}, zero references. Return to form, or new charity case?",
+      "commentator-back": "The broadcast is back! The Federation found money for a microphone, and an old voice returns behind it.",
+      "betting-banned": "The Federation reminds everyone: betting is still banned since certain people got caught fixing matches.",
+      "betting-unlocked": "Official: the betting ban is lifted and the bookmaker is back this cup. Odds follow the table, so look first.",
+      "rival-announced": "{player} had barely unpacked when {name} sent word through a friend: see you at the cup, bring a bucket.",
+      "rival-chosen": "Asked about the new year, {player} said one name: {name}, then glared at the camera like it was its fault.",
+      "rival-derby-win": "{name} won the derby of the year! {rival} left through the side exit and half the town is buying rounds.",
+      "rival-derby-loss": "{name} lost the derby! {rival} ate the glizzy and the dignity along with it, and the whole town was watching.",
+      "invest-security": "{name} hired a security crew for good. People in black guard the locker room. Both eyes shut at night, at last.",
+      "invest-security-up": "The security crew around {name} grows to level {level}. One of them nobody knows, but everybody obeys.",
+      "invest-spa": "{name} bought a yearly spa pass. Steam and a massage every morning, and {name} comes back red and far calmer.",
+      "invest-spa-up": "Spa package for {name} goes to level {level}. Now with mud from a faraway sea. The cholesterol is melting.",
+      "invest-assistant": "{name} hired an assistant coach, who runs training alone while the head coach is off gambling.",
+      "invest-assistant-up": "The staff around {name} grows to level {level}. Nobody knows who is training who, but the numbers go up.",
+      "invest-scout": "{name} found a guy who sits in the right taverns, listens to league people and reports back.",
+      "invest-scout-up": "The informant network of {name} grows to level {level}. People in the gyms and behind every bar.",
+      "election-year": "Election year. Four parties are going to the voters: {parties}. Votes get counted after the Bloody Cup.",
+      "election-year-again": "Another election year in Leskovac.",
+      "election-poll": "The early poll before the last cup ahead of the election. Projected seats in the Leskovac Assembly.",
+      "election-result": "The votes are counted. The government of Leskovac: {parties}, with {seats} of 100 seats.",
+      "election-result-alone": "The votes are counted. {parties} rules Leskovac alone with {seats} of 100 seats. No partners needed, they say.",
+      "glizi-price-up": "Glizzflation won't quit: a glizzy costs {pct}% more than last off-season. Nothing in town ever gets cheaper.",
+      "glizi-price-down": "Glizzflation dips: Pčinja sent two truckloads by mistake and a glizzy costs {pct}% less than last off-season.",
+      "cup-removed": "Never even sat down: {name} was led away before the match, no explanation given.",
+      "removal-zidari": "Gate Security held {name} at the arena entrance. The match goes down as a forfeit.",
+      "removal-ostrvo": "{name} vanished five minutes before the match. Last seen on a boat to The Island, possibly not by choice.",
+      "removal-korporacija": "Bailiffs at the door: {name} was removed from the chair over unpaid rent.",
+      "removal-stranka": "According to the new census, {name} does not exist and never has, anywhere in Leskovac. Neither has the match."
+    },
+    "sabotage": {
+      "action": "Sabotage",
+      "target": "Target",
+      "fund": "Funding",
+      "fundHint": "This is the chance the job goes through at all, without the league catching it and calling it off. Pay extra to raise it. After that it still has to get past the target's security crew, if the target has one.",
+      "stepNote": {
+        "one": "5% = {cost} glizar",
+        "few": "5% = {cost} glizars",
+        "other": "5% = {cost} glizars"
+      },
+      "tiers": {
+        "1": {
+          "name": "Diversion",
+          "desc": "One of the target's trainings takes a hit, a whole level or just two sessions. Which one? Surprise.",
+          "effects": [
+            "Training -1 level or -2 sessions",
+            "Appetite -",
+            "Cholesterol +",
+            "Fame -",
+            "Ego -"
+          ]
+        },
+        "2": {
+          "name": "Nightmare",
+          "desc": "Right before the cup, the target lives through a night they will never forget.",
+          "effects": [
+            "Cholesterol ++",
+            "Fame -",
+            "Ego -",
+            "Ambition -"
+          ]
+        },
+        "3": {
+          "name": "Plant evidence",
+          "desc": "A tip starts an investigation into the target and lands in the paper. If the judge confirms the warrant, police take the target away IN THE MIDDLE of a match. The better you pay, the surer the judge: a fully paid job means a guaranteed arrest.",
+          "effects": [
+            "Fame -",
+            "Hauled in mid-match"
+          ]
+        }
+      },
+      "chanceLabel": "Chance the job goes through",
+      "rival": "Rival",
+      "pickTarget": "Pick a target",
+      "steps": {
+        "target": "Target",
+        "method": "Method",
+        "stake": "Stake",
+        "empty": "not picked"
+      },
+      "unguardedTag": "no security",
+      "baseChance": "chance {pct}%",
+      "pickMethod": "Pick a method",
+      "summary": {
+        "job": "Gets past league",
+        "guard": "Security stops it",
+        "real": "Total",
+        "hint": "Total chance: the job first has to get past the league, then past the target's security crew too. A +? means the target may have guards you can't see."
+      },
+      "guardZidari": "Masons {pct}%",
+      "guardStanding": "escort {pct}%",
+      "guardUnknown": "security ?",
+      "guardMore": "+?",
+      "realUpTo": "up to {pct}%",
+      "judgeLine": "If it goes through, the judge confirms the warrant: {pct}%",
+      "fineLine": "If it misses: a {fine} glizar fine and minus 1 party rating, for good.",
+      "fineHushed": "If it misses, the case goes into The Island's archive. No fine.",
+      "egoLine": "Your character's ego +{ego}.",
+      "booked": "booked: {n}",
+      "plotted": "already ordered",
+      "repeatChip": "{n} job this off-season {pct}",
+      "repeatHint": "Jobs don't use up the month. Each one after the first in the same off-season costs 50% more than the one before."
+    },
+    "guard": {
+      "title": "How many guards to hire?",
+      "fund": "Spend",
+      "fundHint": "The basic package stops {base}% of attacks. Pay more for up to {max}%, or lower the coverage and save. Ego +{ego}, appetite +{appetite}.",
+      "stepNote": {
+        "one": "5% = {cost} glizar",
+        "few": "5% = {cost} glizars",
+        "other": "5% = {cost} glizars"
+      },
+      "chanceLabel": "Chance to stop an attack",
+      "standing": "The standing escort already covers {pct}%. Paying extra only makes sense above that.",
+      "topSurcharge": "In {place} place you're a juicier target: the security crew charges +{pct}%."
+    },
+    "newspaper": {
+      "issue": "{theme} · Year {year}",
+      "close": "Close the paper",
+      "chartGovernment": "Government {seats} / {total}",
+      "chartGlizi": "Glizzy",
+      "stamps": {
+        "banned": "Banned",
+        "allowed": "Allowed",
+        "investigation": "Investigation",
+        "onair": "Live"
+      },
+      "lead": "TOP STORY",
+      "cta": "Back to the off-season",
+      "empty": "The quietest off-season in league history. Suspicious, but we have nothing to print.",
+      "headlines": {
+        "signing": "TRANSFER",
+        "poison-glizimaker": "BETRAYAL",
+        "poison-kafana": "SCAM",
+        "witch-curse": "CURSE",
+        "nutrition-bribed": "BRIBE",
+        "fans-rumor": "RUMORS",
+        "catfish-date": "SCANDAL",
+        "catfish-zeka": "LURED",
+        "catfish-demons": "DEMONS",
+        "police-tax": "RAID",
+        "police-stash": "INVESTIGATION",
+        "police-island": "SEIZED",
+        "police-smuggling": "SMUGGLING",
+        "sabotageBlocked": "SECURITY",
+        "media-interview": "INTERVIEW",
+        "media-scandal": "OUTBURST",
+        "korp-vendetta": "REVENGE",
+        "korp-vendetta-failed": "REVENGE",
+        "sabotageCaught": "CAUGHT",
+        "sabotageHushed": "CASE CLOSED",
+        "sabotageCaughtHard": "FINED",
+        "scandal": "BOMBSHELL",
+        "cupChampion": "CHAMPION",
+        "cupPlace-finalist": "SILVER",
+        "cupPlace-semis": "SEMIFINAL",
+        "cupPlace-quarters": "QUARTERFINAL",
+        "cupPlace-early": "EARLY EXIT",
+        "cup-meltdown": "COLLAPSE",
+        "cup-overfull-forfeit": "STUFFED",
+        "cup-police": "ARRESTED",
+        "cup-withdrawn": "WITHDRAWAL",
+        "tableClimb": "ON THE RISE",
+        "tableFall": "ON THE SLIDE",
+        "factRecord": "STATS",
+        "factRecordWorst": "STATS",
+        "factStreak": "TITLE RUN",
+        "trainUp-stomach": "IRON STOMACH",
+        "trainUp-sniffer": "SHARP NOSE",
+        "trainUp-nutrition": "NUTRITION",
+        "trainUp-fans": "MEDIA",
+        "trainDown-stomach": "OVERTRAINED",
+        "trainDown-sniffer": "OVERTRAINED",
+        "trainDown-nutrition": "OVERTRAINED",
+        "trainDown-fans": "OVERTRAINED",
+        "stressWarning": "WARNING",
+        "factStressHigh": "FUN FACT",
+        "factAppetiteHigh": "FUN FACT",
+        "factAppetiteLow": "FUN FACT",
+        "factAmbitionHigh": "FUN FACT",
+        "factAmbitionLow": "FUN FACT",
+        "factEgoHigh": "FUN FACT",
+        "factEgoLow": "FUN FACT",
+        "factFameHigh": "FUN FACT",
+        "factFameLow": "FUN FACT",
+        "factStomachBest": "FUN FACT",
+        "factSnifferBest": "FUN FACT",
+        "factNutritionBest": "FUN FACT",
+        "factFansBest": "FUN FACT",
+        "comeback": "COMEBACK",
+        "comeback-mp": "COMEBACK",
+        "betting-banned": "BAN",
+        "commentator-back": "BROADCAST",
+        "betting-unlocked": "BETTING",
+        "rival-announced": "RIVALRY",
+        "rival-chosen": "NEW RIVAL",
+        "rival-derby-win": "DERBY",
+        "rival-derby-loss": "DERBY LOST",
+        "invest-security": "SECURITY",
+        "invest-security-up": "SECURITY",
+        "invest-spa": "SPA",
+        "invest-spa-up": "SPA",
+        "invest-assistant": "STAFF",
+        "invest-assistant-up": "STAFF",
+        "invest-scout": "INFORMANT",
+        "invest-scout-up": "NETWORK",
+        "election-year": "ELECTION",
+        "election-year-again": "ELECTION",
+        "election-poll": "POLL",
+        "election-result": "NEW GOVERNMENT",
+        "election-result-alone": "NEW GOVERNMENT",
+        "glizi-price-up": "PRICES UP",
+        "glizi-price-down": "PRICES DOWN",
+        "cup-removed": "REMOVED",
+        "removal-zidari": "LOCKED OUT",
+        "removal-ostrvo": "SHIPPED OUT",
+        "removal-korporacija": "BAILIFFS",
+        "removal-stranka": "DEREGISTERED"
+      }
+    },
+    "election": {
+      "live": "Live",
+      "title": "Election night",
+      "subtitle": "Leskovac Assembly",
+      "kickers": {
+        "poll": "Post-final poll",
+        "winner": "Most votes",
+        "seats": "Seat count",
+        "government": "Government"
+      },
+      "commentary": {
+        "poll": "The votes are counted, numbers are coming in from every bloc.",
+        "winner": "{party} takes the most votes.",
+        "seats": "One hundred seats are being split...",
+        "alone": "{party} has a majority and governs alone.",
+        "coalition": "No majority. The government is formed by {parties}."
+      },
+      "yourParty": {
+        "leader": "Your party leads the government",
+        "partner": "Your party is in the government",
+        "opposition": "Your party is in opposition",
+        "none": "You're not in any party"
+      },
+      "continue": "Continue"
+    },
+    "parliament": {
+      "title": "Assembly of Leskovac",
+      "button": "Assembly",
+      "governmentLine": "Government: {seats} / {total} seats",
+      "noGovernment": "The city has not voted yet",
+      "noClients": "no characters",
+      "leads": "leads",
+      "partner": "government",
+      "opposition": "opposition",
+      "you": {
+        "none": "You belong to no party",
+        "waiting": "Your party is waiting for its first election.",
+        "leader": "Your party leads the government: stronger sponsor perk, standings +15, a budget line.",
+        "partner": "Your party is a government partner: business as usual.",
+        "opposition": "Your party is in opposition: weaker sponsor perk, standings +5, a solidarity levy."
+      },
+      "favorAvailable": "Party favor: {left} of {total} left this year. Call one in before a cup match.",
+      "favorUsed": "Party favor: all {total} used this year.",
+      "favorNoDonation": "Party favor: starts at {min} glizars in the last campaign, up to five favors for {top}.",
+      "nextElection": "Next election: after the {season} cup, year {year}.",
+      "calendarMark": "ELECTION",
+      "tabs": {
+        "chamber": "Assembly",
+        "popularity": "Popularity"
+      },
+      "popularity": {
+        "title": "Poll: if the vote were today",
+        "intro": "A projection of the election if it were held today. Every signed character earns the list {top} minus their place in the standings, plus fame divided by {divisor}. Campaign money, scandals and the government's rating go on top.",
+        "players": "Competitors",
+        "party": "Party",
+        "ratingHint": "The party's own points: base, campaign, scandals and the price of a glizzy. Added to the competitors' points to make votes.",
+        "tip": {
+          "place": "{place} place in the standings",
+          "fame": "Fame {fame}",
+          "total": "Total points",
+          "share": "Share of the vote",
+          "playersShare": {
+            "one": "Competitors, {points} point",
+            "few": "Competitors, {points} points",
+            "other": "Competitors, {points} points"
+          },
+          "partyShare": {
+            "one": "Party, {points} point",
+            "few": "Party, {points} points",
+            "other": "Party, {points} points"
+          },
+          "donated": {
+            "one": "Gave {amount} glizar",
+            "few": "Gave {amount} glizars",
+            "other": "Gave {amount} glizars"
+          },
+          "campaignPts": "Campaign points",
+          "favors": "Party favors earned",
+          "nextFavor": "Next favor at {amount}"
+        },
+        "govSupport": "Poll: government support {pct}%",
+        "seatsNow": {
+          "one": "now {seats} seat",
+          "few": "now {seats} seats",
+          "other": "now {seats} seats"
+        },
+        "seatsUnit": {
+          "one": "seat",
+          "few": "seats",
+          "other": "seats"
+        },
+        "legendSeats": "current seats",
+        "rating": "Rating {value}",
+        "ratingBase": "base {base}",
+        "noChange": "no change",
+        "donors": "Donors",
+        "lastDonors": "Last campaign",
+        "factors": {
+          "campaign": "campaign",
+          "affairs": "scandals",
+          "convictions": "caught",
+          "glizi": "glizzy price"
+        }
+      },
+      "effects": {
+        "title": "In power: {leader}",
+        "own": "In power",
+        "outside": "Out of government",
+        "generalLeader": "Leading party: stronger sponsor perk, standings +{table}, +{pay} glizars per season.",
+        "generalOpposition": "Opposition: weaker sponsor perk, standings +{table}, {pay} per season.",
+        "generalPartner": "Partner: business as usual.",
+        "infoTitle": "What power buys",
+        "infoIntro": "Whoever leads the government rewards its own clients and bills everyone outside it, including coaches with no party. A government partner feels neither. A term lasts two years.",
+        "inPower": "in power",
+        "leader": {
+          "zidari": {
+            "own": "Security crew blocks +{bonus}% of attacks, up to {cap}%.",
+            "outside": "Security crew costs {tax}% more."
+          },
+          "ostrvo": {
+            "own": "Island weekend every off-season instead of once a year.",
+            "outside": "Sabotage costs {tax}% more."
+          },
+          "korporacija": {
+            "own": "A {refund} glizar refund every off-season.",
+            "outside": "City stability contribution: {tax} glizars per off-season."
+          },
+          "stranka": {
+            "own": "+{fame} fame per media appearance, Media Training {discount}% cheaper.",
+            "outside": "Media pays {pay}%, brings {fame}% of the fame and has one slot fewer. Coaches with a single slot get no media at all."
+          }
+        }
+      }
+    },
+    "favor": {
+      "button": "Call the party ({left})",
+      "title": "Party favor",
+      "pick": "Who do we remove before the match? It costs the party a few points with voters.",
+      "protectedTag": "protected",
+      "ownTag": "your party",
+      "noTargets": "Nobody in this round is within reach.",
+      "cancel": "Not now",
+      "reasons": {
+        "zidari": "Can't get past the gate",
+        "ostrvo": "Urgently summoned to The Island",
+        "korporacija": "Bailiffs at the door",
+        "stranka": "Struck from the register"
+      },
+      "toast": "The party delivered",
+      "opponentTag": "your opponent",
+      "chosenLine": "{name} before the match: {reason}.",
+      "nobodyLine": "Circle one name.",
+      "confirm": "Remove: {name}",
+      "confirmEmpty": "Remove"
+    }
+  },
+  "achievements": {
+    "page": {
+      "eyebrow": "Glizzy Games",
+      "title": "Achievements",
+      "link": "Achievements",
+      "progress": "{unlocked} of {total}",
+      "locked": "Locked",
+      "unlockedOn": "Unlocked {date}",
+      "open": "Open achievements"
+    },
+    "chip": "Achievements {unlocked}/{total}",
+    "toast": "Achievement unlocked",
+    "items": {
+      "career-first-title": {
+        "title": "First Title",
+        "description": "Your character won a cup."
+      },
+      "career-perfect-year": {
+        "title": "Clean Sweep",
+        "description": "All four cups in a single year."
+      },
+      "career-overlord": {
+        "title": "Glizzy Overlord",
+        "description": "Your character was first to reach 300 points."
+      },
+      "career-underdog": {
+        "title": "From the Bottom Half",
+        "description": "A title from the bottom half of the seeds."
+      },
+      "career-rival-down": {
+        "title": "Score Settled",
+        "description": "You knocked the rival of the year out of a cup."
+      },
+      "career-sponsored": {
+        "title": "Under Contract",
+        "description": "First sponsor deal signed."
+      },
+      "career-leader": {
+        "title": "Ruling Party",
+        "description": "Your sponsor leads the government after the election."
+      },
+      "career-favor": {
+        "title": "Party Favor",
+        "description": "You cashed in a party favor."
+      },
+      "career-donor": {
+        "title": "Donor",
+        "description": "First donation to a party before an election."
+      },
+      "career-lost-cause": {
+        "title": "Money Down the Drain",
+        "description": "Five hundred glizars or more to a party that still landed in opposition."
+      },
+      "career-investor": {
+        "title": "Investor",
+        "description": "First investment signed."
+      },
+      "career-rich": {
+        "title": "Big Money",
+        "description": "A thousand glizars in the bank."
+      },
+      "career-maxed": {
+        "title": "Fully Trained",
+        "description": "One training pushed to the max."
+      },
+      "career-media-payday": {
+        "title": "Media Star",
+        "description": "A hundred glizars or more from one appearance."
+      },
+      "career-plot-hit": {
+        "title": "Job Done",
+        "description": "A sabotage went through and hit its target."
+      },
+      "career-guard": {
+        "title": "Security Crew",
+        "description": "Hired a security crew for the first time."
+      },
+      "career-island": {
+        "title": "Island Weekend",
+        "description": "First trip to The Island."
+      },
+      "career-meltdown": {
+        "title": "Cracked",
+        "description": "Your character had a meltdown at the table."
+      },
+      "career-decade": {
+        "title": "Ten Years",
+        "description": "Ten years at the table with the same character."
+      }
+    }
+  },
+  "careerMp": {
+    "catalog": {
+      "title": "Glizzy Rivals",
+      "description": "The Glizzy League for up to eight coaches. Open a room, send the code and out-eat your friends at the table."
+    },
+    "page": {
+      "eyebrow": "Glizzy games"
+    },
+    "lobby": {
+      "title": "Coaches' room",
+      "create": "Create a room",
+      "join": "Join a room",
+      "codePlaceholder": "e.g. K7PQ2M",
+      "nameLabel": "Coach name",
+      "namePlaceholder": "What the stands call you",
+      "colorLabel": "Color",
+      "colors": {
+        "sky": "Sky blue",
+        "violet": "Violet",
+        "fuchsia": "Fuchsia",
+        "orange": "Orange",
+        "lime": "Lime green",
+        "teal": "Teal",
+        "rose": "Rose",
+        "amber": "Amber"
+      },
+      "ready": "Ready",
+      "notReady": "Not ready",
+      "start": "Start the league",
+      "needCoaches": {
+        "one": "Needs at least {min} coach.",
+        "few": "Needs at least {min} coaches.",
+        "other": "Needs at least {min} coaches."
+      },
+      "needCharacters": "Not everyone has picked a character.",
+      "waitingHost": "Waiting for the host to start.",
+      "coaches": "Coaches ({count}/{max})",
+      "host": "host",
+      "leave": "Leave room",
+      "shareTitle": "Invites",
+      "shareHint": "Send them the code or the link. An active game lives for 30 days at most.",
+      "chooseCharacter": "Pick a character",
+      "changeCharacter": "Change character",
+      "noCharacter": "still picking",
+      "starting": "League starting...",
+      "sending": "Sending...",
+      "presets": {
+        "null": "None",
+        "60": "1 min",
+        "180": "3 min",
+        "300": "5 min"
+      },
+      "masthead": "THE GLIZZY GAZETTE",
+      "formTitle": "League sign-up",
+      "createStamp": "Open room",
+      "joinStamp": "Join room",
+      "rulesTitle": "Settings",
+      "rulesHint": "How long each phase may take: off-season, newspaper, bracket, bets and season end.",
+      "rulesLater": "The host picks the settings.",
+      "sheetTitle": "Coach list",
+      "roomNumber": "Room number",
+      "empty": "empty seat",
+      "you": "you",
+      "countdown": "Time limit per phase"
+    },
+    "coachBar": {
+      "done": "Done {done} of {total}",
+      "offline": "away",
+      "doneToggle": "Done",
+      "undoDone": "Not done",
+      "ready": "Ready",
+      "passed": "Decided",
+      "link": "Rejoin link",
+      "doneNames": "Done: {names}",
+      "waitingNames": "Waiting on: {names}",
+      "nobody": "nobody"
+    },
+    "timer": {
+      "left": "{time} left"
+    },
+    "skip": {
+      "clip": "Skip to result ({votes} of {total})",
+      "round": "Skip round ({votes} of {total})",
+      "cup": "Skip whole cup ({votes} of {total})"
+    },
+    "prematch": {
+      "title": "Pre-match",
+      "pass": "Skip the bet",
+      "passed": "No bet",
+      "waiting": "The match starts when everyone has decided or time runs out.",
+      "nobody": "Nobody yet",
+      "roundMatch": "{round}, match {index} of {total}",
+      "ownWarning": "You are betting AGAINST your own character. If they find out, their cholesterol goes through the roof.",
+      "startingIn": "Match starts in {seconds} s.",
+      "pot": "At stake"
+    },
+    "clip": {
+      "nextIn": "Next match in {seconds} s",
+      "toBracket": "Back to bracket in {seconds} s",
+      "toPodium": "Podium in {seconds} s",
+      "startsIn": "Match starts in {seconds} s"
+    },
+    "roundBoard": {
+      "withdraw": "Withdraw from the cup",
+      "withdrawConfirm": "Withdrawing forfeits the next match and ends your cup. Sure?",
+      "withdrawYes": "Yes, withdraw",
+      "withdrawNo": "We stay"
+    },
+    "seasonEnd": {
+      "bracket": "Cup finished",
+      "toPodium": "To the podium",
+      "toRecap": "Newspaper",
+      "toStandings": "Standings",
+      "done": "Ready for next season",
+      "champion": "{name} is the champion!",
+      "playerPlace": "{name} finishes in {place} place.",
+      "prize": {
+        "one": "Prize: +{amount} glizar",
+        "few": "Prize: +{amount} glizars",
+        "other": "Prize: +{amount} glizars"
+      }
+    },
+    "finished": {
+      "title": "The campaign is over",
+      "standings": "Final coach standings",
+      "reopen": "Keep playing ({votes} of {total})",
+      "points": {
+        "one": "{points} point",
+        "few": "{points} points",
+        "other": "{points} points"
+      }
+    },
+    "report": {
+      "h2h": "Head to head",
+      "coachesCount": "Coaches",
+      "seasonsCount": "Seasons"
+    },
+    "rejoin": {
+      "title": "Your rejoin link",
+      "hint": "Open it on another device to carry on as the same coach.",
+      "copy": "Copy link",
+      "copied": "Copied"
+    },
+    "errors": {
+      "generic": "Something broke. Try again.",
+      "stale": "The room has moved on. Refreshing.",
+      "unauthorized": "This device is not signed in to the room.",
+      "bad-name": "The name must be 2 to 18 characters.",
+      "name-taken": "Someone already has that name.",
+      "character-taken": "That character is already taken.",
+      "color-taken": "That color is taken.",
+      "room-full": "The room is full.",
+      "rate-limited": "Too many rooms opened from here. Try again in an hour.",
+      "rooms-full": "The hall is at capacity right now. Try again later.",
+      "not-found": "No such room.",
+      "already-started": "The league has already started. The door is closed.",
+      "no-funds": "Not enough glizars.",
+      "no-slot": "No free months left.",
+      "betting-locked": "The betting window is still closed.",
+      "bad-phase": "Not the moment for that.",
+      "closed": "The host closed the room.",
+      "not-host": "Only the host can do that.",
+      "expired": "The room expired: nobody was in it for 10 minutes.",
+      "bad-slug": "No such character.",
+      "missing-slug": "Not everyone has picked a character.",
+      "league-started": "The league has already started.",
+      "letter-expired": "The election is over.",
+      "bad-room": "The room is in a broken state.",
+      "bad-body": "The request arrived incomplete. Try again.",
+      "conflict": "Traffic jam in the room. Try again.",
+      "no-code": "No free room code. Try again.",
+      "bad-color": "No such color.",
+      "bad-training": "No such training.",
+      "maxed": "This is already at the top level.",
+      "media-spent": "Media is used up for this off-season.",
+      "no-island": "The Island is not available right now.",
+      "guarded": "The security crew is already hired.",
+      "locked": "This unlocks after the first cup.",
+      "no-sponsor": "You need a sponsor for this.",
+      "bad-target": "That target is off the table.",
+      "bad-tier": "No such job.",
+      "no-mail": "No such letter.",
+      "signed": "You already have a sponsor.",
+      "has-sponsor": "You already have a sponsor.",
+      "no-offer": "That offer is no longer valid.",
+      "no-parliament": "The city has not voted yet.",
+      "bad-amount": "That amount will not fly.",
+      "bad-party": "No such party.",
+      "bad-rival": "That rival is not on the list.",
+      "no-match": "No such match.",
+      "no-bet": "No bet to pull back.",
+      "bad-stake": "That stake does not exist.",
+      "bad-side": "No such side in that match.",
+      "final": "No favors in the final.",
+      "no-favors": "You are out of favors this year.",
+      "favor-pending": "One favor is already waiting for its match.",
+      "withdrawn": "You have already withdrawn from the cup."
+    },
+    "window": {
+      "introTitle": "Off-season opens"
+    },
+    "expansion": {
+      "masthead": "THE GLIZZY GAZETTE",
+      "issue": "Special edition",
+      "headline": "The league expands",
+      "lead": {
+        "one": "This year the Glizzy League takes back one returning competitor, with a new coach who has not a single reference. They start at the bottom of the standings, chasing the same goal as everyone: first to {points} points is the Glizzy Overlord.",
+        "few": "This year the Glizzy League takes back {count} returning competitors, each with a new coach who has not a single reference. They start at the bottom of the standings, all chasing the same goal: first to {points} points is the Glizzy Overlord.",
+        "other": "This year the Glizzy League takes back {count} returning competitors, each with a new coach who has not a single reference. They start at the bottom of the standings, all chasing the same goal: first to {points} points is the Glizzy Overlord."
+      },
+      "roster": "New members and their coaches",
+      "coachLine": "coach: {coach}",
+      "cta": "To the off-season"
+    },
+    "browser": {
+      "title": "Active rooms",
+      "empty": "No rooms right now.",
+      "resume": "Resume",
+      "join": "Join",
+      "inProgress": "In progress",
+      "lobby": "Waiting for coaches",
+      "finished": "Campaign over",
+      "host": "host: {name}",
+      "yearSeason": "Year {year}, {season}",
+      "lastActive": "active {minutes} min ago",
+      "lastActiveNow": "active now",
+      "coaches": "{count} of {max} coaches",
+      "full": "Full"
+    },
+    "close": {
+      "button": "Close room",
+      "confirm": "The room shuts down for every coach and cannot be brought back. Sure?",
+      "yes": "Yes, close it",
+      "no": "Never mind",
+      "closed": "The host closed the room.",
+      "hint": "Shuts the room down for every coach, right away and for good."
+    },
+    "room": {
+      "title": "Room {code}",
+      "hint": "Room code and rejoin link. The host can also close the room from here."
+    }
+  },
+  "roster": {
+    "names": {
+      "vuka": "The Wolf",
+      "dax": "Daniel",
+      "kosta": "Mr Bones",
+      "cone": "The Egg Man",
+      "dusan": "Count Dusk",
+      "nikola": "Fat Cat",
+      "jovan": "Jovan",
+      "bane": "Bane",
+      "tax-inspector": "The Taxman",
+      "steva": "Lou Owes",
+      "dzamila": "Jamila",
+      "zeka": "Rabbit",
+      "halvard": "Halvard",
+      "stojan": "Mr Grease",
+      "tihomir": "Old Tihomir",
+      "miki": "Miki"
+    },
+    "epithets": {
+      "vuka": "Lone Hunter",
+      "dax": "Island Barman",
+      "kosta": "The Skeleton",
+      "cone": "Hard-Boiled",
+      "dusan": "The Vampire",
+      "nikola": "The Capitalist",
+      "jovan": "The Nobleman",
+      "bane": "The Mason",
+      "tax-inspector": "The Inspector",
+      "steva": "The Debtor",
+      "dzamila": "The Fortune Teller",
+      "zeka": "Forest Beast",
+      "halvard": "Ice Merchant",
+      "stojan": "Oil Dealer",
+      "tihomir": "Southern Wanderer",
+      "miki": "The Physicist"
+    }
+  },
+  "hub": {
+    "siteName": "Glizzy Manager",
+    "eyebrow": "Glizzy Games",
+    "title": "Glizzy Manager and Rivals",
+    "intro": "Two games, one league. Coach your character through the seasons solo, or open a room and out-eat your friends at the table.",
+    "aboutTitle": "What is this?",
+    "about": "Glizzy Manager started as a private game built for a group of friends. This is the sanitized public edition: every inside joke, real person and private reference has been removed, the characters are fictional, and the game is available in English and Serbian. It exists to show how the game works and how it was built.",
+    "play": "Play",
+    "back": "Back to home",
+    "trailer": "Watch the trailer",
+    "trailerTitle": "Trailer"
+  },
+  "onboarding": {
+    "eyebrow": "First visit",
+    "stepOf": "Step {n} of {total}",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "steps": {
+      "about": {
+        "title": "Welcome to the table",
+        "body": "Glizzy Manager began as a private game for a group of friends; this public edition keeps the whole game with fictional characters. You coach one eater through a hot-dog eating league: cups and seasons, sponsors who double as political parties, a newspaper that misses nothing, some sabotage, and a long climb to Glizzy Overlord."
+      },
+      "language": {
+        "title": "Pick a language",
+        "body": "It applies right away. Nothing else changes."
+      },
+      "look": {
+        "title": "Look and sound",
+        "body": "Dark or light, loud or quiet. Everything here can be changed later from the gear in the corner."
+      },
+      "modes": {
+        "title": "Two ways to play",
+        "manager": "A solo career. The save lives in this browser.",
+        "rivals": "Rooms with a code, up to eight coaches at one table.",
+        "playManager": "Play Manager",
+        "playRivals": "Play Rivals",
+        "lookAround": "Just look around"
+      }
+    }
+  },
+  "commentary": {
+    "nameForms": {
+      "jovan": {
+        "short": "Jovan"
+      },
+      "bane": {
+        "short": "Bane"
+      },
+      "tax-inspector": {
+        "short": "The Taxman"
+      },
+      "halvard": {
+        "short": "Halvard"
+      },
+      "stojan": {
+        "short": "Mr Grease"
+      },
+      "tihomir": {
+        "short": "Tihomir"
+      },
+      "miki": {
+        "short": "Miki",
+        "ttsFull": "Miki"
+      }
+    },
+    "lines": {
+      "intro-rivalry-1": {
+        "text": "This is not just a match, folks. {a} and {b} have unfinished business.",
+        "tts": "This is not just a match, folks. These two have unfinished business."
+      },
+      "intro-rivalry-2": {
+        "text": "{a} versus {b}. History says when these two meet, something has to snap.",
+        "tts": "History says when these two meet, something has to snap."
+      },
+      "intro-leader-1": {
+        "text": "{name}, top of the table right now. Playing like the glizzies run away on their own."
+      },
+      "intro-leader-2": {
+        "text": "Top of the table, {name}. When this one sits down, the bookies close up shop."
+      },
+      "intro-leader-3": {
+        "text": "{name} defends the top spot tonight. And the top, folks, is the longest way down."
+      },
+      "intro-lossstreak-1": {
+        "text": "{name} is on a losing streak. Something has to give. Tonight or next week, that's the only question."
+      },
+      "intro-lossstreak-2": {
+        "text": "On the other side, {name}. Form? None. Spite? Spite to spare."
+      },
+      "intro-lossstreak-3": {
+        "text": "{name} loses, and loses, and loses. But tonight, they say, tonight is different."
+      },
+      "intro-title-1": {
+        "text": "{name}, the defending champion. They say champions smell fear. This one smells everything."
+      },
+      "intro-title-2": {
+        "text": "Here comes {name}. The title protects, but the title also weighs a ton."
+      },
+      "intro-title-3": {
+        "text": "{name} is chasing history. One more title and nobody gets to say a word."
+      },
+      "intro-meltdown-1": {
+        "text": "{name}, for whom the physio keeps a standing appointment. Let's see if tonight holds together."
+      },
+      "intro-meltdown-2": {
+        "text": "Keep an eye on {name}. On a good night, goes all the way. On a bad one, cracks in front of everybody."
+      },
+      "intro-meltdown-3": {
+        "text": "{name} and pressure, an old romance. The only question is who breaks whom tonight."
+      },
+      "intro-hat-1": {
+        "text": "{name} loves the hat. Everybody knows it. {name} knows everybody knows it. Still goes for the hat."
+      },
+      "intro-hat-2": {
+        "text": "They say {name} reaches for the hat even while asleep. Tonight we find out."
+      },
+      "intro-sock-1": {
+        "text": "{name} and the sock. Now that is a love for life."
+      },
+      "intro-sock-2": {
+        "text": "The sock calls, {name} picks up. Every time."
+      },
+      "intro-box-1": {
+        "text": "For {name}, the box is not a hiding spot. The box is home."
+      },
+      "intro-box-2": {
+        "text": "{name} goes for the box even when it's wrong. Especially when it's wrong."
+      },
+      "intro-epithet-1": {
+        "text": "{name}, {epithet}. What more is there to say."
+      },
+      "intro-epithet-2": {
+        "text": "And here we are. {name}, {epithet}, in the flesh."
+      },
+      "intro-epithet-3": {
+        "text": "{name}. {epithet}. The crowd knows, the crowd remembers."
+      },
+      "open-1": {
+        "text": "Good evening, folks. Sixteen contestants, one title, and far too many glizzies for one night. Here we go."
+      },
+      "open-2": {
+        "text": "Ladies and gentlemen, welcome. The table is set, the form is in, so let's see whose legs give out tonight, and whose nose."
+      },
+      "open-3": {
+        "text": "Good evening, dear viewers. Some came for the trophy, some out of spite, and some, I suspect, are just hungry."
+      },
+      "open-4": {
+        "text": "Good evening, folks. The table is laid, the glizzies are warm, the nerves are thin. Let's begin."
+      },
+      "next-1": {
+        "text": "Moving on, next match."
+      },
+      "next-2": {
+        "text": "No rest, folks. The glizzies keep rolling."
+      },
+      "next-3": {
+        "text": "The next pair steps up to the table."
+      },
+      "next-4": {
+        "text": "Straight on to the next one. The schedule shows no mercy."
+      },
+      "start-1": {
+        "text": "The glizzy is on the table. Off we go!"
+      },
+      "start-2": {
+        "text": "The referee watches, the crowd goes quiet. We're underway."
+      },
+      "start-3": {
+        "text": "Three lives, one glizzy. Let's go."
+      },
+      "start-4": {
+        "text": "Hands on the table, eyes on the glizzy. Off we go."
+      },
+      "dodge-1": {
+        "text": "Nothing there! That's a miss!",
+        "tts": "Nothing there! That's a miss!"
+      },
+      "dodge-2": {
+        "text": "Looking... not there!",
+        "tts": "Looking... not there!"
+      },
+      "dodge-3": {
+        "text": "Empty. The crowd exhales."
+      },
+      "dodge-4": {
+        "text": "Good read, or dumb luck. Either way, still alive."
+      },
+      "dodge-5": {
+        "text": "Got away with it!",
+        "tts": "Got away with it!"
+      },
+      "dodge-6": {
+        "text": "Wrong one! The glizzy stays put!",
+        "tts": "Wrong one! The glizzy stays put!"
+      },
+      "dodge-7": {
+        "text": "A miss. We live another round."
+      },
+      "dodgestreak-1": {
+        "text": "Another miss! Two in a row!",
+        "tts": "Another miss! Two in a row!"
+      },
+      "dodgestreak-2": {
+        "text": "This isn't a match, this is ballet!",
+        "tts": "This isn't a match, this is ballet!"
+      },
+      "dodgestreak-3": {
+        "text": "Nobody can find a thing! That glizzy is a ghost, folks!",
+        "tts": "Nobody can find a thing! That glizzy is a ghost, folks!"
+      },
+      "dodgestreak-4": {
+        "text": "Miss after miss! What do these people live on, luck?!",
+        "tts": "Miss after miss! What do these people live on, luck?!"
+      },
+      "dodgestreak-5": {
+        "text": "How long can this go on?! Nobody wants to eat!",
+        "tts": "How long can this go on?! Nobody wants to eat!"
+      },
+      "grab-1": {
+        "text": "There it is! Found it! And now it has to go down...",
+        "tts": "There it is! Found it! And now it has to go down..."
+      },
+      "grab-2": {
+        "text": "It's there! Ow, ow, ow... enjoy your meal, chief.",
+        "tts": "It's there! Ow, ow, ow... enjoy your meal, chief."
+      },
+      "grab-3": {
+        "text": "Found it! And around here, finders eaters!",
+        "tts": "Found it! And around here, finders eaters!"
+      },
+      "grab-4": {
+        "text": "Direct hit! Which is the bad news!",
+        "tts": "Direct hit! Which is the bad news!"
+      },
+      "grab-5": {
+        "text": "Oh no! Actually found it! Down it goes, folks, swallowing fate itself!",
+        "tts": "Oh no! Actually found it! Down it goes, folks, swallowing fate itself!"
+      },
+      "grab-6": {
+        "text": "There it is! And you know what comes next. Dig in!",
+        "tts": "There it is! And you know what comes next. Dig in!"
+      },
+      "binge-1": {
+        "text": "That was on purpose! Hunger is a wonder, folks!",
+        "tts": "That was on purpose! Hunger is a wonder, folks!"
+      },
+      "binge-2": {
+        "text": "That's not tactics, that's appetite! Straight for the glizzy!",
+        "tts": "That's not tactics, that's appetite! Straight for the glizzy!"
+      },
+      "binge-3": {
+        "text": "The rules are forgotten. Only lunch is remembered!",
+        "tts": "The rules are forgotten. Only lunch is remembered!"
+      },
+      "random-1": {
+        "text": "This... this is random. The hand moves on its own, the head left long ago."
+      },
+      "random-2": {
+        "text": "Stress is doing its work. Picking with eyes shut, folks."
+      },
+      "random-3": {
+        "text": "Nobody is deciding anything anymore. The nerves are picking now."
+      },
+      "random-4": {
+        "text": "Hand goes left, eyes go right, brain is on vacation. Pure gambling."
+      },
+      "sniff-1": {
+        "text": "The nose! Saved by the nose!",
+        "tts": "The nose! Saved by the nose!"
+      },
+      "sniff-2": {
+        "text": "The hand was going, but the nose says no! What instinct!",
+        "tts": "The hand was going, but the nose says no! What instinct!"
+      },
+      "sniff-3": {
+        "text": "Sniffed it out! At the last second!",
+        "tts": "Sniffed it out! At the last second!"
+      },
+      "sniff-4": {
+        "text": "That's what you call a nose, ladies and gentlemen! They don't teach that in school!",
+        "tts": "That's what you call a nose, ladies and gentlemen! They don't teach that in school!"
+      },
+      "sniff-5": {
+        "text": "Full stop! The nose pulled that hand right back! Unbelievable!",
+        "tts": "Full stop! The nose pulled that hand right back! Unbelievable!"
+      },
+      "sniff-6": {
+        "text": "That nose is working overtime! What a save!",
+        "tts": "That nose is working overtime! What a save!"
+      },
+      "meltdown-1": {
+        "text": "Snapped! Snapped in front of everybody, folks!",
+        "tts": "Snapped! Snapped in front of everybody, folks!"
+      },
+      "meltdown-2": {
+        "text": "No, no, no... and that's it. The nerves said enough."
+      },
+      "meltdown-3": {
+        "text": "Hold on, hold on... it's over! The head couldn't take it!",
+        "tts": "Hold on, hold on... it's over! The head couldn't take it!"
+      },
+      "meltdown-4": {
+        "text": "Explosion! Everything bottled up came out at once!",
+        "tts": "Explosion! Everything bottled up came out at once!"
+      },
+      "police-1": {
+        "text": "Police! Police at the table, the match is stopped!",
+        "tts": "Police! Police at the table, the match is stopped!"
+      },
+      "police-2": {
+        "text": "Flashing lights, folks! Nobody planned for this!",
+        "tts": "Flashing lights, folks! Nobody planned for this!"
+      },
+      "police-3": {
+        "text": "Everybody scatter! Match over, the law is carrying off the glizzy!",
+        "tts": "Everybody scatter! Match over, the law is carrying off the glizzy!"
+      },
+      "police-4": {
+        "text": "Sirens, folks! This sport and the law were never friends!",
+        "tts": "Sirens, folks! This sport and the law were never friends!"
+      },
+      "overfull-1": {
+        "text": "Can't go on! Full to the brim, folks, the match is forfeited!",
+        "tts": "Can't go on! Full to the brim, folks, the match is forfeited!"
+      },
+      "overfull-2": {
+        "text": "The stomach has spoken. End of the road."
+      },
+      "overfull-3": {
+        "text": "Too many glizzies, too little room. It's over."
+      },
+      "overfull-4": {
+        "text": "Capacity is capacity. Beaten by physics, not by the opponent."
+      },
+      "withdrawn-1": {
+        "text": "No match, folks. Forfeited without a fight. The head just wasn't there."
+      },
+      "withdrawn-2": {
+        "text": "Withdrew before the start. Ugly, but understandable."
+      },
+      "withdrawn-3": {
+        "text": "Signed up, announced, and never showed. A sad sight, folks."
+      },
+      "tiebreak-1": {
+        "text": "Extra time, folks. First to find the glizzy loses. Yes, you heard that right."
+      },
+      "tiebreak-2": {
+        "text": "All or nothing. Two glizzies on the table, and only one decides it."
+      },
+      "tiebreak-3": {
+        "text": "This is sudden death. Even the crowd has stopped breathing."
+      },
+      "tiebreak-4": {
+        "text": "Sweaty palms, two glizzies waiting. One move between glory and shame."
+      },
+      "quick-1": {
+        "text": "It's over! In three minutes! You can't finish a coffee that fast!",
+        "tts": "It's over! In three minutes! You can't finish a coffee that fast!"
+      },
+      "quick-2": {
+        "text": "Express service, folks! Blink and you missed the match!",
+        "tts": "Express service, folks! Blink and you missed the match!"
+      },
+      "quick-3": {
+        "text": "Short, clean, surgical."
+      },
+      "quick-4": {
+        "text": "Lightning! The scorekeeper never even found a pencil!",
+        "tts": "Lightning! The scorekeeper never even found a pencil!"
+      },
+      "long-1": {
+        "text": "This one is dragging, folks. But great things are never over quickly."
+      },
+      "long-2": {
+        "text": "A marathon! The crowd has sat down, the glizzy is still out there."
+      },
+      "long-3": {
+        "text": "On we go, nobody gives an inch. This is a war of attrition."
+      },
+      "long-4": {
+        "text": "Hour three, folks. Somebody check if that glizzy is still fresh."
+      },
+      "winner-1": {
+        "text": "{name}! {name} is the winner!",
+        "tts": "{name}! {name} is the winner!"
+      },
+      "winner-2": {
+        "text": "It's over! {name} goes through!",
+        "tts": "It's over! {name} goes through!"
+      },
+      "winner-3": {
+        "text": "The winner is {name}. Deserved, I have to say."
+      },
+      "winner-4": {
+        "text": "{name} celebrates! People will remember this one for a long time!",
+        "tts": "{name} celebrates! People will remember this one for a long time!"
+      },
+      "comedown-1": {
+        "text": "And there you have it, folks. The table doesn't lie."
+      },
+      "comedown-2": {
+        "text": "Experience made the difference. Moving on."
+      },
+      "comedown-3": {
+        "text": "That's that. One celebrates, one skips dinner tonight. Although, frankly, dinner already happened."
+      },
+      "comedown-4": {
+        "text": "Write this result down. I have a feeling we'll be bringing it up."
+      },
+      "comedown-5": {
+        "text": "It's in the books. And we move on, the glizzies won't hide themselves."
+      },
+      "weather-ledeno-1": {
+        "text": "A blizzard outside, and the glizzies are steaming double. A perfect night for this sport."
+      },
+      "weather-ledeno-2": {
+        "text": "It's seriously below zero, folks. Drop a glizzy tonight and you'll find it in spring."
+      },
+      "weather-ledeno-3": {
+        "text": "The thermometer has dropped below anything decent, folks. But who said this was a decent sport."
+      },
+      "weather-ledeno-4": {
+        "text": "Snow is falling, the table is frozen, and the mustard cuts with a knife. A proper winter night for this sport."
+      },
+      "weather-krvavo-1": {
+        "text": "It's autumn, the leaves are falling, and with them, I suspect, a favorite or two."
+      },
+      "weather-krvavo-2": {
+        "text": "The sky is red tonight, folks. The old-timers say that means something. We say: ideal conditions."
+      },
+      "weather-krvavo-3": {
+        "text": "Fog has settled on the valley, folks. You can see as far as the glizzy, and that's all we need."
+      },
+      "weather-krvavo-4": {
+        "text": "Wind in the leaves, rain on the way, and the contestants came without umbrellas. With glizzies, of course."
+      },
+      "weather-letnje-1": {
+        "text": "A tropical night, folks. The glizzies are sweating, the contestants even more."
+      },
+      "weather-letnje-2": {
+        "text": "It's summer, the table is warm, and the appetites, the appetites are maxed out."
+      },
+      "weather-letnje-3": {
+        "text": "Muggy since morning, folks. The mustard is melting, and so are we."
+      },
+      "weather-letnje-4": {
+        "text": "Not a breath of wind tonight. The mosquitoes have already counted the contestants. We'll count them after."
+      },
+      "weather-patlidzan-1": {
+        "text": "It's spring, everything is in bloom, and the eggplants, folks, the eggplants are glorious."
+      },
+      "weather-patlidzan-2": {
+        "text": "You can smell the spring, you can smell the grass, but strongest of all, as always, you can smell the glizzy."
+      },
+      "weather-patlidzan-3": {
+        "text": "Pollen in the air, folks, and tears in the eyes. Some from allergies, some from the draw."
+      },
+      "weather-patlidzan-4": {
+        "text": "The first real sun of the year warms the table. The eggplants are shining. We'll see who else does."
+      },
+      "election-stranka-1": {
+        "text": "A new government, folks: the People's List. Freedom has won, they say, so step one is freeing the voter roll of everyone who voted wrong."
+      },
+      "election-stranka-2": {
+        "text": "The Assembly belongs to the People's List. State media already report that everything is excellent, and we, to be safe, will say the same."
+      },
+      "election-stranka-3": {
+        "text": "The People's List runs Leskovac. All of Leskovac is one step closer to freedom, they say. And freedom, of course, means state media has one channel as of tomorrow."
+      },
+      "election-zidari-1": {
+        "text": "The Masons' Guild has formed the government. First measure: a wall around the Assembly and new houses for all the loyalists."
+      },
+      "election-zidari-2": {
+        "text": "The Masons are the new boss in town, folks. Overnight, a security crew costs more for anyone who voted wrong."
+      },
+      "election-zidari-3": {
+        "text": "The Masons run Leskovac. The boss says the town will be walled in on all sides by winter."
+      },
+      "election-korporacija-1": {
+        "text": "The Black Dwarf Corporation leads the government. First change to the law: a town stability contribution, and a new fee for anyone who doesn't vote Black Dwarf."
+      },
+      "election-korporacija-2": {
+        "text": "The Corporation is in power, folks. Black Dwarf promises Leskovac will be the most stable town in the region, once the freeloaders are evicted."
+      },
+      "election-korporacija-3": {
+        "text": "Black Dwarf runs Leskovac. The bailiffs got new uniforms, and the town got new fees."
+      },
+      "election-ostrvo-1": {
+        "text": "The Island has taken the government, folks. As of this morning the town budget sits in an account nobody is allowed to mention."
+      },
+      "election-ostrvo-2": {
+        "text": "The new government arrives by dinghy. The Island runs Leskovac, which, we're now told, was always a seaside town."
+      },
+      "election-ostrvo-3": {
+        "text": "The Island is in power. Taxes are abolished, and discretion is the town's new policy."
+      }
+    }
+  }
+}
