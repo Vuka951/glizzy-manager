@@ -1,0 +1,406 @@
+<!doctype html>
+<!--
+  Trailer compositor. compose.mjs opens this page in headless Chrome, hands
+  it the timeline and calls window.render(t) for every frame: the page shows
+  the footage frame for that moment with its zoom (a blurred copy of the same
+  frame fills the stage behind a shot framed smaller than the screen), rings
+  drawn on the footage, the sticker callouts, the slams, the grab pips, the
+  karaoke caption (the spoken word in amber) and the title and end cards, and
+  the frame is screenshotted. Everything is laid out on a fixed 1080x1920
+  portrait stage with system fonts only. Opened by hand with
+  ?timeline=<file url>&t=<seconds> (Chrome needs --allow-file-access-from-files)
+  it shows one moment.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Trailer compositor</title>
+<style>
+  :root {
+    --bg: #060a14;
+    --amber: #fbbf24;
+    --white: #ffffff;
+    --heavy: "Arial Black", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --mono: Menlo, "Courier New", monospace;
+  }
+  html, body { margin: 0; padding: 0; background: var(--bg); overflow: hidden; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
+  #backdrop { position: absolute; inset: -80px; background-size: cover; background-position: center; filter: blur(36px) brightness(0.42) saturate(1.1); }
+  .layer { position: absolute; inset: 0; overflow: hidden; }
+  .frame { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; }
+  .frame.floating { border-radius: 14px; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(186, 230, 253, 0.12); }
+  .frame img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+  .ring { position: absolute; border: 3px solid var(--amber); border-radius: 12px; box-shadow: 0 0 18px rgba(251, 191, 36, 0.65), inset 0 0 12px rgba(251, 191, 36, 0.25); }
+  #vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 95% 80% at 50% 45%, transparent 60%, rgba(2, 4, 10, 0.55) 100%); }
+  #stickers, #slams { position: absolute; inset: 0; pointer-events: none; }
+  .sticker {
+    position: absolute;
+    padding: 20px 38px;
+    border: 6px solid var(--c, var(--amber));
+    border-radius: 24px;
+    background: rgba(6, 10, 20, 0.92);
+    color: var(--white);
+    font: 900 56px/1 var(--heavy);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    transform-origin: 50% 50%;
+  }
+  .slam {
+    position: absolute; left: 40px; right: 40px;
+    text-align: center;
+    font: 900 120px/1.02 var(--heavy);
+    color: #f8fafc;
+    text-transform: uppercase;
+    text-shadow: 0 12px 44px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.85);
+    transform-origin: 50% 50%;
+  }
+  .stamp {
+    position: absolute; left: 50%; top: 0;
+    padding: 18px 40px;
+    border: 10px solid #dc2626;
+    border-radius: 18px;
+    color: #ef4444;
+    font: 900 92px/1 var(--heavy);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: rgba(220, 38, 38, 0.08);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.35), inset 0 0 0 4px rgba(255, 255, 255, 0.35);
+  }
+  #pips { position: absolute; left: 0; right: 0; display: flex; justify-content: center; gap: 34px; }
+  #pips i { width: 74px; height: 74px; border-radius: 50%; border: 8px solid #fca5a5; background: rgba(28, 16, 6, 0.85); box-sizing: border-box; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); }
+  #pips i.on { background: #ef4444; }
+  #captionBar {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 560px;
+    background: linear-gradient(to top, rgba(2, 6, 23, 0.9), rgba(2, 6, 23, 0.6) 55%, rgba(2, 6, 23, 0));
+    pointer-events: none;
+  }
+  #caption {
+    position: absolute;
+    left: 60px; right: 60px; bottom: 100px;
+    text-align: center;
+    font: 900 74px/1.12 var(--heavy);
+    color: var(--white);
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    text-shadow: 0 4px 0 rgba(2, 6, 23, 0.9), 0 6px 26px rgba(0, 0, 0, 0.95);
+  }
+  #caption .w { display: inline-block; margin: 0 0.18em; }
+  #caption .w.on { color: var(--amber); transform: scale(1.07); }
+  .card {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 85% 45% at 50% 34%, rgba(56, 189, 248, 0.18), rgba(6, 10, 20, 0) 70%),
+      radial-gradient(ellipse 70% 30% at 50% 100%, rgba(245, 158, 11, 0.16), rgba(6, 10, 20, 0) 70%),
+      var(--bg);
+    color: var(--white);
+    text-align: center;
+  }
+  .card > * { position: absolute; left: 0; right: 0; margin: 0 auto; }
+  .card img.mark { width: 230px; height: 230px; filter: drop-shadow(0 24px 50px rgba(0, 0, 0, 0.6)); }
+  .card .eyebrow { font: 800 34px/1 var(--sans); letter-spacing: 0.5em; color: #7dd3fc; text-transform: uppercase; }
+  .card .title { font: 900 168px/0.98 var(--heavy); letter-spacing: 0.04em; text-transform: uppercase; text-shadow: 0 14px 50px rgba(0, 0, 0, 0.75); }
+  .card .mode {
+    width: 820px; box-sizing: border-box;
+    padding: 34px 40px 30px;
+    border: 5px solid rgba(186, 230, 253, 0.4);
+    border-radius: 36px;
+    background: rgba(15, 23, 42, 0.78);
+    font: 900 74px/1 var(--heavy);
+  }
+  .card .mode small { display: block; margin-top: 16px; font: 800 28px/1 var(--sans); letter-spacing: 0.34em; color: #7dd3fc; text-transform: uppercase; }
+  .card .url { font: 700 46px/1 var(--mono); color: #fde68a; letter-spacing: 0.01em; }
+  #titleStamp { left: 50%; right: auto; margin: 0; }
+  #debug { position: absolute; left: 16px; top: 16px; color: #fff; font: 22px var(--mono); display: none; z-index: 9; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="backdrop"></div>
+  <div class="layer" id="layerA"><div class="frame"><img alt=""></div></div>
+  <div class="layer" id="layerB"><div class="frame"><img alt=""></div></div>
+  <div id="vignette"></div>
+  <div class="card" id="titleCard">
+    <img class="mark" alt="" src="../../app/icon.svg" style="top: 300px">
+    <div class="eyebrow" style="top: 610px">Glizzy Games</div>
+    <div class="title" style="top: 700px">Glizzy<br>Manager</div>
+    <div class="stamp" id="titleStamp" style="top: 1170px">Coach wanted</div>
+  </div>
+  <div class="card" id="endCard">
+    <img class="mark" alt="" src="../../app/icon.svg" style="top: 330px">
+    <div class="slam" id="endSlam" style="top: 640px; font-size: 112px">Out-eat<br>your friends.</div>
+    <div class="mode" id="modeA" style="top: 1000px">Glizzy Manager<small>single player</small></div>
+    <div class="mode" id="modeB" style="top: 1220px">Glizzy Rivals<small>multiplayer</small></div>
+    <div class="url" id="endUrl" style="top: 1490px">github.com/Vuka951/glizzy-manager</div>
+  </div>
+  <div id="slams"></div>
+  <div id="pips"><i></i><i></i><i></i></div>
+  <div id="stickers"></div>
+  <div id="captionBar"></div>
+  <div id="caption"></div>
+  <div id="debug"></div>
+</div>
+<script>
+(() => {
+  const W = 1080, H = 1920;
+  // Zoomed shots are framed in the part of the stage above the captions
+  const VIEW_H = 1480;
+  const params = new URLSearchParams(location.search);
+  const $ = (id) => document.getElementById(id);
+  const layers = [$('layerA'), $('layerB')];
+  const backdrop = $('backdrop');
+  const titleCard = $('titleCard');
+  const endCard = $('endCard');
+  const stickersEl = $('stickers');
+  const slamsEl = $('slams');
+  const pipsEl = $('pips');
+  const captionEl = $('caption');
+  const captionBar = $('captionBar');
+  let timeline = null;
+
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, p) => a + (b - a) * p;
+  const easeOut = (x) => 1 - Math.pow(1 - clamp(x, 0, 1), 3);
+  const easeInOut = (x) => { x = clamp(x, 0, 1); return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+  const backOut = (x) => { x = clamp(x, 0, 1); const c = 1.7; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+
+  window.setTimeline = (tl) => { timeline = tl; };
+
+  async function load() {
+    const res = await fetch(params.get('timeline'));
+    timeline = await res.json();
+  }
+
+  // The frame of a clip at a moment of the segment: a still has one, a
+  // sequence advances at its own rate from the segment's offset, and a clip
+  // shorter than its segment holds its last frame
+  function frameFile(seg, local) {
+    const clip = timeline.clips[seg.clip];
+    const index = clip.kind === 'still' ? 0 : clamp(Math.floor((local + (seg.offset ?? 0)) * clip.fps), 0, clip.frames - 1);
+    return `${timeline.clipBase}/${seg.clip}/${String(index).padStart(4, '0')}.png`;
+  }
+
+  // Zoom: a clip is laid out at its CSS viewport size and scaled onto the
+  // stage. Without a zoom rect it covers the stage; with one, the rect (which
+  // can glide to zoomTo) is fitted into the area above the captions, and the
+  // view scales from `from` to `to` times that fit over the segment, with a
+  // short punch-in on the cut. A view at or past cover stays inside the clip
+  // (unless the segment is free); one that leaves part of the stage
+  // uncovered floats over the blurred backdrop
+  function viewFor(seg, local) {
+    const clip = timeline.clips[seg.clip];
+    const vw = clip.width, vh = clip.height;
+    const dur = Math.max(0.01, seg.end - seg.start);
+    const p = (seg.ease === 'out' ? easeOut : easeInOut)(local / dur);
+    const cover = Math.max(W / vw, H / vh);
+    const punch = 1 + (seg.punch ?? 0.04) * (1 - easeOut(local / 0.35));
+    const k = lerp(seg.from ?? 1, seg.to ?? 1.06, p) * punch;
+    let scale, cx, cy, ax, ay;
+    if (!seg.zoom) {
+      scale = cover * k;
+      cx = vw / 2; cy = vh / 2; ax = W / 2; ay = H / 2;
+    } else {
+      const to = seg.zoomTo ?? seg.zoom;
+      const r = { x: lerp(seg.zoom.x, to.x, p), y: lerp(seg.zoom.y, to.y, p), w: lerp(seg.zoom.w, to.w, p), h: lerp(seg.zoom.h, to.h, p) };
+      const pad = seg.pad ?? 1.1;
+      scale = Math.min(W / (r.w * pad), VIEW_H / (r.h * pad)) * k;
+      cx = r.x + r.w / 2; cy = r.y + r.h / 2; ax = W / 2; ay = VIEW_H / 2;
+    }
+    let tx = ax - cx * scale;
+    let ty = ay - cy * scale;
+    if (scale >= cover * 0.995 && !seg.free) {
+      tx = clamp(tx, W - vw * scale, 0);
+      ty = clamp(ty, H - vh * scale, 0);
+    }
+    const floating = tx > 0.5 || ty > 0.5 || tx + vw * scale < W - 0.5 || ty + vh * scale < H - 0.5;
+    return { tx, ty, scale, vw, vh, floating };
+  }
+
+  async function show(layer, seg, t) {
+    const frame = layer.querySelector('.frame');
+    const img = frame.querySelector('img');
+    const file = frameFile(seg, t - seg.start);
+    if (img.dataset.file !== file) {
+      img.src = file;
+      img.dataset.file = file;
+      await img.decode().catch(() => {});
+    }
+    const v = viewFor(seg, t - seg.start);
+    frame.style.width = `${v.vw}px`;
+    frame.style.height = `${v.vh}px`;
+    frame.style.transform = `translate(${v.tx}px, ${v.ty}px) scale(${v.scale})`;
+    frame.classList.toggle('floating', v.floating);
+    frame.querySelectorAll('.ring').forEach((r) => r.remove());
+    for (const ring of timeline.rings) {
+      if (ring.clip !== seg.clip || t < ring.start || t >= ring.end) continue;
+      const el = document.createElement('div');
+      el.className = 'ring';
+      const grow = ring.pop ? 1 + 0.12 * (1 - backOut((t - ring.start) / 0.3)) : 1;
+      el.style.left = `${ring.rect.x - 4}px`;
+      el.style.top = `${ring.rect.y - 4}px`;
+      el.style.width = `${ring.rect.w + 8}px`;
+      el.style.height = `${ring.rect.h + 8}px`;
+      el.style.transform = `scale(${grow})`;
+      el.style.borderColor = ring.color ?? '';
+      frame.appendChild(el);
+    }
+    layer.style.display = 'block';
+    return { file, view: v };
+  }
+
+  // Footage: the segment under t on one layer, the previous one fading out
+  // on the other during the crossfade; returns the top segment and its view
+  async function renderFootage(t) {
+    const segs = timeline.segments;
+    const i = segs.findIndex((s) => t >= s.start && t < s.end);
+    layers.forEach((l) => { l.style.display = 'none'; l.style.opacity = '1'; });
+    if (i < 0) return null;
+    const seg = segs[i];
+    const prev = segs[i - 1];
+    const fade = seg.fade ?? 0.12;
+    let shown;
+    if (prev && t - seg.start < fade) {
+      await show(layers[0], { ...prev, end: prev.end + fade }, t);
+      shown = await show(layers[1], seg, t);
+      layers[1].style.opacity = String(easeInOut((t - seg.start) / fade));
+    } else {
+      shown = await show(layers[i % 2], seg, t);
+    }
+    backdrop.style.backgroundImage = `url("${shown.file}")`;
+    return { seg, view: shown.view };
+  }
+
+  // A sticker sits at stage coordinates, or with `anchor` at a point of the
+  // clip on screen (in the clip's CSS pixels) plus an offset in stage pixels
+  function renderStickers(t, top) {
+    stickersEl.innerHTML = '';
+    for (const s of timeline.stickers) {
+      if (t < s.start || t > s.end) continue;
+      let x = s.x, y = s.y;
+      if (s.anchor) {
+        if (!top || top.seg.clip !== s.anchor.clip) continue;
+        x = top.view.tx + s.anchor.x * top.view.scale + (s.dx ?? 0);
+        y = top.view.ty + s.anchor.y * top.view.scale + (s.dy ?? 0);
+      }
+      const el = document.createElement('div');
+      el.className = 'sticker';
+      el.textContent = s.text;
+      el.style.setProperty('--c', s.color ?? 'var(--amber)');
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      const pop = backOut((t - s.start) / 0.3);
+      const fade = clamp((s.end - t) / 0.2, 0, 1);
+      el.style.opacity = String(Math.min(fade, clamp((t - s.start) / 0.06, 0, 1)));
+      el.style.transform = `translate(-50%, -50%) rotate(${s.rot ?? -4}deg) scale(${pop * (s.scale ?? 1)})`;
+      stickersEl.appendChild(el);
+    }
+  }
+
+  // Slams: a big line that drops onto the screen from a larger size
+  function renderSlams(t) {
+    slamsEl.innerHTML = '';
+    for (const s of timeline.slams) {
+      if (t < s.start || t > s.end) continue;
+      const el = document.createElement('div');
+      el.className = 'slam';
+      el.innerHTML = s.html;
+      el.style.top = `${s.y}px`;
+      el.style.fontSize = `${s.size ?? 120}px`;
+      if (s.color) el.style.color = s.color;
+      const p = easeOut((t - s.start) / 0.22);
+      el.style.opacity = String(Math.min(p, clamp((s.end - t) / 0.25, 0, 1)));
+      el.style.transform = `scale(${lerp(1.6, 1, p)}) rotate(${s.rot ?? -2}deg)`;
+      slamsEl.appendChild(el);
+    }
+  }
+
+  function renderPips(t) {
+    const pips = timeline.pips;
+    const on = t >= pips.start && t < pips.end;
+    pipsEl.style.display = on ? 'flex' : 'none';
+    if (!on) return;
+    pipsEl.style.top = `${pips.y}px`;
+    pipsEl.style.opacity = String(Math.min(easeOut((t - pips.start) / 0.25), clamp((pips.end - t) / 0.25, 0, 1)));
+    [...pipsEl.children].forEach((el, i) => {
+      const fill = pips.fills[i];
+      el.classList.toggle('on', t >= fill);
+      el.style.transform = `scale(${t >= fill ? 1 + 0.25 * (1 - backOut((t - fill) / 0.3)) : 1})`;
+    });
+  }
+
+  function renderCaption(t) {
+    const line = timeline.captions.find((c) => t >= c.start && t < c.end);
+    if (!line || line.hidden) {
+      captionEl.innerHTML = '';
+      captionBar.style.opacity = '0';
+      return;
+    }
+    captionBar.style.opacity = '1';
+    captionEl.innerHTML = line.words
+      .map((w) => `<span class="w ${t >= w.start && t < w.end ? 'on' : ''}">${w.text}</span>`)
+      .join(' ');
+  }
+
+  function renderCards(t) {
+    const title = timeline.titleCard;
+    const end = timeline.endCard;
+    const inTitle = t >= title.start && t < title.end;
+    const inEnd = t >= end.start;
+    titleCard.style.display = inTitle ? 'block' : 'none';
+    endCard.style.display = inEnd ? 'block' : 'none';
+    if (inTitle) {
+      const p = easeOut((t - title.start) / 0.6);
+      titleCard.style.opacity = String(clamp((title.end - t) / 0.25, 0, 1));
+      titleCard.querySelector('.title').style.transform = `scale(${lerp(1.25, 1, p)})`;
+      titleCard.querySelector('.title').style.opacity = String(p);
+      titleCard.querySelector('.mark').style.transform = `translateY(${(1 - p) * -60}px)`;
+      const stamp = $('titleStamp');
+      const s = (t - title.stamp) / 0.16;
+      stamp.style.opacity = String(clamp(s, 0, 1));
+      stamp.style.transform = `translateX(-50%) rotate(-8deg) scale(${lerp(2.2, 1, easeOut(s))})`;
+    }
+    if (inEnd) {
+      endCard.style.opacity = String(easeOut((t - end.start) / 0.4));
+      const s = (t - end.slam) / 0.2;
+      $('endSlam').style.opacity = String(clamp(s, 0, 1));
+      $('endSlam').style.transform = `scale(${lerp(1.7, 1, easeOut(s))}) rotate(-3deg)`;
+      [['modeA', end.modes], ['modeB', end.modes + 0.18]].forEach(([id, at]) => {
+        const p = backOut((t - at) / 0.4);
+        $(id).style.opacity = String(clamp((t - at) / 0.15, 0, 1));
+        $(id).style.transform = `translateY(${(1 - p) * 60}px)`;
+      });
+      $('endUrl').style.opacity = String(easeOut((t - end.url) / 0.5));
+    }
+    return inTitle || inEnd;
+  }
+
+  // The poster frame passes { captions: false }
+  window.render = async (t, { captions = true } = {}) => {
+    if (!timeline) await load();
+    const cardOnly = renderCards(t);
+    let top = null;
+    if (cardOnly) {
+      layers.forEach((l) => { l.style.display = 'none'; });
+    } else {
+      top = await renderFootage(t);
+    }
+    renderStickers(t, top);
+    renderSlams(t);
+    renderPips(t);
+    renderCaption(captions ? t : -1);
+    if (params.has('debug')) {
+      $('debug').style.display = 'block';
+      $('debug').textContent = `t=${t.toFixed(2)}`;
+    }
+    return true;
+  };
+
+  if (params.has('t')) window.render(Number(params.get('t')));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+@import "tailwindcss";
+
+@custom-variant light (&:where(.light, .light *));
+
+:root {
+  --background: #0a0f16;
+  --foreground: #e2e8f0;
+  --frost-border: #9bd7f9;
+  --card-strong: #182a38;
+  --card-deep: #0c1620;
+}
+
+/* Light theme: flips the semantic tokens and remaps the palette variables
+   Tailwind utilities reference, so dark-first markup renders correctly on
+   a light background without per-class overrides. */
+.light {
+  --background: #dbe9f3;
+  --foreground: #16283a;
+  --frost-border: #4f88ad;
+  --card-strong: #ffffff;
+  --card-deep: #e4f0f8;
+
+  --color-white: #10273d;
+  --color-black: #f5fafd;
+
+  --color-slate-100: #132c47;
+  --color-slate-200: #24405c;
+  --color-slate-300: #34506b;
+  --color-slate-400: #47637e;
+  --color-slate-500: #5c7893;
+  --color-slate-600: #7791a8;
+  --color-slate-700: #b6cfe0;
+  --color-slate-800: #cfe2ee;
+  --color-slate-900: #e2edf5;
+  --color-slate-950: #f0f6fa;
+
+  --color-red-100: #7f1d1d;
+  --color-red-200: #991b1b;
+  --color-red-300: #b91c1c;
+  --color-red-400: #dc2626;
+  --color-red-900: #fecaca;
+  --color-red-950: #fee2e2;
+
+  --color-sky-100: #0c4a6e;
+  --color-sky-200: #075985;
+  --color-sky-300: #0369a1;
+  --color-sky-400: #0284c7;
+  --color-sky-950: #e0f2fe;
+
+  --color-cyan-100: #155e75;
+  --color-cyan-200: #0e7490;
+  --color-cyan-300: #0891b2;
+
+  --color-green-200: #166534;
+  --color-green-300: #15803d;
+  --color-green-400: #16a34a;
+  --color-green-950: #dcfce7;
+
+  --color-amber-300: #f59e0b;
+  --color-amber-400: #d97706;
+  --color-amber-500: #b45309;
+  --color-amber-600: #92400e;
+  --color-amber-700: #78350f;
+  --color-amber-800: #5f2b0d;
+  --color-amber-900: #4a220b;
+
+  --color-yellow-400: #ca8a04;
+
+  --color-purple-400: #9333ea;
+  --color-purple-500: #7e22ce;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-app-sans);
+  --font-mono: var(--font-app-mono);
+  --color-frost-border: var(--frost-border);
+  --color-card-strong: var(--card-strong);
+  --color-card-deep: var(--card-deep);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: rgba(56, 132, 190, 0.35);
+  color: #fff;
+}
+
+.light ::selection {
+  color: #0a1826;
+}
+
+@keyframes bubblein {
+  0% { opacity: 0; transform: translateX(-16px) scale(0.92); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* Studio intro: cards cut in from the right, bars grow from the left,
+   weather drifts down the card */
+@keyframes introslide {
+  0% { opacity: 0; transform: translateX(28px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes introbar {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+
+@keyframes introdrift {
+  0% { transform: translate3d(0, -30px, 0) rotate(0deg); opacity: 0; }
+  12% { opacity: 1; }
+  100% { transform: translate3d(14px, 240px, 0) rotate(300deg); opacity: 0; }
+}
+
+@keyframes flagwave {
+  0%, 100% { transform: skewY(0deg) scaleX(1); }
+  50% { transform: skewY(-7deg) scaleX(0.93); }
+}
+
+@keyframes podiumrise {
+  0% { opacity: 0; transform: translateY(26px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Coaches in the stands: the bigger the stake, the bigger the jump */
+@keyframes fanbob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes fanhop {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(-2deg); }
+}
+
+@keyframes fanjump {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  30% { transform: translateY(-10px) rotate(4deg); }
+  60% { transform: translateY(-2px) rotate(-3deg); }
+}
+
+@keyframes fanwild {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(-6px, -14px) rotate(-8deg); }
+  45% { transform: translate(5px, -4px) rotate(6deg); }
+  70% { transform: translate(-4px, -16px) rotate(-5deg); }
+}
+
+@keyframes fancheer {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-18px) scale(1.15) rotate(-10deg); }
+  60% { transform: translateY(-4px) scale(1.05) rotate(8deg); }
+}
+
+@keyframes fansulk {
+  0%, 100% { transform: translateY(6px) rotate(-4deg) scale(0.92); }
+  50% { transform: translateY(8px) rotate(4deg) scale(0.9); }
+}
+
+/* What a coach throws or sheds in the stand once his bet is settled */
+@keyframes fly1 {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate(-30px, -22px) rotate(-300deg); opacity: 0; }
+}
+
+@keyframes fly2 {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate(-16px, -40px) rotate(260deg); opacity: 0; }
+}
+
+@keyframes fly3 {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate(2px, -46px) rotate(-200deg); opacity: 0; }
+}
+
+@keyframes fly4 {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate(18px, -38px) rotate(320deg); opacity: 0; }
+}
+
+@keyframes fly5 {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate(32px, -20px) rotate(-240deg); opacity: 0; }
+}
+
+@keyframes twinkle {
+  0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1) rotate(45deg); opacity: 1; }
+}
+
+@keyframes teardrop {
+  0% { transform: translateY(0) scaleY(0.6); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(16px) scaleY(1.2); opacity: 0; }
+}

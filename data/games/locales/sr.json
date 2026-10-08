@@ -1,0 +1,2586 @@
+{
+  "catalog": {
+    "career": {
+      "title": "Glizić Manager"
+    },
+    "modes": {
+      "single": "Jedan igrač",
+      "multi": "Više igrača"
+    }
+  },
+  "shared": {
+    "language": {
+      "title": "Jezik",
+      "en": "English",
+      "sr": "Srpski"
+    },
+    "and": "i",
+    "ordinal": {
+      "one": "{n}.",
+      "two": "{n}.",
+      "few": "{n}.",
+      "other": "{n}."
+    },
+    "close": "Zatvori",
+    "settings": "Podešavanja",
+    "seasons": [
+      "Zima",
+      "Proleće",
+      "Leto",
+      "Jesen"
+    ],
+    "reset": {
+      "confirm": "Sigurno? Sve se briše",
+      "label": "Resetuj igru",
+      "title": "Resetuj sve igre i dostignuća",
+      "yes": "Da, obriši",
+      "no": "Ostavi"
+    },
+    "theme": {
+      "title": "Tema",
+      "dark": "Tamna",
+      "light": "Svetla"
+    },
+    "more": "Ostalo",
+    "showTutorial": "Prikaži uputstvo ponovo",
+    "backToHub": "Nazad na početnu",
+    "audio": {
+      "title": "Zvuk",
+      "mute": "Isključi zvuk",
+      "unmute": "Uključi zvuk",
+      "volume": "Jačina zvuka prenosa",
+      "master": "Jačina zvuka",
+      "on": "Uključeno",
+      "off": "Isključeno",
+      "channels": {
+        "sfx": {
+          "label": "Zvučni efekti",
+          "volume": "Jačina efekata"
+        },
+        "music": {
+          "label": "Muzika",
+          "volume": "Jačina muzike"
+        },
+        "voice": {
+          "label": "Glasovi",
+          "volume": "Jačina glasova"
+        }
+      }
+    },
+    "broadcast": {
+      "title": "Prenos",
+      "commentator": "Komentator",
+      "cutscenes": "Scene"
+    },
+    "hold": {
+      "stay": "Ostani",
+      "continue": "Nastavi",
+      "continueIn": "Nastavi ({seconds})"
+    },
+    "fullscreen": {
+      "enter": "Ceo ekran",
+      "exit": "Izađi iz celog ekrana"
+    }
+  },
+  "duel": {
+    "spots": {
+      "hat": "Šešir",
+      "sock": "Čarapa",
+      "box": "Kutija"
+    },
+    "roles": {
+      "placing": "Krije",
+      "guessing": "Izbegava"
+    }
+  },
+  "cup": {
+    "roundNames": [
+      "Osmina finala",
+      "Četvrtfinale",
+      "Polufinale",
+      "Finale"
+    ],
+    "chips": {
+      "noStake": "Bez"
+    },
+    "elimination": {
+      "toFinal": "Preskoči do kraja"
+    },
+    "controls": {
+      "skipRemaining": "Preskoči preostale mečeve",
+      "nextRound": "Sledeća runda",
+      "podium": "Podijum"
+    },
+    "bracket": {
+      "watch": "Gledaj",
+      "yourMatch": "Tvoj meč",
+      "betTitle": "Kladi se na pobedu",
+      "betOddsTitle": "Kladi se na pobedu, kvota x{odds}",
+      "betWon": "Opklada +{payout}",
+      "betLost": "Opklada -{stake}",
+      "inForm": "U formi"
+    },
+    "viewer": {
+      "start": "Meč počinje...",
+      "end": "Kraj meča",
+      "round": "Runda {round}",
+      "overtimeRound": "Produžeci, runda {round}",
+      "winner": "Pobednik: {name}",
+      "continue": "Nastavi",
+      "skip": "Preskoči do rezultata",
+      "sniffLabel": "Namirisao glizi i sklonio ruku",
+      "sniffSpot": "Ovde mu smrdi na glizi",
+      "bite": "NJAM!",
+      "events": {
+        "meltdown": "Pukao je od holesterola! Nosila ulaze u studio!",
+        "overfull-forfeit": "Ne može više! Prepun glizija, predaje meč!",
+        "police": "Policija na sceni! Odvode ga na saslušanje usred meča!",
+        "removed": "Nije ni seo za sto! Izvode ga sa scene pre prvog glizija!",
+        "tiebreak": "Produžeci! Dva glizija na stolu. Ko prvi zagrize, taj gubi."
+      },
+      "reasons": {
+        "meltdown": "Predaja: nervni slom",
+        "overfull-forfeit": "Predaja: prejeo se",
+        "police": "Predaja: priveden usred meča",
+        "withdrawn": "Predaja: povukao se iz turnira",
+        "removed": "Predaja: uklonjen pre meča"
+      }
+    },
+    "podium": {
+      "fallen": "Ispali",
+      "screenTitle": "Šampion"
+    },
+    "studio": {
+      "live": "Uživo",
+      "title": "GLIZIĆ KUP",
+      "themes": [
+        "Ledeno izdanje",
+        "Krvavo izdanje",
+        "Letnje izdanje",
+        "Patlidžan izdanje"
+      ]
+    }
+  },
+  "career": {
+    "broadcast": {
+      "title": "Uvod u turnir",
+      "record": "Skor",
+      "titles": "Titule",
+      "meltdowns": "Pucanja",
+      "continue": "Nastavi",
+      "chance": "Šansa",
+      "h2h": "Međusobni",
+      "form": "Poslednjih 5",
+      "eaten": "Pojedeno",
+      "edition": "Ovo izdanje",
+      "pace": "Ø poteza",
+      "tiebreaks": "Produžeci",
+      "punishments": "Kazne",
+      "forfeits": "Predaje",
+      "seed": "{seed} pozicija",
+      "badges": {
+        "inForm": "Njegovo vreme",
+        "rival": "Derbi",
+        "titleHolder": "Branilac titule"
+      },
+      "inFormHint": "{theme} im prija",
+      "streaks": "Nizovi",
+      "inForm": "Njihovo vreme",
+      "editionRecord": "Ovo izdanje",
+      "editionNone": "prvi put",
+      "buffStress": "{drop} stresa na ulazu",
+      "buffGain": "stres u meču x{scale}",
+      "pastChampions": "Prošli šampioni ovog izdanja",
+      "championYear": "god. {year}",
+      "titleChance": "Šansa za titulu",
+      "weatherTitle": "Vremenska prognoza",
+      "streakHot": "Vreo niz",
+      "streakCold": "Hladan niz",
+      "tape": "Uporedna tabla",
+      "live": "Uživo",
+      "weatherReports": [
+        [
+          "Vije celo veče. Viršle se puše duplo.",
+          "Led na stolu, led u stomacima. Ko prvi zadrhti, prvi ispada.",
+          "Sneg do kolena, a kolena drhte. Viršla greje samo iznutra."
+        ],
+        [
+          "Crveno nebo, vetar nosi lišće preko stola.",
+          "Magla se spustila na dolinu. Vidi se taman koliko treba: do viršle.",
+          "Lišće šušti, kiša preti. Kišobrane niko nije poneo, viršle jesu."
+        ],
+        [
+          "Tropska noć. Sto je vreo, apetiti vreliji.",
+          "Sparina od jutra. Senf se topi pre nego što stigne do hleba.",
+          "Ni daška vetra. Komarci su izbrojali takmičare pre sudija."
+        ],
+        [
+          "Sve cveta i miriše. Najjače, viršla.",
+          "Polen u vazduhu, suze u očima. Neko od alergije, neko od žreba.",
+          "Prvo pravo sunce ove godine. Patlidžani sjaje, pa i takmičari."
+        ]
+      ]
+    },
+    "page": {
+      "eyebrow": "Glizić igre",
+      "intro": "Igraš kao trener. Izaberi lika preko malih oglasa, vodi ga kroz sezone, treniraj ga dok ne postane glizi overlord."
+    },
+    "start": {
+      "screen": "Karijera",
+      "button": "Nova karijera",
+      "resume": "Nastavi",
+      "confirmNew": "Postojeća karijera će biti obrisana. Kreni ispočetka?",
+      "confirmYes": "Da, obriši i kreni",
+      "confirmNo": "Ipak ne",
+      "slot": "Slot {n}",
+      "slots": "Slotovi",
+      "delete": "Obriši",
+      "deleteTitle": "Obriši slot {n}",
+      "deleteConfirm": "Karijera iz ovog slota se briše zauvek. Sigurno?",
+      "deleteYes": "Da, obriši",
+      "league": "Glizić liga"
+    },
+    "intro": {
+      "headlines": [
+        {
+          "title": "BELI PATULJAK SE VRAĆA U LIGU",
+          "text": "Korporacija Crni Patuljak ponovo je sponzor lige posle 10 godina zabrane zbog ucena. Iz uprave poručuju: ovoga puta sve po propisu."
+        },
+        {
+          "title": "GLIZI KRIZA U DOLINI",
+          "text": "Cene glizija skočile treći put ove zime."
+        },
+        {
+          "title": "ZEKA OPET KOD PLAVE KOLIBE?",
+          "text": "Sveži tragovi u snegu i ostava bez ijednog glizija. Gospodin Kosti odbija da svedoči."
+        }
+      ],
+      "ad": {
+        "title": "TRAŽI SE TRENER",
+        "text": "Liga se ponovo pokreće, a jedan takmičar se posle duže pauze vraća u igru i traži trenera.",
+        "cta": "Javi se na oglas"
+      }
+    },
+    "select": {
+      "masthead": "GLIZIĆ GLASNIK",
+      "section": "Mali oglasi · Traži se trener",
+      "hint": "Ko traži trenera?"
+    },
+    "hud": {
+      "year": "Godina {year}",
+      "balance": {
+        "one": "{amount} glizar",
+        "few": "{amount} glizara",
+        "other": "{amount} glizara"
+      },
+      "coach": "Trener: {name}",
+      "currency": "glizara",
+      "overlord": "Glizi Overlord",
+      "overlordBy": "Glizi Overlord: {name}"
+    },
+    "cutscene": {
+      "kicker": "Ovog meseca",
+      "continue": "Nastavi"
+    },
+    "quoteCutscene": {
+      "skip": "Preskoči",
+      "skipAll": "Preskoči sve",
+      "breaking": "Udarna vest",
+      "bang": "BANG",
+      "tvWinner": "Pobednik",
+      "brainBig": "{name} mozak",
+      "brainNormal": "Normalan mozak",
+      "ticker": [
+        "Vanredno uključenje",
+        "Uživo iz arene"
+      ]
+    },
+    "quoteScenes": {
+      "streak-broken": {
+        "headline": "{name} PREKIDA NIZ PORAZA",
+        "lines": [
+          [
+            "Ajde bre, i meni da svane jednom.",
+            "Vredelo je ustati iz kreveta. Konačno.",
+            "Dobro jutro. Opet znam kako se pobeđuje."
+          ]
+        ]
+      },
+      "opponent-burst": {
+        "headline": "{other} PUCA, {name} SLAVI",
+        "headlineByVariant": {
+          "puke": "{other} POVRAĆA, {name} SLAVI"
+        },
+        "lines": [
+          [
+            "Hehehe... HA HA HA HA!",
+            "Hihihi... HO HO HO HO!",
+            "Muahaha... sve ide po planu!"
+          ]
+        ]
+      },
+      "opponent-removed": {
+        "headline": "{name} OSTAJE BEZ PROTIVNIKA",
+        "lines": [
+          [
+            "Halo? Jedan vam leži kod parkinga.",
+            "Ništa ne znam, samo prolazim ovuda.",
+            "Vozačku imam, savest ne nalazim."
+          ]
+        ]
+      },
+      "favorite-wins": {
+        "headline": "{name} POBEĐUJE SA STILOM",
+        "lines": [
+          [
+            "Leptir mašna stoji, protivnik leži.",
+            "Pobeda je lakša kad frizura stoji.",
+            "Slikajte slobodno, ovo mi je bolji profil."
+          ]
+        ]
+      },
+      "underdog-wins": {
+        "headline": "{name} RUŠI FAVORITA",
+        "lines": [
+          [
+            "Kašika po kašika, pade favorit.",
+            "Ko je sad favorit? Ajde, reci.",
+            "Ovo ti je za one prognoze."
+          ]
+        ]
+      },
+      "photo-finish": {
+        "headline": "{name} POBEĐUJE ZA MRVICU",
+        "lines": [
+          [
+            "Za mrvicu, al' moje si je.",
+            "Glavu ne dižem. Prst mogu.",
+            "Mrvica je mrvica, pobeda je pobeda."
+          ]
+        ]
+      },
+      "loss-collapse": {
+        "headline": "{name} PADA USRED MEČA",
+        "headlineByVariant": {
+          "cholesterol": "{name} PUCA OD HOLESTEROLA",
+          "puke": "{name} VRAĆA SVE NAZAD",
+          "surrender": "{name} PREDAJE MEČ"
+        },
+        "lines": [
+          [
+            "Dobro sam. Samo malo ležim ovde, zauvek.",
+            "Ne dirajte me. Ovako mi je najbolje.",
+            "Recite mojima da stižem. Kad prohodam."
+          ]
+        ]
+      },
+      "first-match-exit": {
+        "headline": "{name} ISPADA NA PRVOM KORAKU",
+        "lines": [
+          [
+            "Mentalno, još stojim na onom startu.",
+            "Sve vidim opet. Svaki zalogaj.",
+            "Ne pitajte ništa. Još sam tamo."
+          ]
+        ]
+      },
+      "upset-loss": {
+        "headline": "{name} GUBI OD AUTSAJDERA",
+        "lines": [
+          [
+            "Ma neka, zaslužena pobeda... GASI TAJ TELEVIZOR!",
+            "Sve je u redu... KO JE OVO PUSTIO?!",
+            "Čestitam, stvarno čestitam... DAJTE MI DALJINSKI!"
+          ]
+        ]
+      },
+      "heavy-loss-escape": {
+        "headline": "{name} BEŽI POSLE PORAZA",
+        "lines": [
+          [
+            "Ako neko pita, nema me.",
+            "Tiho. Vrata su za pobednike.",
+            "Idem ja polako. Kroz prozor."
+          ]
+        ]
+      },
+      "heavy-loss-pillory": {
+        "headline": "{name} NA STUBU SRAMA",
+        "lines": [
+          [
+            "Polako, narode, paradajz je skup!",
+            "Dobro, zasluženo. Ali ne u oko!",
+            "Ajde bre, dosta, shvatam poruku."
+          ]
+        ]
+      },
+      "losing-streak": {
+        "headline": "{name} NIŽE PORAZE",
+        "lines": [
+          [
+            "Još jedna recka. Kreda puče pre mene.",
+            "Ponestaje mi zida, a i krede.",
+            "Ič me ne dira. Kupujem veći zid."
+          ]
+        ]
+      },
+      "tax-office": {
+        "headline": "{name} IZMIRUJE POREZ",
+        "lines": [
+          [
+            "Pare dođu, pare odu. Uglavnom odu.",
+            "Uzmite sve, samo mi sat ostavite.",
+            "Evo, i džepove da vam izvrnem."
+          ]
+        ]
+      },
+      "champion-trophy": {
+        "headline": "{name} OSVAJA KUP",
+        "lines": [
+          [
+            "Evo ga, moj je!",
+            "Tu li si, lepotane!",
+            "Dođi 'vamo, čekam te odavno!"
+          ]
+        ]
+      },
+      "champion-chicken": {
+        "headline": "{name} OSVAJA KUP I ČASTI",
+        "lines": [
+          [
+            "Meni pehar, tebi pečeno pile. Prijatno.",
+            "Uz srebro ide pečeno pile. Prijatno!",
+            "Drugo mesto, drugo jelo. Pečeno pile, izvoli."
+          ]
+        ]
+      },
+      "champion-egg": {
+        "headline": "{name} OSVAJA KUP BEZ MUKE",
+        "lines": [
+          [
+            "Prosto k'o pasulj.",
+            "Lako k'o jaje.",
+            "Ništa lakše."
+          ]
+        ]
+      },
+      "champion-brain": {
+        "headline": "{name} OSVAJA KUP GLAVOM",
+        "lines": [
+          [
+            "Sve je ovde.",
+            "Čista nauka.",
+            "Mozak radi, kup stiže."
+          ]
+        ]
+      },
+      "champion-crowd": {
+        "headline": "{name} OSVAJA KUP I PUBLIKU",
+        "lines": [
+          [
+            "Polako, narode, pehar se lako lomi!",
+            "Nosite me kući, znate gde je!",
+            "Ne ispuštajte! Bar ne pehar!"
+          ]
+        ]
+      },
+      "runner-up": {
+        "headline": "{name} OSTAJE BEZ PEHARA",
+        "lines": [
+          [
+            "Srebro je isto zlato, samo tužnije.",
+            "Drugo mesto. Prvo među onima što plaču.",
+            "Čestitam. Idem sad malo da gledam u zid."
+          ]
+        ]
+      },
+      "wooden-spoon": {
+        "headline": "{name} OSVAJA DRVENU KAŠIKU",
+        "lines": [
+          [
+            "Drvena, al' moja. Ide na policu.",
+            "Zadnje mesto, al' sa kašiku!",
+            "Taman, fali mi kašika kod kuće."
+          ]
+        ]
+      },
+      "sponsor-signed": {
+        "headline": "{name} POTPISUJE SPONZORA",
+        "lines": [
+          [
+            "Može.",
+            "Dogovoreno.",
+            "Gde se potpisuje?"
+          ]
+        ]
+      },
+      "price-crash": {
+        "headline": "{name} OBARA CENE KAMIONOM",
+        "lines": [
+          [
+            "Kad se prospe, sve je jeftinije.",
+            "Tragedija, al' cena nikad bolja.",
+            "S poda je uvek najjeftinije."
+          ]
+        ]
+      }
+    },
+    "hitCutscene": {
+      "kicker": "Preko noći",
+      "counter": "{n} od {total}",
+      "levels": {
+        "one": "{training} -{n} nivo",
+        "few": "{training} -{n} nivoa",
+        "other": "{training} -{n} nivoa"
+      },
+      "sessions": {
+        "one": "{training} -{n} trening",
+        "few": "{training} -{n} treninga",
+        "other": "{training} -{n} treninga"
+      },
+      "blocked": "Obezbeđenje je odradilo posao"
+    },
+    "actions": {
+      "training": "Trening",
+      "media": "Mediji",
+      "mediaTitle": "Kakav nastup u medijima?",
+      "mediaInterview": "Intervju",
+      "mediaInterviewDesc": {
+        "one": "Zaradiš {pay} glizar. Slava +{fameMin} do +{fameMax}, ego +{ego}, ambicija +{amb}, apetit +{appetite}, holesterol +{stress}.",
+        "few": "Zaradiš {pay} glizara. Slava +{fameMin} do +{fameMax}, ego +{ego}, ambicija +{amb}, apetit +{appetite}, holesterol +{stress}.",
+        "other": "Zaradiš {pay} glizara. Slava +{fameMin} do +{fameMax}, ego +{ego}, ambicija +{amb}, apetit +{appetite}, holesterol +{stress}."
+      },
+      "mediaScandal": "Napravi Skandal",
+      "mediaScandalDesc": {
+        "one": "Zaradiš {pay} glizar. Slava +{fameMin} do +{fameMax}, ego +{ego}, ambicija +{amb}, apetit +{appetite}, holesterol +{stress}. U {backfire}% slučajeva se otrgne, pa je slava {backfireFameMin} do {backfireFameMax}, ego -{ego} i holesterol +{backfireStress}.",
+        "few": "Zaradiš {pay} glizara. Slava +{fameMin} do +{fameMax}, ego +{ego}, ambicija +{amb}, apetit +{appetite}, holesterol +{stress}. U {backfire}% slučajeva se otrgne, pa je slava {backfireFameMin} do {backfireFameMax}, ego -{ego} i holesterol +{backfireStress}.",
+        "other": "Zaradiš {pay} glizara. Slava +{fameMin} do +{fameMax}, ego +{ego}, ambicija +{amb}, apetit +{appetite}, holesterol +{stress}. U {backfire}% slučajeva se otrgne, pa je slava {backfireFameMin} do {backfireFameMax}, ego -{ego} i holesterol +{backfireStress}."
+      },
+      "island": "Ostrvski vikend",
+      "islandDesc": "Brodić do Ostrva, gde se pare ne broje. Holesterol na nulu, apetit i ambicija do vrha. Ne troši mesec, jednom godišnje.",
+      "islandDescEveryWindow": "Brodić do Ostrva, gde se pare ne broje. Holesterol na nulu, apetit i ambicija do vrha. Ne troši mesec, jednom po prelaznom roku.",
+      "islandFree": "Besplatno, ne troši mesec",
+      "guard": "Obezbeđenje",
+      "guarded": "Pod zaštitom",
+      "calendar": "Kalendar",
+      "close": "Zatvori",
+      "cancel": "Odustani",
+      "openLetter": "Otvori pismo",
+      "settings": "Podešavanja",
+      "restTitle": "Kako da se odmori?",
+      "restDesc": "Holesterol -{stressMin} do -{stressMax}, apetit {appetiteMin} do +{appetiteMax} i ambicija do ±{drift}, zavisi. Ego se pomera najviše {drift} ka {ego}, slava -{fame}.",
+      "fast": "Post",
+      "fastDesc": "+{gain} apetita i +{amb} ambicije, holesterol +{stress}.",
+      "invest": "Ulaganja"
+    },
+    "toast": {
+      "progress": "{training}",
+      "levelUp": "{training}: NIVO GORE",
+      "regression": "{training}: PRETRENIRAN, nivo dole",
+      "rest": "Odmorija se",
+      "media": "Medijsko pojavljivanje",
+      "mediaScandal": "Skandalno pojavljivanje",
+      "mediaScandalBackfire": "Skandal se otrgao kontroli. Sve je postalo pepeo i dim.",
+      "guard": "Obezbeđenje angažovano, zaustavlja {pct}% napada",
+      "sabotage": "Poslić ugovoren. Čekaj vesti.",
+      "island": "Ostrvski vikend, organizam kao nov",
+      "moneyUp": {
+        "one": "+{n} glizar",
+        "few": "+{n} glizara",
+        "other": "+{n} glizara"
+      },
+      "moneyDown": {
+        "one": "-{n} glizar",
+        "few": "-{n} glizara",
+        "other": "-{n} glizara"
+      },
+      "skillProgress": "{name}",
+      "skillLevelUp": "{name}: NIVO GORE",
+      "skillLevelDown": "{name}: nivo dole",
+      "fast": "Otvorio se apetit",
+      "invest": "{name}: ugovor potpisan",
+      "investPayout": "Investicije",
+      "egoHijack": "Ego preko {threshold}: sam se upisao na {training}",
+      "slumpGuard": "Ambicija ispod {threshold}: platio obezbeđenje da ga niko ne dira, staje {pct}% napada",
+      "slumpFast": "Ambicija ispod {threshold}: nema para za obezbeđenje, pa posti"
+    },
+    "offseason": {
+      "months": [
+        [
+          "Januar",
+          "Februar",
+          "Mart"
+        ],
+        [
+          "April",
+          "Maj",
+          "Jun"
+        ],
+        [
+          "Jul",
+          "Avgust",
+          "Septembar"
+        ],
+        [
+          "Oktobar",
+          "Novembar",
+          "Decembar"
+        ]
+      ],
+      "actionsTitle": "Mesečne aktivnosti",
+      "overtrainWarning": "Rizik pretreniranja: {pct}%",
+      "cost": {
+        "one": "{cost} glizar",
+        "few": "{cost} glizara",
+        "other": "{cost} glizara"
+      },
+      "buy": {
+        "one": "Plati {cost} glizar",
+        "few": "Plati {cost} glizara",
+        "other": "Plati {cost} glizara"
+      },
+      "spendMonth": "Potroši mesec",
+      "partyChip": "Stranka {pct}",
+      "level": "Lvl {level}",
+      "maxLevel": "MAX",
+      "noFunds": "Nema dovoljno glizara",
+      "yearCalendar": {
+        "prevYear": "Prethodna godina",
+        "nextYear": "Sledeća godina",
+        "cupSoon": "Uskoro",
+        "cupLive": "U toku",
+        "yourPlace": "{place} mesto",
+        "semifinal": "Polufinale",
+        "quarterfinal": "Četvrtfinale",
+        "roundOf16": "Osmina finala",
+        "free": "Slobodno",
+        "egoSlot": "Ego: {training}",
+        "slumpSlot": "Bez volje: {action}"
+      },
+      "newsButton": "Vesti iz lige",
+      "cupButton": "Kreni na kup",
+      "lastPaper": "Poslednje novine",
+      "electionButton": "Izborna noć",
+      "rivalButton": "Izbor rivala",
+      "glizacija": {
+        "title": "Glizacija",
+        "vsStart": "u odnosu na start",
+        "ranges": {
+          "y1": "1 god.",
+          "y2": "2 god.",
+          "y5": "5 god.",
+          "all": "Sve"
+        },
+        "rangeChange": "{pct} u periodu",
+        "high": "Najviše",
+        "low": "Najniže",
+        "lastMove": "Poslednja promena",
+        "infoTitle": "Šta je Glizacija",
+        "info": {
+          "what": "Indeks cene glizija u gradu, u odnosu na dan kad je karijera počela. Kad glizi poskupi, poskupi sve što grad naplaćuje.",
+          "moves": "Svakog prelaznog roka postoji {chance}% šanse za vest: glizi ide gore ili dole za {min} do {max}%. Promene se množe, a indeks ne pada ispod {floor}% niti raste preko {ceiling}% početne cene.",
+          "prices": "Množi cene: {categories}. Sezonske cene idu preko toga.",
+          "notPrices": "Ne dira: novac koji mediji plaćaju, donacije i nagrade.",
+          "rating": "Poskupljenje košta vladajuću stranku {hikeMin} do {hikeMax} rejtinga, pojeftinjenje joj donosi {dropMin} do {dropMax}. Bez vlade nema koga da krive.",
+          "now": "Danas: cene x{scale} ({pct})",
+          "nowFlat": "Danas: sve po početnoj ceni"
+        },
+        "start": "start",
+        "yearTick": "{year}. god."
+      },
+      "seasonPrices": {
+        "infoTitle": "Sezonske cene",
+        "intro": "Svako izdanje menja cenu nečega.",
+        "categories": {
+          "training": "Trening",
+          "media": "Mediji",
+          "guard": "Obezbeđenje",
+          "sabotage": "Sabotaža",
+          "investment": "Ulaganja"
+        },
+        "cheaper": "jeftinije",
+        "pricier": "skuplje",
+        "paysMore": "plaća više",
+        "paysLess": "plaća manje",
+        "range": "{category}: {min} do {max}",
+        "current": "Ove sezone: {pct}% {direction}",
+        "chipNow": "{category} {pct}",
+        "chipRange": "{category} {min} do {max}",
+        "cardChip": "Sezona {pct}",
+        "gliziChip": "Glizacija {pct}",
+        "chipNone": "Bez sezonskih cena",
+        "none": "Prva sezona: sve po redovnom cenovniku"
+      }
+    },
+    "meters": {
+      "title": "Karton igrača",
+      "stress": "Holesterol",
+      "appetite": "Apetit",
+      "ambition": "Ambicija",
+      "ego": "Ego",
+      "fame": "Slava",
+      "stressDanger": "Će pukne",
+      "ambitionLow": "Bez volje",
+      "egoHigh": "Preuzima",
+      "appetiteLow": "Prejeden",
+      "appetiteHigh": "Izgladneo",
+      "infoTitle": "Veštine i osobine",
+      "info": {
+        "stress": "Raste od mečeva, treninga i rizičnih poteza. Preko 80 je crvena zona i svaki potez nosi rizik kolapsa, na 100 kolaps i predaja meča su sigurni. Obara ga odmor.",
+        "appetite": "Koliko jede na meču: najbolje oko sredine. Ispod 20 je prejeden i može da preda meč, preko 80 izgladneo. Menjaju ga mečevi, odmor i post.",
+        "ambition": "Volja za takmičenjem. Ispod 15 postoji rizik predaje meča bez borbe, a na početku priprema sam plaća najjeftinije obezbeđenje ili, ako nema para, posti.",
+        "ego": "Iznad 75 ego preuzima kontrolu i sam troši prvi slot priprema. Ispod 15 trema: dodatni holesterol i rizik predaje. Odmor ga vuče ka {target}, a obezbeđenje i sabotaža ga dižu.",
+        "fame": "Uslov za sponzorske ponude (50+) i deo poena na tabeli. Raste od medija, pobeda i visokog plasmana na kupu, a slab plasman je obara. Svaki odmor je obara za {drop} jer te novine brzo zaborave.",
+        "skillsTitle": "Veštine",
+        "skillsIntro": "Lvl raste posle 3 treninga iste veštine, najviše do nivoa 3. Isti trening bez odmora rizikuje pad nivoa."
+      }
+    },
+    "trainings": {
+      "stomach": {
+        "name": "Kapacitet stomaka",
+        "desc": "Jedan glizi više po nivou."
+      },
+      "sniffer": {
+        "name": "Super Snifer",
+        "desc": "Namiriše glizi ponekad pa ga izbegava bolje."
+      },
+      "nutrition": {
+        "name": "Nutricionista",
+        "desc": "Manji pad apetita po zalogaju."
+      },
+      "fans": {
+        "name": "Medijski trening",
+        "desc": "Više para i slave od medija, manje holesterola. Od 2. nivoa dva nastupa po prozoru."
+      },
+      "sparring": {
+        "name": "Sparing",
+        "desc": "Nasumičan napredak. Malo diže ego."
+      },
+      "rest": {
+        "name": "Odmor"
+      }
+    },
+    "investments": {
+      "title": "Trajna ulaganja",
+      "current": "Sad: {effect}",
+      "next": "Sledeći nivo: {effect}",
+      "names": {
+        "security": "Stalna pratnja",
+        "spa": "Pretplata na banju",
+        "assistant": "Pomoćni trener",
+        "scout": "Doušnik u ligi"
+      },
+      "descs": {
+        "security": "Stražari non stop pred vratima. Rade i onu sezonu kad ne platiš obezbeđenje.",
+        "spa": "Nakon svakog kupa ide pravo u banju: para, blato i kupka.",
+        "assistant": "Drži mu treninge i kad nisi tu. Ne troši mesec i ne nosi rizik pretreniranja.",
+        "scout": "Maje se kafanama, prisluškuje i sve prenosi tebi. Dobijaš pristup tuđim informacijama."
+      },
+      "effects": {
+        "security": "zaustavlja {pct}% sabotaža",
+        "spa": "-{drop} holesterola na startu svake pripreme",
+        "assistant": "besplatni treninzi po pripremi: {n}",
+        "scout1": "vidiš veštine cele lige",
+        "scout2": "vidiš i karton: holesterol, apetit, ego",
+        "scout3": "vidiš i ćud, ugovore i kasu"
+      }
+    },
+    "cup": {
+      "withdraw": "Povuci se iz turnira",
+      "withdrawConfirm": "Povlačenje znači predaju sledećeg meča i kraj turnira. Sigurno?",
+      "withdrawYes": "Da, povuci ga",
+      "withdrawNo": "Ostajemo",
+      "stake": "Ulog po meču",
+      "betAgainstWarning": "Kladiš se PROTIV svog lika. Ako sazna, holesterol ide u nebo, a ego pada u podrum.",
+      "scandalToast": "Procurelo je. Zna da si se kladio protiv njega.",
+      "withdrawToast": "Povukao si ga iz turnira."
+    },
+    "mail": {
+      "title": "Pošta",
+      "empty": "Nema novih pisama.",
+      "markRead": "U redu",
+      "clearAll": "Očisti sve",
+      "take": {
+        "one": "Preuzmi {amount} glizar",
+        "few": "Preuzmi {amount} glizara",
+        "other": "Preuzmi {amount} glizara"
+      },
+      "welcome": {
+        "subject": "Prethodni trener: Samo da ti kažem",
+        "body": {
+          "one": "Evo ti ključ od sale i {amount} glizar što je ostalo u kasi, više nema. Svaki prelazni rok ima tri meseca, u svaki mesec jedna stvar: trening, odmor, mediji ili nešto pametnije. Gledaj mu holesterol da ne pukne, pročitaj novine pa na kup. Sponzor zove sam kad budeš nešto vredeo. Ja idem da si skuvam čaj.",
+          "few": "Evo ti ključ od sale i {amount} glizara što je ostalo u kasi, više nema. Svaki prelazni rok ima tri meseca, u svaki mesec jedna stvar: trening, odmor, mediji ili nešto pametnije. Gledaj mu holesterol da ne pukne, pročitaj novine pa na kup. Sponzor zove sam kad budeš nešto vredeo. Ja idem da si skuvam čaj.",
+          "other": "Evo ti ključ od sale i {amount} glizara što je ostalo u kasi, više nema. Svaki prelazni rok ima tri meseca, u svaki mesec jedna stvar: trening, odmor, mediji ili nešto pametnije. Gledaj mu holesterol da ne pukne, pročitaj novine pa na kup. Sponzor zove sam kad budeš nešto vredeo. Ja idem da si skuvam čaj."
+        }
+      },
+      "overlord": {
+        "subject": "Savez: Kruna lige",
+        "body": {
+          "one": "Savez obaveštava sve trenere o kruni lige. Ko prvi na tabeli lige skupi {points} poen, proglašava se za Glizi Overlorda.",
+          "few": "Savez obaveštava sve trenere o kruni lige. Ko prvi na tabeli lige skupi {points} poena, proglašava se za Glizi Overlorda.",
+          "other": "Savez obaveštava sve trenere o kruni lige. Ko prvi na tabeli lige skupi {points} poena, proglašava se za Glizi Overlorda."
+        }
+      },
+      "stipend": {
+        "subject": "Liga: Stipendija solidarnosti",
+        "body": {
+          "one": "I dalje nemaš sponzora, pa ti se kao i svakom bez sponzora isplaćuje {amount} glizar iz fonda solidarnosti.",
+          "few": "I dalje nemaš sponzora, pa ti se kao i svakom bez sponzora isplaćuje {amount} glizara iz fonda solidarnosti.",
+          "other": "I dalje nemaš sponzora, pa ti se kao i svakom bez sponzora isplaćuje {amount} glizara iz fonda solidarnosti."
+        }
+      },
+      "stipendCut": {
+        "subject": "Liga: Obustava stipendije",
+        "body": "Sa zadovoljstvom smo primili vest da si konačno našao sponzora. Sa još većim zadovoljstvom ti javljamo da ti od danas ne isplaćujemo stipendiju. Čestitamo!"
+      },
+      "rivalTaunt": {
+        "subject": "Liga: Derbi godine",
+        "body": {
+          "one": "Savez ti je za ovu godinu upisao rivala: {name}. Vaš meč na kupu vodi se kao derbi. Dobiješ derbi: +{fame} slave, +{ego} ega i {money} glizar iz fonda. Izgubiš ga: +{stress} holesterola i -{egoLoss} ega. Rival sabotaže najradije šalje baš tebi, pa obezbeđenje nije loša ideja. Rival se menja svake godine.",
+          "few": "Savez ti je za ovu godinu upisao rivala: {name}. Vaš meč na kupu vodi se kao derbi. Dobiješ derbi: +{fame} slave, +{ego} ega i {money} glizara iz fonda. Izgubiš ga: +{stress} holesterola i -{egoLoss} ega. Rival sabotaže najradije šalje baš tebi, pa obezbeđenje nije loša ideja. Rival se menja svake godine.",
+          "other": "Savez ti je za ovu godinu upisao rivala: {name}. Vaš meč na kupu vodi se kao derbi. Dobiješ derbi: +{fame} slave, +{ego} ega i {money} glizara iz fonda. Izgubiš ga: +{stress} holesterola i -{egoLoss} ega. Rival sabotaže najradije šalje baš tebi, pa obezbeđenje nije loša ideja. Rival se menja svake godine."
+        }
+      },
+      "derbyWin": {
+        "subject": "Liga: Derbi je tvoj",
+        "body": {
+          "one": "Derbi godine protiv rivala ({name}) je dobijen i Savez isplaćuje {amount} glizar iz fonda za derbi.",
+          "few": "Derbi godine protiv rivala ({name}) je dobijen i Savez isplaćuje {amount} glizara iz fonda za derbi.",
+          "other": "Derbi godine protiv rivala ({name}) je dobijen i Savez isplaćuje {amount} glizara iz fonda za derbi."
+        }
+      },
+      "investmentsUnlocked": {
+        "subject": "Liga: Odobren ti je fond za ulaganja",
+        "body": "Sad kad iza tebe stoji sponzor, Savez ti dozvoljava i trajne ugovore: obezbeđenje, banju i pomoćnog trenera."
+      },
+      "underworldUnlocked": {
+        "subject": "Liga: Upozorenje uoči prelaznog roka",
+        "body": "Do Saveza su stigle prijave da se pojedini takmičari u prelaznom roku bave ilegalnim aktivnostima. Bilo koji vid sabotaže ili nesportskog ponašanja Savez najoštrije osuđuje. Uhvaćeni će morati da plate kaznu."
+      },
+      "tapeUnlocked": {
+        "subject": "Liga: Nova grafika u prenosu",
+        "body": "Prenos od sledećeg kupa dobija predstavnu tablu pred svaki meč: šanse, forma, međusobni skor, sve na jednoj tabli."
+      },
+      "studioUnlocked": {
+        "subject": "Liga: Studio je završen",
+        "body": "Od sledećeg kupa turnir otvaramo uživo: šanse za titulu, vremenska prognoza i poneki trač, sve pre prvog meča."
+      },
+      "seasonPrices": {
+        "subject": "Liga: Cenovnik za {season}",
+        "bodies": [
+          "Zima je, stražari traže zimsku opremu. Obezbeđenje ove sezone košta {pct}% više nego inače.",
+          "Sale su prazne, treneri gladni posla. Svaki trening ove sezone ide {pct}% jeftinije.",
+          "Leto je, nema vesti, pa svaki intervju kao da je za naslovnu stranu. Mediji ove sezone plaćaju {pct}% više.",
+          "Zbog preopterećenja istraživačkog departmenta saveza samo će se urgentni slučajevi istraživati ove sezone. (sabotaža ove sezone košta {pct}% manje)"
+        ],
+        "reversedBodies": [
+          "Zima je, a stražari bez posla sede po kafanama. Obezbeđenje ove sezone košta {pct}% manje nego inače.",
+          "Sale su pune, treneri biraju koga će da prime. Svaki trening ove sezone ide {pct}% skuplje.",
+          "Leto je, svi su na moru i niko ne čita novine. Mediji ove sezone plaćaju {pct}% manje.",
+          "Istraživački departman saveza dobio je nove ljude i proverava svaku prijavu ove sezone. (sabotaža ove sezone košta {pct}% više)"
+        ]
+      },
+      "bettingUnlocked": {
+        "subject": "Liga: Klađenje ponovo dozvoljeno",
+        "body": "Obaveštavamo te da je zabrana klađenja na mečeve zvanično ukinuta. Komisija je završila posao i krivci su počišćeni, pa od sledećeg kupa kladionica ponovo radi."
+      },
+      "donation": {
+        "subject": "{sponsor}: Poziv na kampanju",
+        "bodies": {
+          "zidari": "Dragi prijatelju, Zidari izlaze na izbore za Skupštinu Leskovca i računamo na tebe. Naš program je jednostavan: bedem oko svake ulice koja glasa za nas i mir iza njega. Svaki glizar koji uložiš u kampanju je jedna cigla više, a gazda lično pamti svakog ko je zidao s nama. Pridruži se, pa da posle izbora sedimo s prave strane zida.",
+          "ostrvo": "Poštovani, Ostrvo ovog puta izlazi na izbore. Ne obećavamo ništa, samo diskreciju za one koji nas podrže i za račune koje drže kod nas. Tvoj prilog kampanji ne prolazi ni kroz jednu knjigu, a tvoje ime ide među prijatelje kuće.",
+          "korporacija": "Poziv na dobrovoljnu podršku izbornoj listi Korporacije Crni Patuljak. Naš program: red u stanovanju, red u dugovima, red u Skupštini. Iznos priloga biraš sam, evidentiranje je naše. Podsećamo da tvoji rođaci stanuju u našim stanovima i da ćemo ih rado obavestiti da si podržao stabilnost grada. Unapred zahvalni.",
+          "stranka": "Brate po slobodi, Pčinja bira i tvoje lice je već na plakatu. Narodna Lista ide na izbore za slobodan Leskovac i nema slobode bez kampanje, a kampanje nema bez glizara. Ono što daš, sutra će državni mediji čitati kao dokaz da si na pravoj strani. Podrži nas i budi deo pobede."
+        },
+        "later": "Ne sada",
+        "give": "Doniraj {amount}",
+        "favorTerms": "Stranka pamti ko je platio kampanju: od {min} glizara u kasi duguje ti jednu uslugu godišnje, svaki sledeći prag još jednu, najviše pet za {top}. Naplaćuješ je pred meč na kupu, dok je stranka u vladi."
+      },
+      "campaign": {
+        "subject": "Izborna kampanja: kase su otvorene",
+        "body": "Nemaš stranku, ali izbori su i svaka kasa prima od svakoga. Prilog čoveka van stranke knjiži se kao desetina vrednosti ali ti daje šansu da iskažeš ljubav i možda dobiješ ugovor.",
+        "give": "Doniraj {amount} ({pct}%)"
+      },
+      "campaignDeclined": {
+        "subject": "{sponsor}: Hvala na prilogu",
+        "body": "Prilog je uknjižen i stranka zahvaljuje. Mesta za novi ugovor trenutno nažalost nema."
+      },
+      "election": {
+        "subject": "Skupština Leskovca: Ishod izbora",
+        "bodies": {
+          "leader": "Pobeda. Tvoja stranka vodi vladu Leskovca i to se već oseća: benefit tvog sponzora je jači, tabela ti računa +15 bodova za sponzora, a iz gradskog budžeta stiže dvadeset glizara po sezoni. Hvala što si bio deo kampanje.",
+          "partner": "Ušli smo u vladu kao partner. Ništa se ne oduzima, ništa se ne dodaje, a najveća stranka zna da si njihov saveznik. Samo, njih niko ne dira, a tebe oni mogu. Kampanja se isplatila, sledeći put ciljamo prvo mesto.",
+          "opposition": "Ovog puta nije išlo. Tvoja stranka je u opoziciji naredne dve godine: benefit tvog sponzora je slabiji, tabela ti računa +5 bodova za sponzora, a Savez skida deset glizara po sezoni na ime solidarnog doprinosa. Vlada te vidi kao protivnika.",
+          "none": "Grad je glasao, a ti nisi bio ni na jednom spisku. Nova vlada ti ne duguje ništa i ne štiti te ni od koga. Trudi se da potpišeš sa nekim pre sledećih izbora."
+        }
+      },
+      "favor": {
+        "subject": "{sponsor}: Hvala na podršci",
+        "bodies": {
+          "zidari": "Zidali smo zajedno i sada držimo kapiju dvorane. Kao našem donatoru dugujemo ti {favors} godišnje: reci ime pre meča i taj čovek ne prolazi kapiju. Gazda ne zaboravlja svoje.",
+          "ostrvo": "Tvoj prilog je uredno sakriven, a Ostrvo vraća dug. Svake godine imaš {favors} na brodiću za bilo koga: kaži ime pre meča i taj čovek je hitno pozvan na Ostrvo da objasni stanje na računu. Diskretno kao i uvek.",
+          "korporacija": "Tvoja podrška je evidentirana i vlada je naša. Kao donator imaš pravo na {favors} godišnje, pre meča po tvom izboru.",
+          "stranka": "Sloboda je pobedila i ti si bio deo toga. Registar Leskovca je u našim rukama, a tebi kao donatoru dugujemo {favors} godišnje: kaži pre meča koga brišemo i taj čovek nestaje sa tog kupa."
+        },
+        "counts": {
+          "zidari": [
+            "jednu uslugu",
+            "dve usluge",
+            "tri usluge",
+            "četiri usluge",
+            "pet usluga"
+          ],
+          "ostrvo": [
+            "jedno mesto",
+            "dva mesta",
+            "tri mesta",
+            "četiri mesta",
+            "pet mesta"
+          ],
+          "korporacija": [
+            "jednu intervenciju izvršitelja",
+            "dve intervencije izvršitelja",
+            "tri intervencije izvršitelja",
+            "četiri intervencije izvršitelja",
+            "pet intervencija izvršitelja"
+          ],
+          "stranka": [
+            "jedno ime",
+            "dva imena",
+            "tri imena",
+            "četiri imena",
+            "pet imena"
+          ]
+        }
+      },
+      "tax": {
+        "subject": "Korporacija: Doprinos za stabilnost grada",
+        "body": {
+          "one": "Vlada Korporacije Crni Patuljak uvodi doprinos za stabilnost grada, obavezan za sve koji nisu u vladi. Obračun za ovaj prelazni rok je ukupno {amount} glizar, skinuto sa računa. Žalba nije dozvoljena, zahvalnost jeste.",
+          "few": "Vlada Korporacije Crni Patuljak uvodi doprinos za stabilnost grada, obavezan za sve koji nisu u vladi. Obračun za ovaj prelazni rok je ukupno {amount} glizara, skinuto sa računa. Žalba nije dozvoljena, zahvalnost jeste.",
+          "other": "Vlada Korporacije Crni Patuljak uvodi doprinos za stabilnost grada, obavezan za sve koji nisu u vladi. Obračun za ovaj prelazni rok je ukupno {amount} glizara, skinuto sa računa. Žalba nije dozvoljena, zahvalnost jeste."
+        }
+      },
+      "taxRefund": {
+        "subject": "Korporacija: Nagrada za lojalnost",
+        "body": {
+          "one": "Vlada Korporacije Crni Patuljak nagrađuje svoje: kao naš klijent oslobođen si doprinosa za stabilnost grada, a razlika ti se vraća u iznosu od {amount} glizara. Rođaci u našim stanovima pozdravljaju i zahvaljuju na tvom izboru.",
+          "few": "Vlada Korporacije Crni Patuljak nagrađuje svoje: kao naš klijent oslobođen si doprinosa za stabilnost grada, a razlika ti se vraća u iznosu od {amount} glizara. Rođaci u našim stanovima pozdravljaju i zahvaljuju na tvom izboru.",
+          "other": "Vlada Korporacije Crni Patuljak nagrađuje svoje: kao naš klijent oslobođen si doprinosa za stabilnost grada, a razlika ti se vraća u iznosu od {amount} glizara. Rođaci u našim stanovima pozdravljaju i zahvaljuju na tvom izboru."
+        }
+      }
+    },
+    "podium": {
+      "prize": {
+        "one": "Nagrada: +{amount} glizar",
+        "few": "Nagrada: +{amount} glizara",
+        "other": "Nagrada: +{amount} glizara"
+      },
+      "playerPlace": "{name} završava na {place} mestu.",
+      "champion": "{name} je šampion!",
+      "continue": "Dalje",
+      "backToOffSeason": "Nazad u pripreme",
+      "toTable": "Dalje na tabelu",
+      "streak": "Titule zaredom: {streak}"
+    },
+    "matchStats": {
+      "skills": {
+        "stomach": "Stomak",
+        "sniffer": "Njuh",
+        "nutrition": "Ishrana",
+        "fans": "Mediji"
+      },
+      "level": "{name}: {level}/3",
+      "needSkills": "Plati doušnika za više informacija.",
+      "needMeters": "Doušnik 2. nivoa otvara i karton: holesterol, apetit, ego.",
+      "flags": {
+        "stressHigh": "Holesterol pukao, svaki potez nosi rizik",
+        "stressLow": "Miran kao beba",
+        "appetiteLow": "Prejeden, može da preda meč",
+        "appetiteHigh": "Izgladneo, jede sve pred sobom",
+        "ambitionLow": "Bez volje, ne interesuje ga meč",
+        "egoHigh": "Ego mu radi umesto glave",
+        "egoLow": "Trema, gleda u pod",
+        "fameHigh": "Publika je njegova"
+      }
+    },
+    "dossier": {
+      "title": "Karton protivnika",
+      "openHint": "Klikni na ime u tabeli da mu otvoriš karton.",
+      "place": "{place} mesto",
+      "unknown": "?",
+      "noScout": "Bez doušnika o njemu znaš samo ono što piše u tabeli.",
+      "scoutLevel": "Doušnik, {level}. nivo",
+      "temper": "Predispozicija",
+      "contracts": "Trajna ulaganja",
+      "noContracts": "Nije uložio u ništa.",
+      "money": "Kasa",
+      "sponsor": "Sponzor",
+      "noSponsor": "Bez sponzora",
+      "rival": "Rival",
+      "self": "Tvoj lik",
+      "personalities": {
+        "grinder": {
+          "name": "Radnik",
+          "desc": "Mnogo voli da trenira."
+        },
+        "showman": {
+          "name": "Šoumen",
+          "desc": "Voli da se eksponira."
+        },
+        "schemer": {
+          "name": "Spletkaroš",
+          "desc": "Pare troši da upropasti tuđe karijere."
+        },
+        "paranoid": {
+          "name": "Paranoik",
+          "desc": "Samo na sigurno."
+        },
+        "pro": {
+          "name": "Profesionalac",
+          "desc": "Nije ekstremista."
+        },
+        "hedonist": {
+          "name": "Hedonista",
+          "desc": "Telo kao adonis, apetit do neba, trening nikakav."
+        },
+        "miser": {
+          "name": "Cicija",
+          "desc": "Samo jeftino i na popust."
+        },
+        "bruiser": {
+          "name": "Nasilnik",
+          "desc": "Sparing i ego."
+        }
+      }
+    },
+    "table": {
+      "title": "Tabela lige",
+      "finalTitle": "Konačna tabela sezone",
+      "headers": {
+        "character": "Lik",
+        "points": "Poeni",
+        "titles": "Titule",
+        "record": "Skor",
+        "punishments": "Kazne",
+        "sponsor": "Sponzor"
+      },
+      "noSponsor": "-",
+      "rival": "Tvoj rival ove godine",
+      "goal": {
+        "one": "Cilj: prvi do {points} poena",
+        "few": "Cilj: prvi do {points} poena",
+        "other": "Cilj: prvi do {points} poena"
+      },
+      "goalProgress": {
+        "one": "{points}/{goal} poena · Trenutno {place} mesto",
+        "few": "{points}/{goal} poena · Trenutno {place} mesto",
+        "other": "{points}/{goal} poena · Trenutno {place} mesto"
+      },
+      "pointsHint": "Titule, pobede, slava i sponzor donose poene."
+    },
+    "rival": {
+      "title": "Nova Godina Novi Rival",
+      "question": "S kod će se mrziš ove godine?",
+      "pick": "Koga prozivaš?",
+      "choose": "Njega",
+      "stamp": "Rival",
+      "continue": "Nastavi",
+      "help": {
+        "title": "Šta nosi rival",
+        "win": {
+          "one": "Dobiješ derbi: +{fame} slava, +{ego} ego, {money} glizar",
+          "few": "Dobiješ derbi: +{fame} slava, +{ego} ego, {money} glizara",
+          "other": "Dobiješ derbi: +{fame} slava, +{ego} ego, {money} glizara"
+        },
+        "loss": "Izgubiš derbi: +{stress} holesterol, -{egoLoss} ego",
+        "plot": "Sabotaže tebe više"
+      },
+      "reasons": {
+        "eliminated": "Degradirao te",
+        "sabotage": "Sabotažirao te",
+        "champion": "Šampion",
+        "table": "Iznad tebe",
+        "chaser": "Juri te",
+        "lore": "Stara mržnja"
+      }
+    },
+    "overlord": {
+      "title": "GLIZI OVERLORD!",
+      "body": {
+        "one": "{name} je prvi stigao do {points} poena i novi je Glizi Overlord.",
+        "few": "{name} je prvi stigao do {points} poena i novi je Glizi Overlord.",
+        "other": "{name} je prvi stigao do {points} poena i novi je Glizi Overlord."
+      },
+      "won": "Ideš u istorijske knjige.",
+      "subLost": "{player} je završio na {place} mestu.",
+      "viewReport": "Pogledaj izveštaj"
+    },
+    "report": {
+      "kicker": "Izveštaj kampanje",
+      "won": "Ideš u istorijske knjige.",
+      "youLine": "{name} je završio na {place} mestu, titula: {titles}, skor {w}-{l}.",
+      "chartTitle": "Tok kampanje",
+      "modes": {
+        "place": "Mesto na tabeli",
+        "points": "Poeni"
+      },
+      "pickHint": "Izaberi do {max} lika za grafik.",
+      "yearShort": "God. {year}",
+      "noCharts": "Nema podataka za grafik",
+      "legend": {
+        "goal": "kruna"
+      },
+      "hoverHint": "Pređi preko linije ili je dodirni da vidiš čija je.",
+      "hoverPlace": "{name}: najbolje {best} mesto, najgore {worst}, kraj na {last}",
+      "hoverPoints": "{name}: {last} poena na kraju, najveći skok u jednom kupu +{gain}.",
+      "you": "ti",
+      "tiles": {
+        "points": "Poeni",
+        "titles": "Titule",
+        "record": "Skor",
+        "sponsor": "Sponzor"
+      },
+      "awardsTitle": "Ko je šta bio",
+      "awards": {
+        "titles": "Najviše titula",
+        "streak": "Najduži niz titula",
+        "winRate": "Najveći procenat pobeda",
+        "eaten": "Najviše pojeo",
+        "fame": "Najslavniji",
+        "money": "Najbogatiji",
+        "punished": "Najkažnjavaniji",
+        "meltdowns": "Gospodin Slom",
+        "forfeits": "Najviše predaja",
+        "nemesis": "Tvoja kob",
+        "victim": "Tvoja žrtva"
+      },
+      "awardValues": {
+        "titles": "titule: {n}",
+        "streak": "{n} zaredom",
+        "winRate": "{pct}% ({w}-{l})",
+        "eaten": "pojedeno: {n}",
+        "fame": "slava: {n}",
+        "money": {
+          "one": "{n} glizar",
+          "few": "{n} glizara",
+          "other": "{n} glizara"
+        },
+        "punished": "kazne: {n}",
+        "meltdowns": "kolapsi: {n}",
+        "forfeits": "predaje: {n}",
+        "nemesis": "{w}-{l} protiv tebe",
+        "victim": "{w}-{l} za tebe"
+      },
+      "tableTitle": "Konačna tabela",
+      "headers": {
+        "character": "Lik",
+        "sponsor": "Sponzor",
+        "points": "Poeni",
+        "titles": "Titule",
+        "record": "Skor",
+        "pct": "%",
+        "eaten": "Pojeo",
+        "exits": "Kolapsi",
+        "punishments": "Kazne",
+        "fame": "Slava",
+        "money": "Kasa",
+        "vsYou": "Protiv tebe",
+        "betsHit": "Opklade",
+        "betsNet": "Kladionica"
+      },
+      "tableHint": "Protiv tebe: njegove pobede pa tvoje.",
+      "newCareer": "Nova karijera",
+      "issue": "Vanredno izdanje · Godina {year}",
+      "headline": "{name} je Glizi Overlord",
+      "yourColumn": "Tvoj lik",
+      "championsTitle": "Šampioni po kupovima",
+      "governmentsTitle": "Vlade",
+      "yearsInPower": "Godine na vlasti",
+      "yearsValue": "{years} god.",
+      "priceTitle": "Glizacija",
+      "download": {
+        "fileName": "glizi-izvestaj-{year}",
+        "fileNameRivals": "glizi-rivals-izvestaj-{year}",
+        "png": "Sačuvaj kao sliku",
+        "pdf": "Sačuvaj kao PDF",
+        "busy": "Pravljenje...",
+        "failed": "Pravljenje nije uspelo."
+      }
+    },
+    "sponsors": {
+      "title": "Sponzor",
+      "none": "Bez sponzora",
+      "names": {
+        "zidari": "Zidarski Ceh",
+        "ostrvo": "Ostrvo",
+        "korporacija": "Korporacija Crni Patuljak",
+        "stranka": "Narodna Lista"
+      },
+      "pitches": {
+        "zidari": "Rezultati su ti čvrsti kao naš beton, a čujemo da ceh nosiš u srcu i da zidaš i gde ne treba. Takvi se grade sa nama: 70 glizara po sezoni, a naši momci čuvaju tvoja vrata dan i noć.",
+        "ostrvo": "Sa Ostrva pratimo tvoje rezultate, a diskretno i tvoj račun u banci. Dopadaš nam se: 80 glizara po sezoni, bez poreza i bez pitanja, jednom godišnje brodić samo za tebe, a poslići koje naručiš idu po sniženoj ceni. Šta se dogovorimo, ostaje na Ostrvu.",
+        "korporacija": "Tvoj učinak je prošao naše provere, čestitamo. Usput, provere su prošli i tvoji rođaci koji žive u našim stanovima: zasad stanuju mirno. 60 glizara po sezoni plus 40 po pobedi na kupu. Potpis toplo preporučujemo.",
+        "stranka": "Rezultati su tu, a Stranka ceni i tvoju ljubav prema slobodi a Pčinja je simbol slobode. 60 glizara po sezoni iz stranačke kase, a državni mediji za tebe uvek imaju termin i duplu tarifu."
+      },
+      "perks": {
+        "zidari": "Stalno obezbeđenje: blokira 60% sabotaža.",
+        "ostrvo": "Ostrvski vikend jednom godišnje, ne troši mesec. Sabotaža 25% jeftinija, promašaj bez kazne. Dok je Ostrvo u vladi, dokazi protiv tebe ne stižu do optužnice.",
+        "korporacija": "+40 glizara po svakoj pobedi na kupu.",
+        "stranka": "Mediji plaćaju duplo, koliko god puta hoćeš."
+      },
+      "offerSubject": "Ponuda: {sponsor}",
+      "offerWildcardSubject": "Iznenadna ponuda: {sponsor}",
+      "wildcardPitches": {
+        "zidari": "Naši ljudi su čuli kako prijateljima pričaš koliko voliš miris svežeg maltera i da bi zid podigao čim ugledaš prazno mesto. Gazda je zaplakao usred gradilišta. Takva ljubav se kod nas ne zaboravlja: ugovor je spreman, a jednog dana ćemo zazidati i tebe.",
+        "ostrvo": "Do Ostrva su stigle priče o tvojim, da kažemo, vrlo kreativnim poreskim prijavama i o dugu u kladionici. Bez brige, ovde niko ne osuđuje, ovde se sve uredno sakrije. Ljudi tvog stila su nam uvek dobrodošli: potpiši i tvoji dugovi postaju naša zajednička tajna.",
+        "korporacija": "Provera stanarskog fonda pokazala je da nekoliko tvojih rođaka živi u našim stanovima. Dok čitaš ponudu, misli na njih. Ako potpišeš, maltretiraćemo ih po standardnoj proceduri. Ako ne potpišeš, uvodimo dodatne smene, a o ostalim posledicama čitaćeš u novinama.",
+        "stranka": "U Stranci cenimo ljubav prema slobodi, a ti si slobodno odlučio da se godinama ne pojaviš nigde. To je stav. Pčinja je sloboda, a sloboda si ti: mesto na plakatu te čeka, ponuda je u prilogu."
+      },
+      "accept": "Potpiši ugovor",
+      "decline": "Odbij",
+      "pay": {
+        "one": "Sponzorska uplata: +{amount} glizar.",
+        "few": "Sponzorska uplata: +{amount} glizara.",
+        "other": "Sponzorska uplata: +{amount} glizara."
+      },
+      "fameGate": "Za ponude: slava 50+",
+      "infoTitle": "Kako rade sponzori",
+      "info": {
+        "intro": "Sponzor uplaćuje honorar na kraju svake sezone, donosi +10 poena na tabeli, +10 slave pri potpisu i svoj benefit. Ponude stižu poštom uz slavu 50+: prve godine 30% ako uđeš u finale kupa, a od druge godine 50% na svakim pripremama dok si u top 5 tabele.",
+        "sponsors": {
+          "zidari": "70 glizara po sezoni. Stalno obezbeđenje: 60% šanse da sabotaža na tebe bude sprečena.",
+          "ostrvo": "80 glizara po sezoni. Jednom godišnje ostrvski vikend, ne troši mesec: holesterol na nulu, apetit i ambicija do vrha. Sabotaža 25% jeftinija, promašen poslić bez kazne i bez minusa stranci. Dok Ostrvo sedi u vladi, podmetnuti dokazi protiv tebe ne stižu do optužnice.",
+          "korporacija": "60 glizara po sezoni plus 40 po svakoj pobedi na kupu.",
+          "stranka": "60 glizara po sezoni. Državni mediji: nastupi plaćaju duplo i nema ograničenja jednom po sezoni."
+        }
+      },
+      "shortNames": {
+        "zidari": "Zidari",
+        "ostrvo": "Ostrvo",
+        "korporacija": "Korporacija",
+        "stranka": "Stranka"
+      }
+    },
+    "news": {
+      "signing": "ZVANIČNO: {name} potpisuje za {sponsor}!",
+      "poison-glizimaker": "Majstor koji liku po imenu {name} pravi glizije od malih nogu uzeo je tuđe pare i u turu umešao nešto što nije začin. Noć nad lavorom.",
+      "poison-kafana": "{name} je iskoristio vaučer JEDEŠ KOLIKO MOŽEŠ u kafani Ćoška i završio na infuziji. Vaučer lažan, meso pokvareno.",
+      "witch-curse": "{name} je preko noći izgubio njuh: vračara mu je tri puta obišla kuću i prosula nešto na prag. Ne namiriše ni glizi pod nosom.",
+      "nutrition-bribed": "Nutricionista lika po imenu {name} uzeo je mito i pomešao mu jelovnik: mrsno, prženo, posle ponoći. Ishrana mu je otišla nizbrdo.",
+      "fans-rumor": "Ružne glasine kruže o liku po imenu {name}. Lik je besan.",
+      "catfish-date": "SKANDAL: {name} je otišao na sastanak sa simpatijom sa interneta, a profil je bio lažan i namestio ga je rival. Snimak je video ceo grad.",
+      "catfish-zeka": "{name} je pozvan kod Plave kolibe na turu glizija. Dočekala ga je zver iz pčinjske šume i pojela i turu i patike.",
+      "catfish-demons": "Demoni su celu noć opsedali kuću lika po imenu {name}. Branio je vrata do zore, a iz magle ga je nešto dozivalo po imenu.",
+      "police-tax": "RACIJA: Pčinjski poreznik ima dojavu o neprijavljenim prihodima u svlačionici lika po imenu {name}. Sudija još ćuti.",
+      "police-stash": "ISTRAGA: anonimna dojava tvrdi da lik po imenu {name} u garaži drži magacin neprijavljenih glizija. On tvrdi da je to zimnica.",
+      "police-island": "CURENJE: policija je zaplenila knjigu računa sa Ostrva. U njoj, pored neprijavljene cifre, stoji ime lika po imenu {name}.",
+      "police-smuggling": "ŠVERC: inspekcija sumnja da je {name} preko granice uvozio zejtin bez dozvole. Dojava je stigla noćas, istraga tek počinje.",
+      "sabotageBlocked": "Obezbeđenje lika po imenu {name} stalo je kao živi zid i sprečilo incident u prelaznom roku.",
+      "media-interview": "{name} je dao intervju nedelje i pola ga je grada već naučilo napamet.",
+      "media-scandal": "Novi skandal lika po imenu {name}.",
+      "korp-vendetta": "OSVETA: nedelju dana posle odbijene ponude, protiv {name} stigla je vrlo detaljna dojava. Istraga je otvorena, sudija se još nije izjasnio, ishod neizvestan.",
+      "korp-vendetta-failed": "Podmetanje dokaza liku po imenu {name} propalo je preko noći. Crni Patuljak poručuje samo: kirija i dalje važi.",
+      "sabotageCaught": "{name} je uhvaćen u pokušaju sabotaže! Liga naplaćuje kaznu od {fine} glizara.",
+      "sabotageHushed": "{name} je uhvaćen u pokušaju sabotaže, ali su dokazi preko noći nestali i inspektori sada tvrde da nikad nisu ni postojali. Kazne nema.",
+      "sabotageCaughtHard": "{name} je uhvaćen u sabotaži DRUGI put u kratkom roku! Kazna od {fine} glizara.",
+      "scandal": "BOMBA: procurelo je da se trener kladio PROTIV sopstvenog lika. {name} je van sebe, a trener se pokazao kao profesionalni izdajnik.",
+      "cupChampion": "{name} je šampion kupa! Pehar podignut, poslednji glizi pojeden pred kamerama, dvorana ne ide kući.",
+      "cupPlace-finalist": "{name} gubi finale i završava kup na 2. mestu. Grad je spremio vatromet, pa ga vratio u magacin a i {name} će večeras slaviti samo kod kuće.",
+      "cupPlace-semis": "{name} ispada u polufinalu i završava kup na {place} mestu. Dva zalogaja od finala. Komšije čestitaju, ali ne iz srca.",
+      "cupPlace-quarters": "{name} ispada u četvrtfinalu i završava na {place} mestu. Nije bruka, ali nije ni za hvaljenje. U kafani će se večeras pričati o svemu osim o njemu.",
+      "cupPlace-early": "{name} završava kup na {place} mestu posle ispadanja u prvom kolu. Moglo je i gore... Trener odbija da komentariše.",
+      "cup-meltdown": "{name} je pukao usred meča! Holesterol je uradio svoje, nosila su iznela još jednu žrtvu ove sezone.",
+      "cup-overfull-forfeit": "{name} je malo bljucnuo nasred meča prepun glizija.",
+      "cup-police": "{name} je odveden na saslušanje USRED meča i morao da preda. Trener je besan, ali sudija kaže: \"ne možemo da čekamo\".",
+      "cup-withdrawn": "{name} se povukao iz turnira. Zvanično: umor. Nezvanično...",
+      "tableClimb": {
+        "one": "{name} je skočio za {places} mesto i sada je na {place} mestu tabele.",
+        "few": "{name} je skočio za {places} mesta i sada je na {place} mestu tabele.",
+        "other": "{name} je skočio za {places} mesta i sada je na {place} mestu tabele."
+      },
+      "tableFall": {
+        "one": "{name} je pao za {places} mesto i trenutno je {place} na tabeli. Trener krivi retrogradni merkur.",
+        "few": "{name} je pao za {places} mesta i trenutno je {place} na tabeli. Trener krivi retrogradni merkur.",
+        "other": "{name} je pao za {places} mesta i trenutno je {place} na tabeli. Trener krivi retrogradni merkur."
+      },
+      "factRecord": {
+        "one": "Najbolji skor u ligi drži {name}: {wins} pobeda, a poraza {losses}.",
+        "few": "Najbolji skor u ligi drži {name}: {wins} pobede, a poraza {losses}.",
+        "other": "Najbolji skor u ligi drži {name}: {wins} pobeda, a poraza {losses}."
+      },
+      "factRecordWorst": {
+        "one": "Najgori skor u ligi drži {name}: {wins} pobeda, a poraza {losses}. Trener moli da se tabela ne čita naglas.",
+        "few": "Najgori skor u ligi drži {name}: {wins} pobede, a poraza {losses}. Trener moli da se tabela ne čita naglas.",
+        "other": "Najgori skor u ligi drži {name}: {wins} pobeda, a poraza {losses}. Trener moli da se tabela ne čita naglas."
+      },
+      "factStreak": "{name} juri {streak} uzastopnu titulu. Stari Glizi Overlordi se prevrću u stolicama, a tron se večeras ozbiljno trese.",
+      "trainUp-stomach": "{name} je trenirao stomak i podigao kapacitet na novi nivo. Porcije rastu, rivali se tresu.",
+      "trainUp-sniffer": "{name} je izoštrio njuh do novog nivoa. Namiriše glizi na 20m.",
+      "trainUp-nutrition": "{name} je podigao ishranu na novi nivo. Sad jede po rasporedu, a ne po mirisu.",
+      "trainUp-fans": "{name} je medijski istreniran na novi nivo. Kamere ga obožavaju.",
+      "trainDown-stomach": "{name} je preterao sad ima stomačni virus.",
+      "trainDown-sniffer": "{name} je preterao sa njuhom. Nos mu kija i na čist vazduh.",
+      "trainDown-nutrition": "{name} je mnogo jeo mrsno.",
+      "trainDown-fans": "{name} je izgubio auru.",
+      "stressWarning": "{name} je na ivici nervnog sloma. Holesterol opasno visok, svi hodaju na jajima oko njega.",
+      "factStressHigh": "{name} ima najviši holesterol u ligi: {value}. Doktori ćute, apoteka radi duplu smenu.",
+      "factAppetiteHigh": "{name} ima najveći apetit u ligi: {value}. Kuvari traže povišicu.",
+      "factAppetiteLow": "{name} jedva gleda hranu: apetit {value}, najniži u ligi.",
+      "factAmbitionHigh": "{name} ima najviše ambicije u ligi: {value}. Cilj: sve. Rok: juče.",
+      "factEgoHigh": "{name} ima najveći ego u ligi: {value}. Vrata dvorane se proširuju.",
+      "factEgoLow": "{name} ima najmanji ego u ligi: {value}. Izvinjava se i kad ga sudija pozdravi.",
+      "factFameHigh": "{name} je najslavniji u ligi: slava {value}. Ne može u prodavnicu bez naočara.",
+      "factFameLow": "{name} je najneprimetniji u ligi: slava {value}. Obezbeđenje ga svaki put legitimiše pred sopstvenom svlačionicom.",
+      "factAmbitionLow": "{name} ima najmanju ambiciju u ligi: {value}. Cilj sezone: da ne bude zadnji.",
+      "factStomachBest": "{name} ima najtreniraniji stomak u ligi: nivo {value}. Kuvari ga se boje.",
+      "factSnifferBest": "{name} ima najbolji njuh u ligi: nivo {value}. Namiriše glizi kroz zid.",
+      "factNutritionBest": "{name} ima najdisciplinovaniju ishranu u ligi: nivo {value}.",
+      "factFansBest": "{name} je medijski najtreniraniji u ligi: nivo {value}. Kamere ga prate i do kafane, i nazad.",
+      "comeback": "{name} se posle duge pauze vraća u ligu, sa trenerom bez ijedne reference. Povratak u formu ili novi prosjak na dnu tabele?",
+      "comeback-mp": "{name} se posle pauze vraća u ligu, sa trenerom po imenu {coach}, bez ijedne reference. Forma ili novi prosjak na dnu tabele?",
+      "commentator-back": "Posle godina tišine, prenos se vraća! Savez je konačno našao para za mikrofon, a za njega se, pričaju u hodnicima, vraća stari glas.",
+      "betting-banned": "Savez podseća: opklade su i dalje zabranjene, otkako su neki uhvaćeni kako nameštaju mečeve. Dok komisija ne završi, ništa.",
+      "betting-unlocked": "Zvanično: zabrana klađenja ukinuta, od ovog kupa kladionica ponovo radi. Kvote idu po tabeli, pa dobro gledaj ko s kim igra.",
+      "rival-announced": "{player} nije stigao ni da raspakuje kofere, a {name} je preko poznanika već poslao poruku: vidimo se na kupu, ponesi lavor.",
+      "rival-chosen": "{player} je na pitanje o planovima za novu godinu rekao samo jedno ime: {name}, pa pogledao u kameru kao da je ona kriva.",
+      "rival-derby-win": "{name} je dobio derbi godine! {rival} je dvoranu napustio na sporedni izlaz, a pola grada večeras časti turu u čast pobednika.",
+      "rival-derby-loss": "{name} je izgubio derbi od najvećeg rivala. {rival} mu je večeras pojeo i glizi i obraz, a ceo grad je gledao.",
+      "invest-security": "{name} je uzeo obezbeđenje na stalno. Pred svlačionicom stoje ljudi u crnom, a on prvi put spava bez jednog otvorenog oka.",
+      "invest-security-up": "Obezbeđenje lika po imenu {name} raste na {level}. nivo. Sada ih ima i na parkingu, i na ulazu, i jedan koga niko ne zna, al' svi ga slušaju.",
+      "invest-spa": "{name} je platio godišnju kartu za banju. Svako jutro pre treninga ide na paru i masažu, vraća se crven i mnogo mirniji nego što ga liga pamti.",
+      "invest-spa-up": "Banja lika po imenu {name} ide na {level}. nivo. Uz paru sada idu i blato i so iz nekog dalekog mora, a on tvrdi da mu se holesterol topi sam od sebe.",
+      "invest-assistant": "{name} je zaposlio pomoćnog trenera. Dok se glavni trener kocka on vodi treninge sam.",
+      "invest-assistant-up": "Stručni štab lika po imenu {name} širi se na {level}. nivo. Sada ih je toliko da se u sali ne zna ko koga trenira, ali brojke rastu.",
+      "invest-scout": "{name} je našao čoveka koji sedi po istim kafanama i prisluškuje ljude iz lige i prepričava ti šta se dešava.",
+      "invest-scout-up": "Mreža lika po imenu {name} raste na {level}. nivo. Sada ima ljude i u salama i iza svakog šanka.",
+      "election-year": "Izborna godina. Četiri stranke idu na birače: {parties}. Broji se posle Krvavog kupa.",
+      "election-year-again": "Još jedna izborna godina u Leskovcu.",
+      "election-poll": "Preliminarna anketa pred poslednji kup pre izbora. Projekcija mandata u Skupštini Leskovca.",
+      "election-result": "Glasovi prebrojani. {parties} prave vladu Leskovca sa {seats} od 100 mandata.",
+      "election-result-alone": "Glasovi prebrojani. {parties} ima većinu i vlada Leskovcem sama, sa {seats} od 100 mandata. Koalicioni partneri nisu potrebni, kažu, ni sada ni ubuduće.",
+      "glizi-price-up": "Glizacija ne staje: glizi od jutros {pct}% skuplji nego prošlog prelaznog roka. U ovom gradu ništa ne pojeftini.",
+      "glizi-price-down": "Glizacija za promenu ide naniže: greškom poslata dva kamiona glizija iz Pčinje, magacini puni, glizi {pct}% jeftiniji nego prošlog prelaznog roka.",
+      "cup-removed": "Nije ni seo za sto: {name} odveden pred meč, bez objašnjenja.",
+      "removal-zidari": "Obezbeđenje na kapiji zadržalo je {name} na ulazu u dvoranu. Meč registrovan kao njihova predaja.",
+      "removal-ostrvo": "{name} napustio dvoranu pet minuta pre meča. Poslednji put je viđen kako se penje na brodić koji ide ka Ostrvu (možda primorano).",
+      "removal-korporacija": "Izvršitelji na ulazu: {name} uklonjen sa stolice zbog neizmirene kirije.",
+      "removal-stranka": "{name} po novom popisu ne postoji i nikad nije postojao na teritoriji Leskovca, pa ni njegov meč."
+    },
+    "sabotage": {
+      "action": "Sabotaža",
+      "target": "Meta",
+      "fund": "Ulaganje",
+      "fundHint": "Ovo je šansa da poslić uopšte prođe, da ga liga ne uhvati i ne otkaže. Doplatom je dižeš. Posle toga mora da prođe još i obezbeđenje mete, ako ga meta ima.",
+      "stepNote": {
+        "one": "5% = {cost} glizar",
+        "few": "5% = {cost} glizara",
+        "other": "5% = {cost} glizara"
+      },
+      "tiers": {
+        "1": {
+          "name": "Diverzija",
+          "desc": "Meti jedan od treninga puca, ceo nivo ili samo dva treninga. Koji tačno? Iznenađenje.",
+          "effects": [
+            "Trening -1 nivo ili -2 treninga",
+            "Apetit -",
+            "Holesterol +",
+            "Slava -",
+            "Ego -"
+          ]
+        },
+        "2": {
+          "name": "Noćna mora",
+          "desc": "Meta pred kup preživi noć koju pamti ceo život.",
+          "effects": [
+            "Holesterol ++",
+            "Slava -",
+            "Ego -",
+            "Ambicija -"
+          ]
+        },
+        "3": {
+          "name": "Podmetni dokaze",
+          "desc": "Dojava pokreće istragu protiv mete i završava u novinama. Ako sudija potvrdi nalog, policija je odvodi USRED meča. Što bolje platiš, sudija je sigurniji: potpuno plaćen posao znači sigurno privođenje.",
+          "effects": [
+            "Slava -",
+            "Privođenje usred meča"
+          ]
+        }
+      },
+      "chanceLabel": "Šansa da poslić prođe",
+      "rival": "Rival",
+      "pickTarget": "Izaberi metu",
+      "steps": {
+        "target": "Meta",
+        "method": "Metoda",
+        "stake": "Ulog",
+        "empty": "nije izabrano"
+      },
+      "unguardedTag": "bez obezbeđenja",
+      "baseChance": "šansa {pct}%",
+      "pickMethod": "Izaberi metodu",
+      "summary": {
+        "job": "Prolazi ligu",
+        "guard": "Zaustavlja obezbeđenje",
+        "real": "Ukupno",
+        "hint": "Ukupna šansa: poslić prvo mora da prođe ligu, pa još i obezbeđenje mete. Znak +? znači da meta možda ima čuvare koje ne vidiš."
+      },
+      "guardZidari": "Zidari {pct}%",
+      "guardStanding": "pratnja {pct}%",
+      "guardUnknown": "obezbeđenje ?",
+      "guardMore": "+?",
+      "realUpTo": "do {pct}%",
+      "judgeLine": "Ako prođe, sudija potvrđuje nalog: {pct}%",
+      "fineLine": "Ako promaši: kazna {fine} glizara i minus 1 na rejting stranke, zauvek.",
+      "fineHushed": "Ako promaši, predmet ide u arhivu Ostrva. Bez kazne.",
+      "egoLine": "Ego tvog lika +{ego}.",
+      "booked": "ugovoreno: {n}",
+      "plotted": "već naručeno",
+      "repeatChip": "{n} poslić ovog roka {pct}",
+      "repeatHint": "Poslići ne troše mesec. Svaki sledeći u istom prelaznom roku košta 50% više od prethodnog."
+    },
+    "guard": {
+      "title": "Koliko stražara da angažuje?",
+      "fund": "Ulaganje",
+      "fundHint": "Osnovni paket drži {base}% napada. Doplati do {max}% ili spusti pokrivenost i uštedi. Ego +{ego}, apetit +{appetite}.",
+      "stepNote": {
+        "one": "5% = {cost} glizar",
+        "few": "5% = {cost} glizara",
+        "other": "5% = {cost} glizara"
+      },
+      "chanceLabel": "Šansa da zaustavi napad",
+      "standing": "Stalna pratnja ionako drži {pct}%. Doplata ima smisla samo iznad toga.",
+      "topSurcharge": "Na {place} mestu tabele si sočniji: obezbeđenje naplaćuje +{pct}%."
+    },
+    "newspaper": {
+      "issue": "{theme} · Godina {year}",
+      "close": "Zatvori novine",
+      "chartGovernment": "Vlada {seats} / {total}",
+      "chartGlizi": "Glizi",
+      "stamps": {
+        "banned": "Zabranjeno",
+        "allowed": "Dozvoljeno",
+        "investigation": "Istraga",
+        "onair": "Uživo"
+      },
+      "lead": "GLAVNA VEST",
+      "cta": "Nazad u prelazni rok",
+      "empty": "Najmirniji prelazni rok u istoriji lige. Sumnjivo, ali nemamo šta da štampamo.",
+      "headlines": {
+        "signing": "TRANSFER",
+        "poison-glizimaker": "IZDAJA",
+        "poison-kafana": "PREVARA",
+        "witch-curse": "KLETVA",
+        "nutrition-bribed": "MITO",
+        "fans-rumor": "GLASINE",
+        "catfish-date": "SKANDAL",
+        "catfish-zeka": "ŠUMA",
+        "catfish-demons": "DEMONI",
+        "police-tax": "RACIJA",
+        "police-stash": "ISTRAGA",
+        "police-island": "CURENJE",
+        "police-smuggling": "ŠVERC",
+        "sabotageBlocked": "OBEZBEĐENJE",
+        "media-interview": "INTERVJU",
+        "media-scandal": "ISPAD",
+        "korp-vendetta": "OSVETA",
+        "korp-vendetta-failed": "OSVETA",
+        "sabotageCaught": "UHVAĆEN",
+        "sabotageHushed": "ARHIVIRANO",
+        "sabotageCaughtHard": "KAZNA",
+        "scandal": "BOMBA",
+        "cupChampion": "ŠAMPION",
+        "cupPlace-finalist": "SREBRO",
+        "cupPlace-semis": "POLUFINALE",
+        "cupPlace-quarters": "OSREDNJE",
+        "cupPlace-early": "NAŠ ČOVEK",
+        "cup-meltdown": "IZNELI GA",
+        "cup-overfull-forfeit": "PREJEO SE",
+        "cup-police": "PRIVEDEN",
+        "cup-withdrawn": "POVLAČENJE",
+        "tableClimb": "USPON",
+        "tableFall": "PAD",
+        "factRecord": "STATISTIKA",
+        "factRecordWorst": "STATISTIKA",
+        "factStreak": "OVERLORD",
+        "trainUp-stomach": "STOMAK",
+        "trainUp-sniffer": "NJUH",
+        "trainUp-nutrition": "ISHRANA",
+        "trainUp-fans": "MEDIJI",
+        "trainDown-stomach": "PRETRENIRAN",
+        "trainDown-sniffer": "PRETRENIRAN",
+        "trainDown-nutrition": "PRETRENIRAN",
+        "trainDown-fans": "PRETRENIRAN",
+        "stressWarning": "ALARM",
+        "factStressHigh": "ZANIMLJIVOST",
+        "factAppetiteHigh": "ZANIMLJIVOST",
+        "factAppetiteLow": "ZANIMLJIVOST",
+        "factAmbitionHigh": "ZANIMLJIVOST",
+        "factAmbitionLow": "ZANIMLJIVOST",
+        "factEgoHigh": "ZANIMLJIVOST",
+        "factEgoLow": "ZANIMLJIVOST",
+        "factFameHigh": "ZANIMLJIVOST",
+        "factFameLow": "ZANIMLJIVOST",
+        "factStomachBest": "ZANIMLJIVOST",
+        "factSnifferBest": "ZANIMLJIVOST",
+        "factNutritionBest": "ZANIMLJIVOST",
+        "factFansBest": "ZANIMLJIVOST",
+        "comeback": "POVRATAK",
+        "comeback-mp": "POVRATAK",
+        "betting-banned": "ZABRANA",
+        "commentator-back": "PRENOS",
+        "betting-unlocked": "KLADIONICA",
+        "rival-announced": "RIVALSTVO",
+        "rival-chosen": "NOVI RIVAL",
+        "rival-derby-win": "DERBI",
+        "rival-derby-loss": "IZGUBLJEN DERBI",
+        "invest-security": "OBEZBEĐENJE",
+        "invest-security-up": "OBEZBEĐENJE",
+        "invest-spa": "BANJA",
+        "invest-spa-up": "BANJA",
+        "invest-assistant": "ŠTAB",
+        "invest-assistant-up": "ŠTAB",
+        "invest-scout": "DOUŠNIK",
+        "invest-scout-up": "MREŽA",
+        "election-year": "IZBORI",
+        "election-year-again": "IZBORI",
+        "election-poll": "ANKETA",
+        "election-result": "NOVA VLADA",
+        "election-result-alone": "NOVA VLADA",
+        "glizi-price-up": "POSKUPLJENJE",
+        "glizi-price-down": "POJEFTINJENJE",
+        "cup-removed": "UKLONJEN",
+        "removal-zidari": "KAPIJA",
+        "removal-ostrvo": "BRODIĆ",
+        "removal-korporacija": "IZVRŠITELJI",
+        "removal-stranka": "REGISTAR"
+      }
+    },
+    "election": {
+      "live": "Uživo",
+      "title": "Izborna noć",
+      "subtitle": "Skupština Leskovca",
+      "kickers": {
+        "poll": "Anketa posle finala",
+        "winner": "Najviše glasova",
+        "seats": "Raspodela mandata",
+        "government": "Vlada"
+      },
+      "commentary": {
+        "poll": "Glasovi su prebrojani, cifre stižu iz svih blokova.",
+        "winner": "{party} uzima najviše glasova.",
+        "seats": "Sto mandata se deli...",
+        "alone": "{party} ima većinu i vlada sam.",
+        "coalition": "Bez većine. Vladu prave {parties}."
+      },
+      "yourParty": {
+        "leader": "Tvoja stranka vodi vladu",
+        "partner": "Tvoja stranka je u vladi",
+        "opposition": "Tvoja stranka je u opoziciji",
+        "none": "Nisi član nijedne stranke"
+      },
+      "continue": "Nastavi"
+    },
+    "parliament": {
+      "title": "Skupština Leskovca",
+      "button": "Skupština",
+      "governmentLine": "Vlada: {seats} / {total} mandata",
+      "noGovernment": "Grad još nije glasao",
+      "noClients": "bez igrača",
+      "leads": "vodi",
+      "partner": "vlada",
+      "opposition": "opozicija",
+      "you": {
+        "none": "Nisi član nijedne stranke",
+        "waiting": "Tvoja stranka čeka prve izbore.",
+        "leader": "Tvoja stranka vodi vladu: jači benefit sponzora, tabela +15, budžetska linija.",
+        "partner": "Tvoja stranka je partner u vladi: sve po starom.",
+        "opposition": "Tvoja stranka je u opoziciji: slabiji benefit sponzora, tabela +5, solidarni doprinos."
+      },
+      "favorAvailable": "Usluga stranke: još {left} od {total} ove godine, pozovi je pred meč na kupu.",
+      "favorUsed": "Usluga stranke: sve {total} iskorišćene ove godine.",
+      "favorNoDonation": "Usluga stranke: od {min} glizara u poslednjoj kampanji, do pet usluga za {top}.",
+      "nextElection": "Sledeći izbori: posle kupa {season}, godina {year}.",
+      "calendarMark": "IZBORI",
+      "tabs": {
+        "chamber": "Skupština",
+        "popularity": "Popularnost"
+      },
+      "popularity": {
+        "title": "Procena: da se glasa danas",
+        "intro": "Procena izbora da se održavaju danas. Svaki potpisani lik donosi listi {top} minus mesto na tabeli, plus slava kroz {divisor}. Na to idu kampanja, afere i rejting vlade.",
+        "players": "Takmičari",
+        "party": "Stranka",
+        "ratingHint": "Poeni same stranke: osnova, kampanja, afere i cena glizija. Sabiraju se sa poenima takmičara u glasove.",
+        "tip": {
+          "place": "{place} mesto na tabeli",
+          "fame": "Slava {fame}",
+          "total": "Ukupno poena",
+          "share": "Udeo u glasovima",
+          "playersShare": {
+            "one": "Takmičari, {points} poen",
+            "few": "Takmičari, {points} poena",
+            "other": "Takmičari, {points} poena"
+          },
+          "partyShare": {
+            "one": "Stranka, {points} poen",
+            "few": "Stranka, {points} poena",
+            "other": "Stranka, {points} poena"
+          },
+          "donated": {
+            "one": "Dao {amount} glizar",
+            "few": "Dao {amount} glizara",
+            "other": "Dao {amount} glizara"
+          },
+          "campaignPts": "Poeni kampanje",
+          "favors": "Potencijalne stranačke usluge",
+          "nextFavor": "Sledeća usluga na {amount}"
+        },
+        "govSupport": "Procena: podrška vladi {pct}%",
+        "seatsNow": {
+          "one": "sada {seats} mandat",
+          "few": "sada {seats} mandata",
+          "other": "sada {seats} mandata"
+        },
+        "seatsUnit": {
+          "one": "mandat",
+          "few": "mandata",
+          "other": "mandata"
+        },
+        "legendSeats": "trenutni mandati",
+        "rating": "Rejting {value}",
+        "ratingBase": "osnova {base}",
+        "noChange": "bez promena",
+        "donors": "Donatori",
+        "lastDonors": "Prošla kampanja",
+        "factors": {
+          "campaign": "kampanja",
+          "affairs": "afere",
+          "convictions": "uhvaćeni",
+          "glizi": "cena glizija"
+        }
+      },
+      "effects": {
+        "title": "Vlast: {leader}",
+        "own": "Na vlasti",
+        "outside": "Van vlade",
+        "generalLeader": "Vodeća stranka: jači benefit sponzora, tabela +{table}, +{pay} glizara po sezoni.",
+        "generalOpposition": "Opozicija: slabiji benefit sponzora, tabela +{table}, {pay} po sezoni.",
+        "generalPartner": "Partner: sve po starom.",
+        "infoTitle": "Šta vlast donosi",
+        "infoIntro": "Ko god vodi vladu, nagrađuje svoje klijente i naplaćuje svima van vlade, uključujući one bez stranke. Partner u vladi ne oseća ni jedno ni drugo. Mandat traje dve godine.",
+        "inPower": "na vlasti",
+        "leader": {
+          "zidari": {
+            "own": "Obezbeđenje blokira +{bonus}% napada, do {cap}%.",
+            "outside": "Obezbeđenje skuplje {tax}%."
+          },
+          "ostrvo": {
+            "own": "Ostrvski vikend svaki prelazni rok umesto jednom godišnje.",
+            "outside": "Sabotaža skuplja {tax}%."
+          },
+          "korporacija": {
+            "own": "Povraćaj {refund} glizara svaki prelazni rok.",
+            "outside": "Doprinos za stabilnost grada: {tax} glizara po prelaznom roku."
+          },
+          "stranka": {
+            "own": "+{fame} slave po medijskom nastupu, trening navijača {discount}% jeftiniji.",
+            "outside": "Mediji plaćaju {pay}%, donose {fame}% slave i jedan termin manje. Ko ima samo jedan, ostaje bez medija."
+          }
+        }
+      }
+    },
+    "favor": {
+      "button": "Pozovi stranku ({left})",
+      "title": "Usluga stranke",
+      "pick": "Koga sklanjamo pre meča? Stranku košta par poena kod birača.",
+      "protectedTag": "zaštićen",
+      "ownTag": "tvoja stranka",
+      "noTargets": "Niko u ovom kolu nije na dohvat.",
+      "cancel": "Ne sad",
+      "reasons": {
+        "zidari": "Ne prolazi kapiju",
+        "ostrvo": "Hitno pozvan na Ostrvo",
+        "korporacija": "Izvršitelji na ulazu",
+        "stranka": "Brisan iz registra"
+      },
+      "toast": "Stranka je odradila svoje",
+      "opponentTag": "tvoj protivnik",
+      "chosenLine": "{name} pre meča: {reason}.",
+      "nobodyLine": "Zaokruži jedno ime.",
+      "confirm": "Skloni: {name}",
+      "confirmEmpty": "Skloni"
+    }
+  },
+  "achievements": {
+    "page": {
+      "eyebrow": "Glizić Igre",
+      "title": "Dostignuća",
+      "link": "Dostignuća",
+      "progress": "{unlocked} od {total}",
+      "locked": "Zaključano",
+      "unlockedOn": "Otključano {date}",
+      "open": "Otvori dostignuća"
+    },
+    "chip": "Dostignuća {unlocked}/{total}",
+    "toast": "Dostignuće otključano",
+    "items": {
+      "career-first-title": {
+        "title": "Prva titula",
+        "description": "Tvoj lik je osvojio kup."
+      },
+      "career-perfect-year": {
+        "title": "Cela godina",
+        "description": "Sva četiri kupa u jednoj godini."
+      },
+      "career-overlord": {
+        "title": "Glizi Overlord",
+        "description": "Tvoj lik je prvi stigao do 300 poena."
+      },
+      "career-underdog": {
+        "title": "Iz donje polovine",
+        "description": "Titula iz donje polovine tabele."
+      },
+      "career-rival-down": {
+        "title": "Račun izmiren",
+        "description": "Izbacio si rivala godine iz kupa."
+      },
+      "career-sponsored": {
+        "title": "Pod ugovorom",
+        "description": "Potpisan prvi sponzorski ugovor."
+      },
+      "career-leader": {
+        "title": "Vladajuća stranka",
+        "description": "Tvoj sponzor vodi vladu posle izbora."
+      },
+      "career-favor": {
+        "title": "Usluga",
+        "description": "Iskoristio si stranačku uslugu."
+      },
+      "career-donor": {
+        "title": "Donator",
+        "description": "Prva donacija stranci pred izbore."
+      },
+      "career-lost-cause": {
+        "title": "Bačene pare",
+        "description": "Petsto i više glizara stranci koja je ipak završila u opoziciji."
+      },
+      "career-investor": {
+        "title": "Investitor",
+        "description": "Prva investicija potpisana."
+      },
+      "career-rich": {
+        "title": "Bogataš",
+        "description": "Hiljadu glizara na računu."
+      },
+      "career-maxed": {
+        "title": "Istreniran",
+        "description": "Jedan trening doveden do maksimuma."
+      },
+      "career-media-payday": {
+        "title": "Medijska zvezda",
+        "description": "Sto i više glizara od jednog nastupa."
+      },
+      "career-plot-hit": {
+        "title": "Poslić odrađen",
+        "description": "Sabotaža je prošla i pogodila metu."
+      },
+      "career-guard": {
+        "title": "Obezbeđenje",
+        "description": "Prvi put angažovano obezbeđenje."
+      },
+      "career-island": {
+        "title": "Ostrvski vikend",
+        "description": "Prvi put na Ostrvu."
+      },
+      "career-meltdown": {
+        "title": "Pukao",
+        "description": "Tvoj lik je doživeo slom za stolom."
+      },
+      "career-decade": {
+        "title": "Deset godina",
+        "description": "Deset godina za stolom sa istim likom."
+      }
+    }
+  },
+  "careerMp": {
+    "catalog": {
+      "title": "Glizić Rivals",
+      "description": "Glizić liga, do osam trenera. Napravi sobu, pošalji kod i pojedi društvo za stolom."
+    },
+    "page": {
+      "eyebrow": "Glizić igre"
+    },
+    "lobby": {
+      "title": "Soba za trenere",
+      "create": "Napravi sobu",
+      "join": "Uđi u sobu",
+      "codePlaceholder": "npr. K7PQ2M",
+      "nameLabel": "Ime trenera",
+      "namePlaceholder": "Kako te zovu na tribinama",
+      "colorLabel": "Boja",
+      "colors": {
+        "sky": "Nebesko plava",
+        "violet": "Ljubičasta",
+        "fuchsia": "Fuksija",
+        "orange": "Narandžasta",
+        "lime": "Limeta zelena",
+        "teal": "Tirkizna",
+        "rose": "Roze",
+        "amber": "Ćilibar"
+      },
+      "ready": "Spreman",
+      "notReady": "Nisam spreman",
+      "start": "Počni ligu",
+      "needCoaches": {
+        "one": "Potrebno bar {min} trener.",
+        "few": "Potrebno bar {min} trenera.",
+        "other": "Potrebno bar {min} trenera."
+      },
+      "needCharacters": "Nisu svi izabrali lika.",
+      "waitingHost": "Čeka se domaćin da počne.",
+      "coaches": "Treneri ({count}/{max})",
+      "host": "domaćin",
+      "leave": "Napusti sobu",
+      "shareTitle": "Pozivi",
+      "shareHint": "Pošalji im kod/link. Aktivna soba živi najviše 30 dana.",
+      "chooseCharacter": "Izaberi lika",
+      "changeCharacter": "Promeni lika",
+      "noCharacter": "još bira",
+      "starting": "Liga kreće...",
+      "sending": "Šalje se...",
+      "presets": {
+        "null": "Bez",
+        "60": "1 min",
+        "180": "3 min",
+        "300": "5 min"
+      },
+      "masthead": "GLIZIĆ GLASNIK",
+      "formTitle": "Prijava za ligu",
+      "createStamp": "Otvori sobu",
+      "joinStamp": "Uđi u sobu",
+      "rulesTitle": "Podešavanja",
+      "rulesHint": "Koliko svaka faza sme da traje: prelazni rok, novine, žreb, opklade i kraj sezone.",
+      "rulesLater": "Podešavanja bira domaćin.",
+      "sheetTitle": "Spisak trenera",
+      "roomNumber": "Soba broj",
+      "empty": "prazno mesto",
+      "you": "ti",
+      "countdown": "Vremenski limit po fazi"
+    },
+    "coachBar": {
+      "done": "Gotovo {done} od {total}",
+      "offline": "nije tu",
+      "doneToggle": "Gotovo",
+      "undoDone": "Neje gotovo",
+      "ready": "Spreman",
+      "passed": "Odlučio",
+      "link": "Link za povratak",
+      "doneNames": "Gotovo: {names}",
+      "waitingNames": "Čeka se: {names}",
+      "nobody": "niko"
+    },
+    "timer": {
+      "left": "Još {time}"
+    },
+    "skip": {
+      "clip": "Preskoči do rezultata ({votes} od {total})",
+      "round": "Preskoči kolo ({votes} od {total})",
+      "cup": "Preskoči ceo kup ({votes} od {total})"
+    },
+    "prematch": {
+      "title": "Pre meča",
+      "pass": "Preskačem opkladu",
+      "passed": "Bez opklade",
+      "waiting": "Meč kreće kad svi odluče ili kad istekne vreme.",
+      "nobody": "Još niko",
+      "roundMatch": "{round}, meč {index} od {total}",
+      "ownWarning": "Kladiš se PROTIV svog lika. Ako sazna, holesterol ide u nebo.",
+      "startingIn": "Meč počinje za {seconds} s.",
+      "pot": "U igri"
+    },
+    "clip": {
+      "nextIn": "Sledeći meč za {seconds} s",
+      "toBracket": "Nazad na žreb za {seconds} s",
+      "toPodium": "Podijum za {seconds} s",
+      "startsIn": "Meč počinje za {seconds} s"
+    },
+    "roundBoard": {
+      "withdraw": "Povuci se iz turnira",
+      "withdrawConfirm": "Povlačenje znači predaju sledećeg meča i kraj turnira. Sigurno?",
+      "withdrawYes": "Da, povuci ga",
+      "withdrawNo": "Ostajemo"
+    },
+    "seasonEnd": {
+      "bracket": "Završen kup",
+      "toPodium": "Na podijum",
+      "toRecap": "Novine",
+      "toStandings": "Tabela",
+      "done": "Spreman za sledeću sezonu",
+      "champion": "{name} je šampion!",
+      "playerPlace": "{name} završava na {place} mestu.",
+      "prize": {
+        "one": "Nagrada: +{amount} glizar",
+        "few": "Nagrada: +{amount} glizara",
+        "other": "Nagrada: +{amount} glizara"
+      }
+    },
+    "finished": {
+      "title": "Kampanja je gotova",
+      "standings": "Konačne pozicije trenera",
+      "reopen": "Igramo dalje ({votes} od {total})",
+      "points": {
+        "one": "{points} poen",
+        "few": "{points} poena",
+        "other": "{points} poena"
+      }
+    },
+    "report": {
+      "h2h": "Međusobni skor",
+      "coachesCount": "Trenera",
+      "seasonsCount": "Sezona"
+    },
+    "rejoin": {
+      "title": "Tvoj link za povratak",
+      "hint": "Otvori ga na drugom uređaju da nastaviš kao isti trener.",
+      "copy": "Kopiraj link",
+      "copied": "Kopirano"
+    },
+    "errors": {
+      "generic": "Nešto je puklo. Probaj ponovo.",
+      "stale": "Soba je otišla dalje, osvežavamo.",
+      "unauthorized": "Ovaj uređaj nije prijavljen u sobu.",
+      "bad-name": "Ime mora imati 2 do 18 slova.",
+      "name-taken": "Neko se već tako zove.",
+      "character-taken": "Tog lika već neko vodi.",
+      "color-taken": "Ta boja je zauzeta.",
+      "room-full": "Soba je puna.",
+      "rate-limited": "Previše soba otvoreno odavde. Probaj ponovo za sat vremena.",
+      "rooms-full": "Hala je trenutno puna. Probaj kasnije.",
+      "not-found": "Nema takve sobe.",
+      "already-started": "Liga je već počela, ulaz je zatvoren.",
+      "no-funds": "Nema dovoljno glizara.",
+      "no-slot": "Nema više slobodnih meseci.",
+      "betting-locked": "Kladionica je još zatvorena.",
+      "bad-phase": "Nije trenutak za to.",
+      "closed": "Domaćin je zatvorio sobu.",
+      "not-host": "Samo domaćin može ovo.",
+      "expired": "Soba je istekla: niko nije bio u njoj 10 minuta.",
+      "bad-slug": "Nema takvog lika.",
+      "missing-slug": "Nisu svi izabrali lika.",
+      "league-started": "Liga je već počela.",
+      "letter-expired": "Izbori su prošli.",
+      "bad-room": "Soba nije u ispravnom stanju.",
+      "bad-body": "Zahtev nije stigao ceo. Probaj ponovo.",
+      "conflict": "Gužva u sobi. Probaj ponovo.",
+      "no-code": "Nema slobodnog koda za sobu. Probaj ponovo.",
+      "bad-color": "Nema takve boje.",
+      "bad-training": "Nema takvog treninga.",
+      "maxed": "Ovo je već na najvišem nivou.",
+      "media-spent": "Mediji su za ovaj rok potrošeni.",
+      "no-island": "Ostrvo trenutno nije dostupno.",
+      "guarded": "Obezbeđenje je već angažovano.",
+      "locked": "Ovo se otključava posle prvog kupa.",
+      "no-sponsor": "Za ovo ti treba sponzor.",
+      "bad-target": "Ta meta ne dolazi u obzir.",
+      "bad-tier": "Nema takvog poslića.",
+      "no-mail": "Nema tog pisma.",
+      "signed": "Već imaš sponzora.",
+      "has-sponsor": "Već imaš sponzora.",
+      "no-offer": "Ta ponuda više ne važi.",
+      "no-parliament": "Grad još nije glasao.",
+      "bad-amount": "Taj iznos ne prolazi.",
+      "bad-party": "Nema takve stranke.",
+      "bad-rival": "Taj rival nije na spisku.",
+      "no-match": "Nema tog meča.",
+      "no-bet": "Nema opklade za povlačenje.",
+      "bad-stake": "Taj ulog ne postoji.",
+      "bad-side": "Nema te strane meča.",
+      "final": "U finalu nema usluga.",
+      "no-favors": "Nemaš više usluga ove godine.",
+      "favor-pending": "Jedna usluga već čeka svoj meč.",
+      "withdrawn": "Već si se povukao sa kupa."
+    },
+    "window": {
+      "introTitle": "Otvaranje prelaznog roka"
+    },
+    "expansion": {
+      "masthead": "GLIZIĆ GLASNIK",
+      "issue": "Vanredno izdanje",
+      "headline": "Liga se širi",
+      "lead": {
+        "one": "Glizić liga od ove godine prima jednog povratnika, sa novim trenerom bez ijedne reference. Kreće sa dna tabele i juri isti cilj kao svi: prvi do {points} poena je Glizi Overlord.",
+        "few": "Glizić liga od ove godine prima {count} povratnika, svakog sa novim trenerom bez ijedne reference. Kreću sa dna tabele i svi jure isti cilj: prvi do {points} poena je Glizi Overlord.",
+        "other": "Glizić liga od ove godine prima {count} povratnika, svakog sa novim trenerom bez ijedne reference. Kreću sa dna tabele i svi jure isti cilj: prvi do {points} poena je Glizi Overlord."
+      },
+      "roster": "Novi članovi i njihovi treneri",
+      "coachLine": "trener: {coach}",
+      "cta": "Na prelazni rok"
+    },
+    "browser": {
+      "title": "Aktivne sobe",
+      "empty": "Trenutno nema nijedne sobe.",
+      "resume": "Nastavi",
+      "join": "Uđi",
+      "inProgress": "U toku",
+      "lobby": "Čeka igrače",
+      "finished": "Kampanja gotova",
+      "host": "domaćin: {name}",
+      "yearSeason": "Godina {year}, {season}",
+      "lastActive": "aktivna pre {minutes} min",
+      "lastActiveNow": "aktivna sad",
+      "coaches": "{count} od {max} trenera",
+      "full": "Puna"
+    },
+    "close": {
+      "button": "Zatvori sobu",
+      "confirm": "Soba se gasi za sve trenere i ne može se vratiti. Sigurno?",
+      "yes": "Da, zatvori",
+      "no": "Ipak ne",
+      "closed": "Domaćin je zatvorio sobu.",
+      "hint": "Gasi sobu za sve trenere, odmah i zauvek."
+    },
+    "room": {
+      "title": "Soba {code}",
+      "hint": "Kod sobe i link za povratak. Domaćin odavde može i da zatvori sobu."
+    }
+  },
+  "roster": {
+    "names": {
+      "vuka": "Vuk",
+      "dax": "Daniel",
+      "kosta": "Gospodin Kosti",
+      "cone": "Jajoglavi",
+      "dusan": "Grof Sumrak",
+      "nikola": "Debeli Mačak",
+      "jovan": "Jovan",
+      "bane": "Bane",
+      "tax-inspector": "Poreznik",
+      "steva": "Dužan Steva",
+      "dzamila": "Džamila",
+      "zeka": "Zeka",
+      "halvard": "Halvard",
+      "stojan": "Gospodin Mast",
+      "tihomir": "Deda Tihomir",
+      "miki": "Miki"
+    },
+    "epithets": {
+      "vuka": "Vuk samotnjak",
+      "dax": "Barmen sa Ostrva",
+      "kosta": "Kostur",
+      "cone": "Tvrdo kuvan",
+      "dusan": "Vampir",
+      "nikola": "Kapitalista",
+      "jovan": "Plemić",
+      "bane": "Zidar",
+      "tax-inspector": "Inspektor",
+      "steva": "Dužnik",
+      "dzamila": "Vračara",
+      "zeka": "Šumska zver",
+      "halvard": "Trgovac ledom",
+      "stojan": "Trgovac zejtinom",
+      "tihomir": "Putnik sa juga",
+      "miki": "Fizičar"
+    }
+  },
+  "hub": {
+    "siteName": "Glizić Manager",
+    "eyebrow": "Glizić igre",
+    "title": "Glizić Manager i Rivals",
+    "intro": "Dve igre, ista liga. Vodi svog lika sam kroz sezone ili napravi sobu i pojedi društvo za stolom.",
+    "aboutTitle": "Šta je ovo?",
+    "about": "Glizić Manager je nastao kao privatna igra za jedno društvo. Ovo je očišćena javna verzija: sve interne fore, pravi ljudi i privatne reference su izbačeni, likovi su izmišljeni, a igra je dostupna na engleskom i srpskom. Postoji da pokaže kako igra radi i kako je napravljena.",
+    "play": "Igraj",
+    "back": "Nazad na početnu",
+    "trailer": "Pogledaj trejler",
+    "trailerTitle": "Trejler"
+  },
+  "onboarding": {
+    "eyebrow": "Prva poseta",
+    "stepOf": "Korak {n} od {total}",
+    "back": "Nazad",
+    "next": "Dalje",
+    "skip": "Preskoči",
+    "steps": {
+      "about": {
+        "title": "Dobro došao za sto",
+        "body": "Glizić Manager je počeo kao privatna igra za jedno društvo; ova javna verzija zadržava celu igru sa izmišljenim likovima. Treniraš jednog lika kroz ligu u jedenju viršli: kupovi i sezone, sponzori koji su ujedno i stranke, novine koje ništa ne propuštaju, malo sabotaže i dug put do glizi overlorda."
+      },
+      "language": {
+        "title": "Izaberi jezik",
+        "body": "Menja se odmah. Ništa drugo se ne dira."
+      },
+      "look": {
+        "title": "Izgled i zvuk",
+        "body": "Tamno ili svetlo, glasno ili tiho. Sve ovo kasnije menjaš na zupčaniku u uglu."
+      },
+      "modes": {
+        "title": "Dva načina igre",
+        "manager": "Solo karijera. Sejv ostaje u ovom pregledaču.",
+        "rivals": "Sobe sa kodom, do osam trenera za jednim stolom.",
+        "playManager": "Igraj Manager",
+        "playRivals": "Igraj Rivals",
+        "lookAround": "Samo razgledam"
+      }
+    }
+  },
+  "commentary": {
+    "nameForms": {
+      "jovan": {
+        "short": "Jovan"
+      },
+      "bane": {
+        "short": "Bane"
+      },
+      "tax-inspector": {
+        "short": "Poreznik"
+      },
+      "halvard": {
+        "short": "Halvard"
+      },
+      "stojan": {
+        "short": "Gospodin Mast"
+      },
+      "tihomir": {
+        "short": "Tihomir"
+      },
+      "miki": {
+        "short": "Miki",
+        "ttsFull": "Miki"
+      }
+    },
+    "lines": {
+      "intro-rivalry-1": {
+        "text": "Ovo nije samo meč, poštovani. {a} i {b} imaju nezavršena posla.",
+        "tts": "Ovo nije samo meč, poštovani. Njih dvojica imaju nezavršena posla."
+      },
+      "intro-rivalry-2": {
+        "text": "{a} protiv {b}. Istorija kaže, kad se njih dvojica sretnu, nešto mora da pukne.",
+        "tts": "Istorija kaže, kad se njih dvojica sretnu, nešto mora da pukne."
+      },
+      "intro-leader-1": {
+        "text": "{name}, trenutno prvi na tabeli. Igra kao da mu viršle same beže od ruke."
+      },
+      "intro-leader-2": {
+        "text": "Prvi na tabeli, {name}. Kad sedne za sto, kladionice se zatvaraju."
+      },
+      "intro-leader-3": {
+        "text": "{name} večeras brani vrh tabele. A sa vrha, poštovani, najviše se pada."
+      },
+      "intro-lossstreak-1": {
+        "text": "{name} je u nizu poraza. Negde mora da pukne, pitanje je samo večeras ili sledeće nedelje."
+      },
+      "intro-lossstreak-2": {
+        "text": "S druge strane {name}. Forma? Nema je. Ali inat, inata ima napretek."
+      },
+      "intro-lossstreak-3": {
+        "text": "{name} gubi, i gubi, i gubi. Ali večeras, kažu, večeras je drugačije."
+      },
+      "intro-title-1": {
+        "text": "{name}, branilac titule. Kažu da šampioni njuše strah. On njuši sve."
+      },
+      "intro-title-2": {
+        "text": "Evo ga {name}. Titula ga čuva, ali titula i pritiska."
+      },
+      "intro-title-3": {
+        "text": "{name} juri istoriju. Još jedna titula i niko više ništa ne sme da kaže."
+      },
+      "intro-meltdown-1": {
+        "text": "{name}, lik za koga fizioterapeut drži stalni termin. Da vidimo hoće li večeras izdržati."
+      },
+      "intro-meltdown-2": {
+        "text": "Pazite na {name}. Kad mu krene, ide daleko. Kad mu ne krene, pukne pred svima."
+      },
+      "intro-meltdown-3": {
+        "text": "{name} i pritisak, stara ljubav. Pitanje je samo ko će koga večeras."
+      },
+      "intro-hat-1": {
+        "text": "{name} voli šešir. Svi to znaju. I on zna da svi znaju. I opet ide na šešir."
+      },
+      "intro-hat-2": {
+        "text": "Kažu da {name} i u snu traži šešir. Večeras ćemo proveriti."
+      },
+      "intro-sock-1": {
+        "text": "{name} i čarapa, to je ljubav koja traje ceo život."
+      },
+      "intro-sock-2": {
+        "text": "Čarapa zove, {name} se javlja. Uvek."
+      },
+      "intro-box-1": {
+        "text": "Za {name} kutija nije za krijenje. Kutija je dom."
+      },
+      "intro-box-2": {
+        "text": "{name} ide na kutiju i kad ne treba. Pogotovo kad ne treba."
+      },
+      "intro-epithet-1": {
+        "text": "{name}, {epithet}. Šta tu više reći."
+      },
+      "intro-epithet-2": {
+        "text": "A evo i njega. {name}, {epithet} lično."
+      },
+      "intro-epithet-3": {
+        "text": "{name}. {epithet}. Publika zna, publika pamti."
+      },
+      "open-1": {
+        "text": "Dobro veče, poštovani. Šesnaest takmičara, jedna titula, i previše viršli za jedno veče. Počinjemo."
+      },
+      "open-2": {
+        "text": "Dame i gospodo, dobro došli. Tabela je tu, forma je tu, a sad da vidimo koga večeras izdaju noge, a koga nos."
+      },
+      "open-3": {
+        "text": "Poštovani gledaoci, dobro veče. Neki su došli po trofej, neki iz inata, a neki, čini mi se, samo zato što su gladni."
+      },
+      "open-4": {
+        "text": "Dobro veče, poštovani. Sto je postavljen, viršle su tople, živci su tanki. Može da počne."
+      },
+      "next-1": {
+        "text": "Idemo dalje, sledeći meč."
+      },
+      "next-2": {
+        "text": "Nema predaha, poštovani. Glizi se okreće."
+      },
+      "next-3": {
+        "text": "Sledeći par izlazi na sto."
+      },
+      "next-4": {
+        "text": "Idemo odmah dalje, raspored je nemilosrdan."
+      },
+      "start-1": {
+        "text": "Viršla je na stolu. Krećemo!"
+      },
+      "start-2": {
+        "text": "Sudija gleda, publika ćuti. Počinje."
+      },
+      "start-3": {
+        "text": "Tri života, jedna viršla. Idemo."
+      },
+      "start-4": {
+        "text": "Ruke na sto, oči u viršlu. Krećemo."
+      },
+      "dodge-1": {
+        "text": "Nema je! Promašio je!",
+        "tts": "[excited] Nema je! Promašio je!"
+      },
+      "dodge-2": {
+        "text": "Traži... nije tu!",
+        "tts": "[excited] Traži... NIJE TU!"
+      },
+      "dodge-3": {
+        "text": "Prazno. Publika odahnu."
+      },
+      "dodge-4": {
+        "text": "Dobra procena, ili čista sreća. Svejedno, živ je."
+      },
+      "dodge-5": {
+        "text": "Izvukao se!",
+        "tts": "[excited] Izvukao se!"
+      },
+      "dodge-6": {
+        "text": "Nije ta! Viršla ostaje gde je!",
+        "tts": "[excited] NIJE TA! Viršla ostaje gde je!"
+      },
+      "dodge-7": {
+        "text": "Promašaj. Živi se još jedan krug."
+      },
+      "dodgestreak-1": {
+        "text": "Opet promašuje! Drugi put zaredom!",
+        "tts": "[excited][shouting] OPET promašuje! DRUGI put zaredom!!"
+      },
+      "dodgestreak-2": {
+        "text": "Pa ovo nije meč, ovo je balet!",
+        "tts": "[excited] Pa ovo nije meč, ovo je BALET!!"
+      },
+      "dodgestreak-3": {
+        "text": "Niko ništa da nađe! Viršla k'o duh, poštovani!",
+        "tts": "[excited] Niko ništa da nađe! Viršla k'o DUH, poštovani!"
+      },
+      "dodgestreak-4": {
+        "text": "Promašaj za promašajem! Čime se ovi ljudi hrane, srećom?!",
+        "tts": "[excited][shouting] Promašaj za promašajem! Čime se ovi ljudi hrane, SREĆOM?!"
+      },
+      "dodgestreak-5": {
+        "text": "Koliko ovo može da traje?! Niko neće da jede!",
+        "tts": "[excited][shouting] Koliko ovo može da traje?! NIKO neće da jede!!"
+      },
+      "grab-1": {
+        "text": "Evo je! Našao ju je! I sad mora da je pojede...",
+        "tts": "[excited][shouting] EVO JE! Našao ju je! I sad mora da je pojede... au, au, au..."
+      },
+      "grab-2": {
+        "text": "Tu je! Au, au, au... prijatno, majstore.",
+        "tts": "[excited] TU JE! [sighs] Au, au, au... prijatno, majstore."
+      },
+      "grab-3": {
+        "text": "Našao je! A ovde ko nađe, taj i pojede!",
+        "tts": "[excited][shouting] NAŠAO JE! A ovde ko nađe, taj i POJEDE!!"
+      },
+      "grab-4": {
+        "text": "Direktan pogodak! Nažalost po njega!",
+        "tts": "[excited] Direktan pogodak! Nažalost... po njega!"
+      },
+      "grab-5": {
+        "text": "Jao! Pa on ju je našao! Guta se, poštovani, guta se sudbina!",
+        "tts": "[excited][shouting] JAO! Pa on ju je NAŠAO! Guta se, poštovani, guta se SUDBINA!!"
+      },
+      "grab-6": {
+        "text": "Eno je! I znate šta sledi. Prijatno!",
+        "tts": "[excited][shouting] ENO JE! I znate šta sledi... PRIJATNO!"
+      },
+      "binge-1": {
+        "text": "Pa on je namerno uzima! Glad je čudo, poštovani!",
+        "tts": "[excited][shouting] Pa on je NAMERNO uzima! Glad je čudo, poštovani!!"
+      },
+      "binge-2": {
+        "text": "Ovo nije taktika, ovo je apetit! Ide pravo na viršlu!",
+        "tts": "[excited] Ovo nije taktika, ovo je APETIT! Ide PRAVO na viršlu!"
+      },
+      "binge-3": {
+        "text": "Zaboravio je pravila. Seća se samo ručka!",
+        "tts": "[excited] Zaboravio je pravila! Seća se samo RUČKA!"
+      },
+      "random-1": {
+        "text": "Ovo... ovo je nasumično. Ruka ide sama, glava je odavno otišla."
+      },
+      "random-2": {
+        "text": "Stres radi svoje. Bira žmureći, poštovani."
+      },
+      "random-3": {
+        "text": "Ne pita se on više ništa. Nervi biraju umesto njega."
+      },
+      "random-4": {
+        "text": "Ruka levo, pogled desno, pamet na godišnjem odmoru. Čisto kockanje."
+      },
+      "sniff-1": {
+        "text": "Njuh! Njuh ga je spasao!",
+        "tts": "[excited][shouting] NJUH! NJUH GA JE SPASAO!!"
+      },
+      "sniff-2": {
+        "text": "Ruka je krenula, ali nos kaže ne! Kakav instinkt!",
+        "tts": "[excited] Ruka je krenula, ali nos kaže NE, NE, NEEE! Kakav instinkt!"
+      },
+      "sniff-3": {
+        "text": "Namirisao ju je! U poslednjem trenutku!",
+        "tts": "[excited][shouting] NAMIRISAO ju je! U poslednjem trenutku!!"
+      },
+      "sniff-4": {
+        "text": "To se zove nos, dame i gospodo! To se u školi ne uči!",
+        "tts": "[excited] To se zove NOS, dame i gospodo! To se u školi ne uči!"
+      },
+      "sniff-5": {
+        "text": "Stao je! Nos ga je povukao nazad! Neverovatno!",
+        "tts": "[excited][shouting] STAO JE! Nos ga je povukao nazad! NEVEROVATNO!!"
+      },
+      "sniff-6": {
+        "text": "Nos radi prekovremeno! Kakvo spasenje!",
+        "tts": "[excited][shouting] Nos radi PREKOVREMENO! Kakvo spasenje!!"
+      },
+      "meltdown-1": {
+        "text": "Puko je! Puko je pred svima, poštovani!",
+        "tts": "[shouting] PUKO JE! Puko je pred svima, poštovani!!"
+      },
+      "meltdown-2": {
+        "text": "Ne, ne, ne... ode on. Živci su rekli dosta."
+      },
+      "meltdown-3": {
+        "text": "Stani, stani... pa on je gotov! Glava nije izdržala!",
+        "tts": "[excited] Stani, stani... pa on je GOTOV! Glava nije izdržala!"
+      },
+      "meltdown-4": {
+        "text": "Eksplozija! Sve što je držao u sebi izašlo je odjednom!",
+        "tts": "[shouting] EKSPLOZIJA! Sve što je držao u sebi izašlo je ODJEDNOM!!"
+      },
+      "police-1": {
+        "text": "Policija! Policija na stolu, prekida se meč!",
+        "tts": "[shouting] POLICIJA! Policija na stolu, prekida se meč!!"
+      },
+      "police-2": {
+        "text": "Stižu rotacije, poštovani! Ovo niko nije planirao!",
+        "tts": "[excited] Stižu ROTACIJE, poštovani! Ovo niko nije planirao!"
+      },
+      "police-3": {
+        "text": "Bežanija! Meč je gotov, organi reda odnose viršlu!",
+        "tts": "[excited][shouting] BEŽANIJA! Meč je gotov, organi reda odnose viršlu!!"
+      },
+      "police-4": {
+        "text": "Sirene, poštovani! Ovaj sport i zakon nikada nisu bili prijatelji!",
+        "tts": "[excited] SIRENE, poštovani! Ovaj sport i zakon NIKADA nisu bili prijatelji!"
+      },
+      "overfull-1": {
+        "text": "Ne može više! Pun je, poštovani, predaje meč!",
+        "tts": "[excited] NE MOŽE više! Pun je, poštovani, predaje meč!"
+      },
+      "overfull-2": {
+        "text": "Stomak je rekao svoje. Nema dalje."
+      },
+      "overfull-3": {
+        "text": "Previše viršli, premalo prostora. Gotovo je."
+      },
+      "overfull-4": {
+        "text": "Kapacitet je kapacitet. Presudila je fizika, ne protivnik."
+      },
+      "withdrawn-1": {
+        "text": "Nema meča, poštovani. Predao je bez borbe. Glava nije bila tu."
+      },
+      "withdrawn-2": {
+        "text": "Povukao se pre početka. Ružno, ali razumljivo."
+      },
+      "withdrawn-3": {
+        "text": "Prijavljen, najavljen, a nije izašao. Tužna slika, poštovani."
+      },
+      "tiebreak-1": {
+        "text": "Produžeci, poštovani. Ko prvi nađe viršlu, taj je izgubio. Da, dobro ste čuli."
+      },
+      "tiebreak-2": {
+        "text": "Sve ili ništa. Dve viršle na stolu, a samo jedna odlučuje."
+      },
+      "tiebreak-3": {
+        "text": "Ovo je smrt iznenada. Ne diše ni publika."
+      },
+      "tiebreak-4": {
+        "text": "Ruke se znoje, dve viršle čekaju. Jedan potez deli slavu od sramote."
+      },
+      "quick-1": {
+        "text": "Gotovo je! Za tri minuta! Brže se ni kafa ne popije!",
+        "tts": "[excited] GOTOVO JE! Za tri minuta! Brže se ni kafa ne popije!"
+      },
+      "quick-2": {
+        "text": "Ekspresno, poštovani! Ko je trepnuo, propustio je meč!",
+        "tts": "[excited] Ekspresno, poštovani! Ko je trepnuo, PROPUSTIO je meč!"
+      },
+      "quick-3": {
+        "text": "Kratko, čisto, hirurški."
+      },
+      "quick-4": {
+        "text": "Munjevito! Zapisničar nije stigao ni olovku da nađe!",
+        "tts": "[excited] MUNJEVITO! Zapisničar nije stigao ni olovku da nađe!"
+      },
+      "long-1": {
+        "text": "Ovo se oteglo, poštovani. Ali velike stvari se ne završavaju brzo."
+      },
+      "long-2": {
+        "text": "Maraton! Publika je sela, viršla je i dalje tu."
+      },
+      "long-3": {
+        "text": "Idemo dalje, niko ne popušta. Ovo je rat iscrpljivanja."
+      },
+      "long-4": {
+        "text": "Treći sat, poštovani. Neka neko proveri da li je viršla još sveža."
+      },
+      "winner-1": {
+        "text": "{name}! {name} je pobednik!",
+        "tts": "[excited][shouting] {name}! {name} je POBEDNIK!!"
+      },
+      "winner-2": {
+        "text": "Gotovo je! {name} ide dalje!",
+        "tts": "[excited] GOTOVO JE! {name} ide dalje!"
+      },
+      "winner-3": {
+        "text": "Pobednik je {name}. Zasluženo, moram reći."
+      },
+      "winner-4": {
+        "text": "{name} slavi! Narod će ovo dugo pamtiti!",
+        "tts": "[excited][shouting] {name} SLAVI! Narod će ovo DUGO pamtiti!"
+      },
+      "comedown-1": {
+        "text": "I tako, poštovani. Tabela ne laže."
+      },
+      "comedown-2": {
+        "text": "Iskustvo je presudilo. Idemo dalje."
+      },
+      "comedown-3": {
+        "text": "To je to. Neko slavi, neko večeras ne večera. Mada, iskreno, večerao je već."
+      },
+      "comedown-4": {
+        "text": "Zapišite ovaj rezultat. Osećam da ćemo ga pominjati."
+      },
+      "comedown-5": {
+        "text": "Ostaje zapisano. A mi idemo dalje, viršle se same ne sakrivaju."
+      },
+      "weather-ledeno-1": {
+        "text": "Napolju vije, a viršle se puše duplo. Idealno veče za ovaj sport."
+      },
+      "weather-ledeno-2": {
+        "text": "Minus je ozbiljan, poštovani. Ko večeras ispusti viršlu, naći će je tek na proleće."
+      },
+      "weather-ledeno-3": {
+        "text": "Termometar je pao ispod svega pristojnog, poštovani. Ali ko je rekao da je ovo pristojan sport."
+      },
+      "weather-ledeno-4": {
+        "text": "Sneg pada, sto je zaleđen, a senf se seče nožem. Pravo zimsko veče za ovaj sport."
+      },
+      "weather-krvavo-1": {
+        "text": "Jesen je, lišće pada, a sa njim, slutim, i poneki favorit."
+      },
+      "weather-krvavo-2": {
+        "text": "Nebo je večeras crveno, poštovani. Stari ljudi kažu da to nešto znači. Mi kažemo: idealni uslovi."
+      },
+      "weather-krvavo-3": {
+        "text": "Magla je pala na dolinu, poštovani. Vidi se do viršle, a više nam i ne treba."
+      },
+      "weather-krvavo-4": {
+        "text": "Vetar nosi lišće, kiša preti, a takmičari su stigli bez kišobrana. Sa viršlama, naravno."
+      },
+      "weather-letnje-1": {
+        "text": "Tropska noć, poštovani. Viršle se znoje, takmičari još više."
+      },
+      "weather-letnje-2": {
+        "text": "Leto je, sto je topao, a apetiti, apetiti su na maksimumu."
+      },
+      "weather-letnje-3": {
+        "text": "Sparina od jutra, poštovani. Senf se topi, a mi sa njim."
+      },
+      "weather-letnje-4": {
+        "text": "Ni daška vetra večeras. Komarci su već prebrojali takmičare, mi ćemo ih prebrojati posle."
+      },
+      "weather-patlidzan-1": {
+        "text": "Proleće je, sve cveta, a patlidžani, poštovani, patlidžani su u punom sjaju."
+      },
+      "weather-patlidzan-2": {
+        "text": "Miriše proleće, miriše trava, ali najjače, kao i uvek, miriše viršla."
+      },
+      "weather-patlidzan-3": {
+        "text": "Polen je u vazduhu, poštovani, a suze u očima. Neke od alergije, neke od žreba."
+      },
+      "weather-patlidzan-4": {
+        "text": "Prvo pravo sunce ove godine greje sto. Patlidžani sjaje, videćemo ko još."
+      },
+      "election-stranka-1": {
+        "text": "Nova vlada, poštovani: Narodna Lista. Sloboda je pobedila, kažu, pa će za početak osloboditi registar od svih koji nisu glasali kako treba."
+      },
+      "election-stranka-2": {
+        "text": "Skupština je u rukama Narodne Liste. Državni mediji već javljaju da je sve odlično, a mi ćemo, iz opreza, reći isto."
+      },
+      "election-stranka-3": {
+        "text": "Narodna Lista vodi Leskovac. I ceo Leskovac je korak bliže slobodi, kažu. A sloboda, naravno, znači da državni mediji od sutra imaju samo jedan program."
+      },
+      "election-zidari-1": {
+        "text": "Zidarski Ceh formirao vladu. Prva mera: zid oko Skupštine i nove kuće za sve lojaliste."
+      },
+      "election-zidari-2": {
+        "text": "Novi gazda grada su Zidari, poštovani. Obezbeđenje je preko noći poskupelo za sve koji nisu glasali kako treba."
+      },
+      "election-zidari-3": {
+        "text": "Zidari vode Leskovac. Gazda poručuje da će grad do zime biti ozidan sa svih strana."
+      },
+      "election-korporacija-1": {
+        "text": "Vladu vodi Korporacija Crni Patuljak. Prva promena zakona: doprinos za stabilnost grada i nova taksa za sve koji ne glasaju za Crnog Patuljka."
+      },
+      "election-korporacija-2": {
+        "text": "Korporacija na vlasti, poštovani. Crni Patuljak je obećao da će Leskovac biti najstabilniji grad u regionu nakon što izbaci ove prosjake odavde."
+      },
+      "election-korporacija-3": {
+        "text": "Crni Patuljak vodi Leskovac. Izvršitelji su dobili nove uniforme, a grad nove takse."
+      },
+      "election-ostrvo-1": {
+        "text": "Ostrvo je uzelo vladu, poštovani. Gradski budžet je od jutros na računu koji niko ne sme da pomene."
+      },
+      "election-ostrvo-2": {
+        "text": "Nova vlada dolazi brodićem. Ostrvo vodi Leskovac, a grad je, kažu, uvek bio na vodi."
+      },
+      "election-ostrvo-3": {
+        "text": "Ostrvo na vlasti. Porez je ukinut, a diskrecija je nova politika grada."
+      }
+    }
+  }
+}
