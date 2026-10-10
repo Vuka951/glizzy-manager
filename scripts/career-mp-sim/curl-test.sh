@@ -36,10 +36,15 @@ R=$(act $TB '{"type":"pickCharacter","slug":"dax"}'); V=$(body "$R" | jq -r .vie
 R=$(act $TB '{"type":"pickCharacter","slug":"cone"}'); echo "$(code "$R") $(body "$R" | jq -c '[.view.coaches[] | {name, slug}]')"
 V=$(body "$R" | jq -r .view.version)
 echo "== old client joins with a taken slug -> expect 200 and no character, then leaves"
-O=$(curl -s -X POST $B/rooms/$CODE/join -H 'content-type: application/json' -H "x-career-mp-now: $NOW" -d '{"coachName":"Stari","slug":"vuka"}')
+O=$(curl -s -X POST $B/rooms/$CODE/join -H 'content-type: application/json' -H "x-career-mp-now: $NOW" -d '{"coachName":"Oldie","slug":"vuka"}')
 echo "$O" | jq -c '[.view.coaches[] | {name, slug}]'
 TO=$(echo "$O" | jq -r .token); V=$(echo "$O" | jq -r .view.version)
 R=$(act $TO '{"type":"leave"}'); V=$(body "$R" | jq -r .view.version); echo "left: $(code "$R")"
+echo "== start while B is not ready -> expect 400 not-ready"
+R=$(act $TA '{"type":"start"}'); echo "$(code "$R") $(body "$R" | jq -r .error)"
+echo "== B is ready -> 200"
+R=$(act $TB '{"type":"ready","ready":true}'); echo "$(code "$R") $(body "$R" | jq -c '[.view.coaches[] | {name, ready}]')"
+V=$(body "$R" | jq -r .view.version)
 echo "== start (host)"
 ST=$(curl -s -X POST $B/rooms/$CODE/actions -H 'content-type: application/json' -H "x-coach-token: $TA" -H "x-career-mp-now: $NOW" -d "{\"action\":{\"type\":\"start\"},\"expectVersion\":$V}")
 echo "$ST" | jq -c '{status: .view.status, phase: .view.phase, version: .view.version, deadlineIn: ((.view.phase.deadline - .view.now)/1000), mail: (.view.career.mail|length), slug: .view.career.playerSlug, balance: .view.career.balance}'

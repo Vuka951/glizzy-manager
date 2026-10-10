@@ -74,7 +74,7 @@ function joinedRoom(
     const id = newCoachId();
     coaches[id] = {
       id,
-      name: `Trener ${i + 1}`,
+      name: `Coach ${i + 1}`,
       color: COACH_COLOR_ORDER[i],
       slug: null,
       tokenHash: hashToken(`token-${i}`),
@@ -109,6 +109,7 @@ function lobbyRoom(
   let room = joinedRoom(count, settings);
   Object.keys(room.coaches).forEach((id, i) => {
     room = applyAction(room, id, { type: 'pickCharacter', slug: slugs[i] }, now).room;
+    room = applyAction(room, id, { type: 'ready', ready: true }, now).room;
   });
   return room;
 }
@@ -268,7 +269,7 @@ function randomWindowAction(room: Room, coachId: string): RoomAction {
   return pick(kinds);
 }
 
-// The Korporacija tax letter can push a wallet below zero at window open,
+// The tax letter from the korporacija sponsor can push a wallet below zero at window open,
 // exactly as in single player; nothing a coach does may take it lower
 const floorByCoach: Record<string, number> = {};
 
@@ -517,8 +518,12 @@ function refused(fn: () => unknown, code: string): boolean {
   lobby = applyAction(lobby, third, { type: 'pickCharacter', slug: ROSTER_SLUGS[1] }, now).room;
   assert(lobby.coaches[third].slug === ROSTER_SLUGS[1], 'a dropped pick frees the character');
   assert(refused(() => applyAction(lobby, third, { type: 'start' }, now), 'not-host'), 'only the host starts');
+  assert(refused(() => applyAction(lobby, host, { type: 'start' }, now), 'not-ready'), 'start refused while a coach is not ready');
+  lobby = applyAction(lobby, second, { type: 'ready', ready: true }, now).room;
+  assert(refused(() => applyAction(lobby, host, { type: 'start' }, now), 'not-ready'), 'start refused while one coach is not ready');
+  lobby = applyAction(lobby, third, { type: 'ready', ready: true }, now).room;
   const started = applyAction(lobby, host, { type: 'start' }, now).room;
-  assert(started.status === 'playing', 'start once everyone picked');
+  assert(started.status === 'playing', 'start once everyone picked and the others are ready');
   assert(
     JSON.stringify([...started.league!.humanSlugs].sort()) === JSON.stringify([ROSTER_SLUGS[0], ROSTER_SLUGS[1], ROSTER_SLUGS[2]].sort()),
     'the league seats the lobby picks',

@@ -3,15 +3,15 @@ import MatchStatsPreview from "@/components/preview/MatchStatsPreview";
 import PreviewPageShell from "@/components/preview/PreviewPageShell";
 
 export const metadata: Metadata = {
-  title: "Statistika na stolu",
+  title: "Stats at the table",
 };
 
 export default function MatchStatsPreviewPage() {
   return (
     <PreviewPageShell
       eyebrow="Preview"
-      title="Statistika na stolu"
-      note="Traka ispod imena nosi četiri veštine i do dva upozorenja sa kartona. Neistrenirana veština bledi, prosečan karton ne kaže ništa, a ono što nisi platio stoji kao znak pitanja koji ti kaže šta ti treba."
+      title="Stats at the table"
+      note="The strip under the name carries the four skills and up to two warnings from the chart. An untrained skill fades, an average chart says nothing, and whatever you have not paid for shows as a question mark that tells you what you need."
       widthClassName="max-w-6xl"
     >
       <MatchStatsPreview />

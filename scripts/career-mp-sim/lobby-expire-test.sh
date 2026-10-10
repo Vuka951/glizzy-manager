@@ -12,4 +12,4 @@ echo -n "view again (expect 404): "; curl -s -o /dev/null -w '%{http_code}\n' $B
 D=$(curl -s -X POST $B/rooms -H 'content-type: application/json' -H "x-career-mp-now: $NOW" -d '{"coachName":"Host2"}')
 CODE2=$(echo "$D" | jq -r .code)
 echo -n "second room listed at +11 min via list (expect false): "; curl -s $B/rooms -H "x-career-mp-now: $((NOW + 11*60*1000))" | jq "[.rooms[].code] | index(\"$CODE2\") != null"
-echo -n "second room join after list cleared it (expect 404): "; curl -s -o /dev/null -w '%{http_code}\n' -X POST $B/rooms/$CODE2/join -H 'content-type: application/json' -d '{"coachName":"Gost"}'
+echo -n "second room join after list cleared it (expect 404): "; curl -s -o /dev/null -w '%{http_code}\n' -X POST $B/rooms/$CODE2/join -H 'content-type: application/json' -d '{"coachName":"Guest"}'

@@ -17,14 +17,14 @@ import type { QuotePlayback } from '@/lib/utils/quoteCutsceneTriggers';
 import { quoteHeadline, quoteSceneText } from '@/lib/utils/quoteSceneText';
 
 const VARIANT_LABELS: Record<string, string> = {
-  cholesterol: 'holesterol',
-  puke: 'bljuvanje',
-  surrender: 'predaja',
-  zidari: 'Zidari',
-  ostrvo: 'Ostrvo',
-  korporacija: 'Korporacija',
-  stranka: 'Stranka',
-  none: 'bez sponzora',
+  cholesterol: 'cholesterol',
+  puke: 'puking',
+  surrender: 'surrender',
+  zidari: 'Masons',
+  ostrvo: 'The Island',
+  korporacija: 'Corporation',
+  stranka: 'Party',
+  none: 'no sponsor',
 };
 
 // The picker's stand-in for a speaker with no contract; the scene gets no
@@ -182,7 +182,7 @@ export default function QuoteScenePreview({
         ))}
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <span className={ROW_LABEL}>Govori</span>
+        <span className={ROW_LABEL}>Speaker</span>
         {speakerChoices.map((slug) => (
           <button
             key={slug}
@@ -203,7 +203,7 @@ export default function QuoteScenePreview({
       </div>
       {otherChoices && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className={ROW_LABEL}>Protivnik</span>
+          <span className={ROW_LABEL}>Opponent</span>
           {otherChoices.map((slug) => (
             <button
               key={slug}
@@ -224,7 +224,7 @@ export default function QuoteScenePreview({
         </div>
       )}
       <div className="flex flex-wrap items-center gap-2">
-        <span className={ROW_LABEL}>Replika</span>
+        <span className={ROW_LABEL}>Line</span>
         {wordings.map((text, index) => (
           <button
             key={text}
@@ -261,13 +261,13 @@ export default function QuoteScenePreview({
         ))}
         {variantChoices && <span className="mx-1 h-4 w-px bg-slate-700" />}
         <button onClick={() => setReplay(replay + 1)} className={`${BUTTON} ${IDLE}`}>
-          Ponovi
+          Replay
         </button>
         <button onClick={() => setModal(1)} className={`${BUTTON} ${IDLE}`}>
-          Ceo prozor
+          Full window
         </button>
         <button onClick={() => setModal(2)} className={`${BUTTON} ${IDLE}`}>
-          Dve zaredom
+          Two in a row
         </button>
       </div>
       <div

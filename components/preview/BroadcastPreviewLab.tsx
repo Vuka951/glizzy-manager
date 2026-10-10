@@ -1,8 +1,9 @@
 'use client';
 
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState } from 'react';
 import BroadcastOpenPanel from '@/components/games/career/BroadcastOpenPanel';
 import MatchViewer from '@/components/games/match/MatchViewer';
+import SectionTitle from '@/components/preview/SectionTitle';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { SEASON_COUNT } from '@/data/games/careerSeasons';
 import { FULL_REVEAL } from '@/lib/utils/careerScouting';
@@ -62,11 +63,11 @@ const PREVIEW_RESULT: CupMatchResult = {
   ],
 };
 
-// Pairings that show both tells: Vuka sweats across from the inspector who
-// bounces, Dax and Vuka both bounce
+// Pairings that show both tells: The Wolf sweats across from The Taxman who
+// bounces, Daniel and The Wolf both bounce
 const PAIRS = [
-  { label: 'Vuka i Poreznik: loš, dobar', a: 'vuka', b: 'tax-inspector' },
-  { label: 'Dax i Vuka: dobar, dobar', a: 'dax', b: 'vuka' },
+  { label: 'The Wolf and The Taxman: bad, good', a: 'vuka', b: 'tax-inspector' },
+  { label: 'Daniel and The Wolf: good, good', a: 'dax', b: 'vuka' },
 ];
 
 function mockCareer(characters: DuelCharacter[]): SavedCareer {
@@ -125,19 +126,11 @@ function mockCareer(characters: DuelCharacter[]): SavedCareer {
 }
 
 const STAGES = [
-  { cups: 0, label: 'Kup 1: bez prenosa' },
-  { cups: 1, label: 'Kup 2: komentator' },
-  { cups: 2, label: 'Kup 3: tale of the tape' },
-  { cups: 3, label: 'Kup 4: studio uvod' },
+  { cups: 0, label: 'Cup 1: no broadcast' },
+  { cups: 1, label: 'Cup 2: commentator' },
+  { cups: 2, label: 'Cup 3: tale of the tape' },
+  { cups: 3, label: 'Cup 4: studio intro' },
 ];
-
-function SectionTitle({ children }: { children: ReactNode }) {
-  return (
-    <h2 className="text-center text-xs font-bold uppercase tracking-[0.3em] text-sky-300">
-      {children}
-    </h2>
-  );
-}
 
 export default function BroadcastPreviewLab({
   characters,
@@ -175,7 +168,7 @@ export default function BroadcastPreviewLab({
   return (
     <div className="flex flex-col gap-8">
       <section className="flex flex-col items-center gap-3">
-        <SectionTitle>Meč po fazama prenosa</SectionTitle>
+        <SectionTitle>Match by broadcast stage</SectionTitle>
         <div className="flex flex-wrap justify-center gap-2">
           {STAGES.map((s, i) => (
             <button
@@ -197,7 +190,7 @@ export default function BroadcastPreviewLab({
             onClick={() => setMatchKey((k) => k + 1)}
             className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-red-300 transition hover:text-red-200"
           >
-            Pusti ponovo
+            Play again
           </button>
         </div>
         <div className="flex flex-wrap justify-center gap-2">
@@ -238,7 +231,7 @@ export default function BroadcastPreviewLab({
       </section>
 
       <section className="flex flex-col items-center gap-3">
-        <SectionTitle>Studio uvod pred turnir</SectionTitle>
+        <SectionTitle>Studio intro before the cup</SectionTitle>
         <div className="flex flex-wrap justify-center gap-2">
           {Array.from({ length: SEASON_COUNT }, (_, season) => (
             <button
@@ -257,7 +250,7 @@ export default function BroadcastPreviewLab({
             onClick={() => setOpenYear((y) => y + 1)}
             className="rounded-full border border-sky-200/15 bg-slate-900/60 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 transition hover:text-slate-200"
           >
-            Godina {openYear}: nova prognoza
+            Year {openYear}: new forecast
           </button>
         </div>
         <button
@@ -267,7 +260,7 @@ export default function BroadcastPreviewLab({
           }}
           className="rounded-xl border border-sky-200/25 bg-slate-800/70 px-5 py-2 text-xs font-semibold text-sky-200 transition hover:border-sky-200/50 hover:text-white"
         >
-          Prikaži studio uvod
+          Show studio intro
         </button>
         {showOpen && (
           <BroadcastOpenPanel

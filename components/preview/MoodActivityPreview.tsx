@@ -26,20 +26,20 @@ const ACTIVITIES: Array<{
   label: string;
   meters: MoodMeters;
 }> = [
-  { id: 'sick', label: 'Mučnina', meters: { ...BASE_METERS, stress: 95, appetite: 10 } },
-  { id: 'frantic', label: 'Panika', meters: { ...BASE_METERS, stress: 95 } },
-  { id: 'anxious', label: 'Nervoza', meters: { ...BASE_METERS, stress: 95, ambition: 95 } },
-  { id: 'defeated', label: 'Poraz', meters: { ...BASE_METERS, ambition: 5 } },
-  { id: 'shy', label: 'Skrivanje', meters: { ...BASE_METERS, fame: 10 } },
-  { id: 'proud', label: 'Ponos', meters: { ...BASE_METERS, ego: 95 } },
-  { id: 'energized', label: 'Energija', meters: { ...BASE_METERS, ambition: 95 } },
-  { id: 'hungry', label: 'Glad', meters: { ...BASE_METERS, appetite: 95 } },
-  { id: 'relaxed', label: 'Odmor', meters: { ...BASE_METERS, stress: 10 } },
-  { id: 'celebrating', label: 'Slavlje', meters: { ...BASE_METERS, stress: 25 } },
-  { id: 'idle', label: 'Mirno', meters: BASE_METERS },
+  { id: 'sick', label: 'Nausea', meters: { ...BASE_METERS, stress: 95, appetite: 10 } },
+  { id: 'frantic', label: 'Panic', meters: { ...BASE_METERS, stress: 95 } },
+  { id: 'anxious', label: 'Nerves', meters: { ...BASE_METERS, stress: 95, ambition: 95 } },
+  { id: 'defeated', label: 'Defeat', meters: { ...BASE_METERS, ambition: 5 } },
+  { id: 'shy', label: 'Hiding', meters: { ...BASE_METERS, fame: 10 } },
+  { id: 'proud', label: 'Pride', meters: { ...BASE_METERS, ego: 95 } },
+  { id: 'energized', label: 'Energy', meters: { ...BASE_METERS, ambition: 95 } },
+  { id: 'hungry', label: 'Hunger', meters: { ...BASE_METERS, appetite: 95 } },
+  { id: 'relaxed', label: 'Rest', meters: { ...BASE_METERS, stress: 10 } },
+  { id: 'celebrating', label: 'Celebration', meters: { ...BASE_METERS, stress: 25 } },
+  { id: 'idle', label: 'Calm', meters: BASE_METERS },
 ];
 
-const SEASONS = ['Zima', 'Proleće', 'Leto', 'Jesen'];
+const SEASONS = ['Winter', 'Spring', 'Summer', 'Autumn'];
 
 export default function MoodActivityPreview({
   character,
@@ -80,7 +80,7 @@ export default function MoodActivityPreview({
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-          {variants.length > 0 ? 'Zvuk' : 'Bez zvuka'}
+          {variants.length > 0 ? 'Sound' : 'No sound'}
         </span>
         {variants.map((_, index) => (
           <button
@@ -88,7 +88,7 @@ export default function MoodActivityPreview({
             onClick={() => playMoodSound(activity, index)}
             className="rounded-lg border border-sky-200/20 bg-slate-800/60 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-sky-200/45 hover:text-white"
           >
-            {`Varijanta ${index + 1}`}
+            {`Variant ${index + 1}`}
           </button>
         ))}
       </div>

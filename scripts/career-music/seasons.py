@@ -1,9 +1,11 @@
-"""The four season loops, in calendar order: Ledeno, Patlidzan, Letnje, Krvavo.
+"""The four season loops, in calendar order: Winter, Spring, Summer, Autumn.
 
 Each runs about a minute in two halves, so a full listen does not repeat the
 same eight bars six times, and each carries one word sung by a voice mixed far
-enough back that you only catch it if you go looking: Glizi in the winter
-edition, Pcinja in the summer one, Patlidzan and Krv in their own.
+enough back that you only catch it if you go looking. The words are the
+vocal takes the shipped loops were rendered from, named by their sample
+files: "glizi" in winter, "patlidzan" in spring, "pcinja" in summer and
+"krv" in autumn.
 """
 
 import numpy as np
@@ -44,10 +46,10 @@ def arp_cycle(chord, count):
     return [seq[i % len(seq)] for i in range(count)]
 
 
-# ---------------------------------------------------------------- Ledeno ----
+# ------------------------------------------------------------------- Winter ----
 # Winter with the tree up: sleigh pulse, glockenspiel, warm major sevenths.
 # The second half brings in a bell melody over the same ground.
-def ledeno():
+def winter():
     s = Song(90, 24)
     prog = [
         (36, [52, 55, 59, 64]),
@@ -100,9 +102,9 @@ def ledeno():
                     presence=0.55, air=1.6)
 
 
-# ------------------------------------------------------------- Patlidzan ----
+# ------------------------------------------------------------------- Spring ----
 # Spring: rubber-band bass, off-beat stabs, a whistle that will not sit still
-def patlidzan():
+def spring():
     s = Song(105, 24)
     prog = [
         (40, [52, 59, 62, 66]),
@@ -154,9 +156,9 @@ def patlidzan():
                     presence=0.35, air=1.2)
 
 
-# ----------------------------------------------------------------- Letnje ----
+# ------------------------------------------------------------------- Summer ----
 # The loud one: four on the floor, marimba sixteenths, horn stabs on the offbeat
-def letnje():
+def summer():
     s = Song(120, 28)
     prog = [
         (36, [52, 55, 57, 62]),
@@ -209,10 +211,10 @@ def letnje():
                     presence=0.35, air=1.1)
 
 
-# ----------------------------------------------------------------- Krvavo ----
+# ------------------------------------------------------------------- Autumn ----
 # Autumn: a tolling bell, sixteenth-note saw bass and toms underneath, with a
 # minor second grinding away in the pad
-def krvavo():
+def autumn():
     s = Song(96, 24)
     prog = [
         (38, [53, 57, 60, 62]),
@@ -262,8 +264,8 @@ def krvavo():
 
 
 SEASONS = [
-    ("music-0", "Ledeno", ledeno),
-    ("music-1", "Patlidzan", patlidzan),
-    ("music-2", "Letnje", letnje),
-    ("music-3", "Krvavo", krvavo),
+    ("music-0", "Winter", winter),
+    ("music-1", "Spring", spring),
+    ("music-2", "Summer", summer),
+    ("music-3", "Autumn", autumn),
 ]

@@ -220,6 +220,7 @@ export async function fillLobby(page, { beforePick = null } = {}) {
     if (joined.status !== 200) throw new Error(`join ${name}: ${joined.status} ${JSON.stringify(joined.json)}`);
     tokens.push(joined.json.token);
     await act(code, joined.json.token, { type: 'pickCharacter', slug });
+    await act(code, joined.json.token, { type: 'ready', ready: true });
   }
   const hostToken = await page.evaluate((c) => localStorage.getItem(`glizzy-rivals:${c}`), code);
   await act(code, hostToken, {

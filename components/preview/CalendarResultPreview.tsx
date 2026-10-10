@@ -11,7 +11,7 @@ export default function CalendarResultPreview() {
           className="flex min-h-16 flex-col items-center justify-between gap-2 rounded-xl border border-amber-400/30 bg-amber-500/5 p-2 text-center"
         >
           <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-slate-500">
-            Ledeno izdanje
+            Frozen Edition
           </span>
           <CalendarResultBadge place={place} />
         </div>

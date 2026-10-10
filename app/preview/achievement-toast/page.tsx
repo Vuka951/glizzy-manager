@@ -3,15 +3,15 @@ import AchievementToastPreview from "@/components/preview/AchievementToastPrevie
 import PreviewPageShell from "@/components/preview/PreviewPageShell";
 
 export const metadata: Metadata = {
-  title: "Trofej toast",
+  title: "Achievement toast",
 };
 
 export default function AchievementToastPreviewPage() {
   return (
     <PreviewPageShell
       eyebrow="Preview"
-      title="Trofej toast"
-      note="Svaki trofej na klik, bez otključavanja."
+      title="Achievement toast"
+      note="Every achievement on a click, without unlocking it."
       widthClassName="max-w-2xl"
     >
       <AchievementToastPreview />

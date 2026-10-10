@@ -1,4 +1,4 @@
-"""Regenerate the four Glizi Career season loops:
+"""Regenerate the four Glizzy Manager season loops:
     python3 scripts/career-music/render.py
 Writes music-0..3.mp3 next to this script; copy them into
 public/games/audio/music/ once you have listened to them."""

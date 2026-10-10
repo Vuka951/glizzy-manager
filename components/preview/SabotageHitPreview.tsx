@@ -13,7 +13,7 @@ import {
 import type { NewsItem } from '@/lib/utils/careerSave';
 
 const HEADLINES = GAMES_UI.career.newspaper.headlines as Record<string, string>;
-const SEASONS = ['Zima', 'Proleće', 'Leto', 'Jesen'];
+const SEASONS = ['Winter', 'Spring', 'Summer', 'Autumn'];
 
 // The story behind every scene, with the receipt a real hit would carry
 const story = (templateKey: string, params: NewsItem['params']): NewsItem => ({
@@ -134,19 +134,19 @@ export default function SabotageHitPreview({
           onClick={() => setReplay(replay + 1)}
           className="rounded-lg border border-sky-200/20 bg-slate-800/60 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-sky-200/45 hover:text-white"
         >
-          Ponovi
+          Replay
         </button>
         <button
           onClick={() => setModal(true)}
           className="rounded-lg border border-sky-200/20 bg-slate-800/60 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-sky-200/45 hover:text-white"
         >
-          Ceo prozor
+          Full window
         </button>
         <button
           onClick={() => setReel(true)}
           className="rounded-lg border border-sky-200/20 bg-slate-800/60 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-sky-200/45 hover:text-white"
         >
-          Ceo niz (3 udarca)
+          Full reel (3 hits)
         </button>
       </div>
       <div

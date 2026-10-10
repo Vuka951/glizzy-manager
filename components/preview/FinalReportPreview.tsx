@@ -172,7 +172,7 @@ export default function FinalReportPreview({
   const topBar = (
     <div className="flex w-full items-center justify-between gap-2 px-3 pt-3">
       <span className="rounded-full border border-sky-200/15 bg-slate-950/70 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
-        {mode === 'sp' ? 'Karijera' : GAMES_UI.careerMp.catalog.title}
+        {mode === 'sp' ? 'Glizzy Manager' : GAMES_UI.careerMp.catalog.title}
       </span>
       <button onClick={() => setMode(null)} className={button}>
         {GAMES_UI.shared.close}
@@ -183,10 +183,10 @@ export default function FinalReportPreview({
     <>
       <div className="flex flex-wrap gap-2">
         <button onClick={() => setMode('sp')} className={button}>
-          Otvori izveštaj (jedan igrač)
+          Open report (single player)
         </button>
         <button onClick={() => setMode('mp')} className={button}>
-          Otvori izveštaj (Glizi Rivals)
+          Open report (Glizzy Rivals)
         </button>
       </div>
       {mode && (

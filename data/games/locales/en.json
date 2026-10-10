@@ -1839,6 +1839,7 @@
         "other": "Needs at least {min} coaches."
       },
       "needCharacters": "Not everyone has picked a character.",
+      "needReady": "Waiting for every coach to be ready.",
       "waitingHost": "Waiting for the host to start.",
       "coaches": "Coaches ({count}/{max})",
       "host": "host",
@@ -1969,6 +1970,7 @@
       "expired": "The room expired: nobody was in it for 10 minutes.",
       "bad-slug": "No such character.",
       "missing-slug": "Not everyone has picked a character.",
+      "not-ready": "Not every coach is ready yet.",
       "league-started": "The league has already started.",
       "letter-expired": "The election is over.",
       "bad-room": "The room is in a broken state.",

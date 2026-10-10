@@ -756,6 +756,9 @@ function lobbyAction(room: Room, coachId: string, action: RoomAction, now: numbe
       if (coaches.length < MIN_COACHES || coaches.length > MAX_COACHES)
         throw new ActionError('bad-room');
       if (coaches.some((c) => !c.slug)) throw new ActionError('missing-slug');
+      // Pressing start is the host's ready
+      if (coaches.some((c) => c.id !== room.hostCoachId && !c.ready))
+        throw new ActionError('not-ready');
       return startGame(room, now);
     }
     case 'leave': {

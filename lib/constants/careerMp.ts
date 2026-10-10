@@ -175,6 +175,7 @@ export const ROOM_ERROR_CODES = [
   'bad-slug',
   'character-taken',
   'missing-slug',
+  'not-ready',
   'bad-color',
   'color-taken',
   'no-slot',
