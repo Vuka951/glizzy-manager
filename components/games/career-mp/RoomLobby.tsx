@@ -56,7 +56,8 @@ export default function RoomLobby({
   const takenColors = new Set(view.coaches.map((c) => c.color));
   const enoughCoaches = view.coaches.length >= MIN_COACHES;
   const everyonePicked = view.coaches.every((c) => c.slug);
-  const canStart = isHost && enoughCoaches && everyonePicked;
+  const everyoneReady = view.coaches.every((c) => c.isHost || c.ready);
+  const canStart = isHost && enoughCoaches && everyonePicked && everyoneReady;
   const link =
     typeof window === 'undefined'
       ? ''
@@ -164,7 +165,7 @@ export default function RoomLobby({
                       {!coach.connected && ` · ${GAMES_UI.careerMp.coachBar.offline}`}
                     </span>
                   </span>
-                  {coach.ready && (
+                  {coach.ready && !coach.isHost && (
                     <span className="text-[10px] font-bold text-emerald-700">
                       {L.ready}
                     </span>
@@ -208,24 +209,26 @@ export default function RoomLobby({
                 >
                   {me.slug ? L.changeCharacter : L.chooseCharacter}
                 </button>
-                <button
-                  onClick={() => send({ type: 'ready', ready: !me.ready })}
-                  className={`grid text-[11px] font-bold underline underline-offset-4 transition ${
-                    me.ready
-                      ? 'text-emerald-700 decoration-emerald-700/40'
-                      : 'text-slate-800 decoration-slate-900/40 hover:text-red-700'
-                  }`}
-                >
-                  <span className="col-start-1 row-start-1">
-                    {me.ready ? L.notReady : L.ready}
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className="invisible col-start-1 row-start-1 no-underline"
+                {!isHost && (
+                  <button
+                    onClick={() => send({ type: 'ready', ready: !me.ready })}
+                    className={`grid text-[11px] font-bold underline underline-offset-4 transition ${
+                      me.ready
+                        ? 'text-emerald-700 decoration-emerald-700/40'
+                        : 'text-slate-800 decoration-slate-900/40 hover:text-red-700'
+                    }`}
                   >
-                    {L.notReady}
-                  </span>
-                </button>
+                    <span className="col-start-1 row-start-1">
+                      {me.ready ? L.notReady : L.ready}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="invisible col-start-1 row-start-1 no-underline"
+                    >
+                      {L.notReady}
+                    </span>
+                  </button>
+                )}
               </span>
               <span className="ml-auto flex items-center gap-4">
                 {isHost && (
@@ -297,12 +300,16 @@ export default function RoomLobby({
           {isHost
             ? canStart
               ? fmt(L.coaches, { count: view.coaches.length, max: MAX_COACHES })
-              : enoughCoaches
-                ? L.needCharacters
-                : plural(L.needCoaches, MIN_COACHES, { min: MIN_COACHES })
-            : everyonePicked
-              ? L.waitingHost
-              : L.needCharacters}
+              : !enoughCoaches
+                ? plural(L.needCoaches, MIN_COACHES, { min: MIN_COACHES })
+                : everyonePicked
+                  ? L.needReady
+                  : L.needCharacters
+            : !everyonePicked
+              ? L.needCharacters
+              : everyoneReady
+                ? L.waitingHost
+                : L.needReady}
         </p>
         {isHost && (
           <PaperStamp

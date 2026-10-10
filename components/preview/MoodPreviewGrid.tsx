@@ -37,54 +37,54 @@ const scenario = (
 });
 
 const MOOD_SCENARIOS: MoodScenario[] = [
-  scenario('sick-stressed', 'Puca i prejeo se', 'Holesterol je preko 80, a apetit ispod 20.', {
+  scenario('sick-stressed', 'Bursting and stuffed', 'Cholesterol is over 80 and appetite under 20.', {
     stress: 95,
     appetite: 10,
   }),
-  scenario('hungry-stressed', 'Puca i izgladneo je', 'Kritični holesterol i glad zajedno.', {
+  scenario('hungry-stressed', 'Bursting and starving', 'Critical cholesterol and hunger together.', {
     stress: 95,
     appetite: 95,
   }),
-  scenario('overwhelmed', 'Previše problema', 'Najmanje dva kritična negativna signala.', {
+  scenario('overwhelmed', 'Too many problems', 'At least two critical negative signals.', {
     ambition: 5,
     ego: 5,
   }),
-  scenario('conflicted', 'Pomešano raspoloženje', 'Jak pozitivan i kritičan negativan signal u isto vreme.', {
+  scenario('conflicted', 'Mixed mood', 'A strong positive and a critical negative signal at the same time.', {
     stress: 95,
     ambition: 95,
   }),
-  scenario('critical-stress', 'Kritičan holesterol', 'Holesterol je preko 80.', {
+  scenario('critical-stress', 'Critical cholesterol', 'Cholesterol is over 80.', {
     stress: 95,
   }),
-  scenario('overfull', 'Prejeo se', 'Apetit je ispod 20.', { appetite: 10 }),
-  scenario('starving', 'Izgladneo je', 'Apetit je preko 80.', { appetite: 95 }),
-  scenario('no-ambition', 'Odustaje', 'Ambicija je ispod 15, postoji rizik predaje.', {
+  scenario('overfull', 'Stuffed', 'Appetite is under 20.', { appetite: 10 }),
+  scenario('starving', 'Starving', 'Appetite is over 80.', { appetite: 95 }),
+  scenario('no-ambition', 'Giving up', 'Ambition is under 15, with a risk of forfeiting.', {
     ambition: 5,
   }),
-  scenario('no-ego', 'Jaka trema', 'Ego je ispod 15.', { ego: 5 }),
-  scenario('unknown', 'Potpuno nepoznat', 'Slava je ispod 25.', { fame: 10 }),
-  scenario('famous-ego', 'Zvezda sa velikim egom', 'Ego je preko 75, a slava najmanje 70.', {
+  scenario('no-ego', 'Bad stage fright', 'Ego is under 15.', { ego: 5 }),
+  scenario('unknown', 'Completely unknown', 'Fame is under 25.', { fame: 10 }),
+  scenario('famous-ego', 'Star with a big ego', 'Ego is over 75 and fame at least 70.', {
     ego: 95,
     fame: 95,
   }),
-  scenario('multiple-positive', 'Više jakih signala', 'Najmanje dva jaka pozitivna signala.', {
+  scenario('multiple-positive', 'Several strong signals', 'At least two strong positive signals.', {
     ambition: 95,
     fame: 95,
   }),
-  scenario('high-ego', 'Veliki ego', 'Ego je preko 75.', { ego: 95 }),
-  scenario('famous', 'Slavan', 'Slava je najmanje 70.', { fame: 95 }),
-  scenario('driven', 'Ambiciozan', 'Ambicija je najmanje 70.', { ambition: 95 }),
-  scenario('tense', 'Napet', 'Holesterol je između 61 i 80.', { stress: 70 }),
-  scenario('too-full', 'Još je prepun', 'Apetit je između 20 i 34.', { appetite: 25 }),
-  scenario('hungry', 'Gladan', 'Apetit je između 66 i 80.', { appetite: 75 }),
-  scenario('tired', 'Bez volje', 'Ambicija je između 15 i 24.', { ambition: 20 }),
-  scenario('nervous', 'Nesiguran', 'Ego je između 15 i 24.', { ego: 20 }),
-  scenario('low-profile', 'Niska slava', 'Slava je između 25 i 49.', { fame: 40 }),
-  scenario('calm', 'Miran', 'Holesterol je 20 ili manje.', { stress: 10 }),
-  scenario('happy', 'Odlično raspoložen', 'Brojevi su zdravi i uravnoteženi.', {
+  scenario('high-ego', 'Big ego', 'Ego is over 75.', { ego: 95 }),
+  scenario('famous', 'Famous', 'Fame is at least 70.', { fame: 95 }),
+  scenario('driven', 'Driven', 'Ambition is at least 70.', { ambition: 95 }),
+  scenario('tense', 'Tense', 'Cholesterol is between 61 and 80.', { stress: 70 }),
+  scenario('too-full', 'Still too full', 'Appetite is between 20 and 34.', { appetite: 25 }),
+  scenario('hungry', 'Hungry', 'Appetite is between 66 and 80.', { appetite: 75 }),
+  scenario('tired', 'No drive', 'Ambition is between 15 and 24.', { ambition: 20 }),
+  scenario('nervous', 'Insecure', 'Ego is between 15 and 24.', { ego: 20 }),
+  scenario('low-profile', 'Low profile', 'Fame is between 25 and 49.', { fame: 40 }),
+  scenario('calm', 'Calm', 'Cholesterol is 20 or less.', { stress: 10 }),
+  scenario('happy', 'In great spirits', 'The numbers are healthy and balanced.', {
     stress: 25,
   }),
-  scenario('neutral', 'Neutralan', 'Nijedan signal nije dovoljno jak da preuzme raspoloženje.', {}),
+  scenario('neutral', 'Neutral', 'No signal is strong enough to take over the mood.', {}),
 ];
 
 export default function MoodPreviewGrid({
@@ -116,9 +116,9 @@ export default function MoodPreviewGrid({
               </h3>
               <p className="text-[11px] leading-relaxed text-slate-300">{meaning}</p>
               <p className="mt-auto border-t border-sky-200/10 pt-2 font-mono text-[9px] leading-relaxed text-slate-500">
-                Hol. {meters.stress} · Ap. {meters.appetite} · Amb. {meters.ambition}
+                Chol. {meters.stress} · App. {meters.appetite} · Amb. {meters.ambition}
                 <br />
-                Ego {meters.ego} · Slava {meters.fame}
+                Ego {meters.ego} · Fame {meters.fame}
               </p>
             </div>
           </article>

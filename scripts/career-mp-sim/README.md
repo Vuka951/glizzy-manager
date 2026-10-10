@@ -35,7 +35,8 @@ seats every coach through the `pickCharacter` action before the start. It also
 checks the lobby pick at reducer level: coaches join with no character, a taken
 or unknown slug is refused (`character-taken`, `bad-slug`), a coach can change
 the pick (which drops ready and frees the old face), `start` is refused with
-`missing-slug` until everyone has picked, a pick after the start is refused
+`missing-slug` until everyone has picked and with `not-ready` until every
+coach but the host is ready, a pick after the start is refused
 with `league-started`, a room saved with a slug from the old join still
 starts, and every one of 8 lobby picks is in the league.
 
@@ -77,14 +78,18 @@ after the start refused. After the paper it passes the bracket draw
     node scripts/career-mp-sim/lobby-shots.mjs       # lobby screens at 1440 and 390
     node scripts/career-mp-sim/prematch-shot.mjs     # pre-match card with bets
 
+The scripts find buttons and headings by their English text. `setLocale.mjs`
+sets the `locale` cookie to `en` before the first load (a reused browser
+profile can still carry `sr`) and marks the first-visit dialog as seen.
+
 Screenshots land in `scripts/career-mp-sim/output/` (gitignored) unless
 `SHOTS_DIR` points elsewhere; `report.json` there lists every check.
 `PUPPETEER_CORE` can point
 at the entry file of a puppeteer-core installed outside the repo.
 
 The playtest opens the room from a form with no character select, blocks the
-host's stamp until every coach has picked, has B open the picker with Vuka
-crossed out (`02-lobby-pick-b-taken`), pick Daniel and change to Jajoglavi, and seats
+host's stamp until every coach has picked, has B open the picker with The Wolf
+crossed out (`02-lobby-pick-b-taken`), pick Daniel and change to The Egg Man, and seats
 the third coach over the API with a refused taken pick first. From season 2 on
 it can still stop on `no-funds` for B's plot and bet: B is broke by then in the
 current economy, which has nothing to do with the lobby.
@@ -92,16 +97,16 @@ current economy, which has nothing to do with the lobby.
 ## Room board and host close (added 2026-09-06)
 
 - `close-test.sh`: API check for a guest's lobby pick, the room list, the host-only `closeRoom` action (403 for others), the closed view, the board dropping the room, and 410 on join/actions afterwards.
-- `browser-shots.mjs`: screenshots T12-* (room board modal opened from the Aktivne sobe tab, join form after picking a room, room modal with the close control, armed confirm, closed screen) and a final check that the closed room left the board. Uses DOM clicks because the intro backdrop swallows puppeteer handle clicks.
+- `browser-shots.mjs`: screenshots T12-* (room board modal opened from the Active rooms tab, join form after picking a room, room modal with the close control, armed confirm, closed screen) and a final check that the closed room left the board. Uses DOM clicks because the intro backdrop swallows puppeteer handle clicks.
 - `lobby-expire-test.sh`: idle lobby clearing via the `x-career-mp-now` header (alive at +9 min, gone at +20 min, list sweeps a second room).
 - `leave-test.mjs`: leaving the lobby drops the token and lands on the entry page.
 
 ## Regression pass 2026-09-06
 
-`playtest.mjs` was brought up to date with the current UI: the create stamp is "Otvori sobu", the expansion issue is dismissed with "Na prelazni rok" after the start, the undo toggle reads "Neje gotovo", the clip skip reads "Preskoči do rezultata" (renamed again after 2026-09-06) and is waited on with `waitEnabled` (it sits greyed in the fixed row through the bets and the 3 s pre-roll), cup 1 uses `passOrReady` (no bookie yet, only "Spreman"). `curl-test.sh` waits out the 5 s bets countdown and the clip pre-roll.
-- `close-modal-check.mjs`: the close confirm opens as a modal (lobby and room), "Ipak ne" dismisses it; T13 screenshots.
+`playtest.mjs` was brought up to date with the current UI: the create stamp is "Open room", the expansion issue is dismissed with "To the off-season" after the start, the undo toggle reads "Not done", the clip skip reads "Skip to result" and is waited on with `waitEnabled` (it sits greyed in the fixed row through the bets and the 3 s pre-roll), cup 1 uses `passOrReady` (no bookie yet, only "Ready"). `curl-test.sh` waits out the 5 s bets countdown and the clip pre-roll.
+- `close-modal-check.mjs`: the close confirm opens as a modal (lobby and room), "Never mind" dismisses it; T13 screenshots.
 - `report-preview-shots.mjs`: the two report buttons on /preview/animations, both overlays opened and scrolled; T14 screenshots.
-- `report-pages.mjs`: pages through the single-player and Glizi Rivals reports screen by screen; T15 screenshots.
+- `report-pages.mjs`: pages through the single-player and Glizzy Rivals reports screen by screen; T15 screenshots.
 
 ## Clear every room from Upstash Redis
 

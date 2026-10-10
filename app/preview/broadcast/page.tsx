@@ -3,15 +3,15 @@ import BroadcastPreviewLoader from "@/components/preview/BroadcastPreviewLoader"
 import PreviewPageShell from "@/components/preview/PreviewPageShell";
 
 export const metadata: Metadata = {
-  title: "Pregled prenosa",
+  title: "Broadcast preview",
 };
 
 export default function BroadcastPreviewPage() {
   return (
     <PreviewPageShell
       eyebrow="Preview"
-      title="Pregled prenosa"
-      note="Privremena stranica: komentator, tale of the tape i studio uvod po fazama otključavanja, bez igranja kupova."
+      title="Broadcast preview"
+      note="Temporary page: the commentator, the tale of the tape and the studio intro by unlock stage, without playing cups."
     >
       <BroadcastPreviewLoader />
     </PreviewPageShell>

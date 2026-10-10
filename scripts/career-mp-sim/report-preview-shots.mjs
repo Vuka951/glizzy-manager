@@ -1,14 +1,14 @@
-// /preview/animations: opens the single-player and the Glizi Rivals final report from the Kraj kampanje section; T14 screenshots
+// /preview/animations: opens the single-player and the Glizzy Rivals final report from the End of the campaign section; T14 screenshots
 import { mkdirSync } from 'node:fs';
-import { setSerbianLocale } from './serbianLocale.mjs';
+import { setLocale } from './setLocale.mjs';
 const puppeteer = (await import(process.env.PUPPETEER_CORE ?? 'puppeteer-core')).default;
 const OUT = process.env.SHOTS_DIR ?? `${import.meta.dirname}/output`;
 mkdirSync(OUT, { recursive: true });
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true });
 const page = await browser.newPage();
-// The buttons are found by their Serbian text
-await setSerbianLocale(page);
+// The buttons are found by their English text
+await setLocale(page);
 await page.setViewport({ width: 1200, height: 1000, deviceScaleFactor: 1.5 });
 page.on('pageerror', (e) => console.log('pageerror', e.message));
 page.on('console', (m) => { if (m.type() === 'error') console.log('console', m.text().slice(0, 160)); });
@@ -16,17 +16,15 @@ await page.goto('http://localhost:3000/preview/animations', { waitUntil: 'networ
 await wait(1500);
 const click = async (t) => page.evaluate((t) => { const b = [...document.querySelectorAll('button')].find((e) => e.textContent?.trim() === t); b?.click(); return !!b; }, t);
 const scrollTo = async (t) => page.evaluate((t) => { const b = [...document.querySelectorAll('button')].find((e) => e.textContent?.trim() === t); b?.scrollIntoView({ block: 'center' }); }, t);
-await scrollTo('Otvori izveštaj (jedan igrač)'); await wait(400);
+await scrollTo('Open report (single player)'); await wait(400);
 await page.screenshot({ path: `${OUT}/T14-section.png` });
-console.log('sp button', await click('Otvori izveštaj (jedan igrač)')); await wait(1200);
+console.log('sp button', await click('Open report (single player)')); await wait(1200);
 const scrollOverlay = (y) => page.evaluate((y) => { const o = document.querySelector('.fixed.inset-0.z-50'); if (o) o.scrollTop = y; }, y);
 await page.screenshot({ path: `${OUT}/T14-sp-report.png` });
 await scrollOverlay(900); await wait(300); await page.screenshot({ path: `${OUT}/T14-sp-report-2.png` });
 await scrollOverlay(1800); await wait(300); await page.screenshot({ path: `${OUT}/T14-sp-report-3.png` });
-console.log('close', await click('Zatvori')); await wait(400);
-console.log('mp button', await click('Otvori izveštaj (Glizi Rivals)')); await wait(1200);
+console.log('close', await click('Close')); await wait(400);
+console.log('mp button', await click('Open report (Glizzy Rivals)')); await wait(1200);
 await page.screenshot({ path: `${OUT}/T14-mp-report.png` });
-console.log('mp report opens details', await click('Izveštaj')); await wait(800);
-await page.screenshot({ path: `${OUT}/T14-mp-report-open.png` });
-await scrollOverlay(900); await wait(300); await page.screenshot({ path: `${OUT}/T14-mp-report-open-2.png` });
+await scrollOverlay(900); await wait(300); await page.screenshot({ path: `${OUT}/T14-mp-report-2.png` });
 await browser.close();

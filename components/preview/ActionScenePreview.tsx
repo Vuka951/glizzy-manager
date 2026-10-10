@@ -16,9 +16,9 @@ import {
 } from '@/lib/constants/careerScenes';
 
 const OUTCOME_LABELS: Record<ActionSceneOutcome, string> = {
-  good: 'Napredak',
-  'level-up': 'Nivo gore',
-  bad: 'Neuspeh',
+  good: 'Progress',
+  'level-up': 'Level up',
+  bad: 'Failure',
 };
 
 const OUTCOME_ACTIVE: Record<ActionSceneOutcome, string> = {
@@ -50,7 +50,7 @@ const LABELS: Record<ActionSceneId, string> = {
   'sabotage-3': `${CAREER.sabotage.action}: ${CAREER.sabotage.tiers[3].name}`,
 };
 
-const SEASONS = ['Zima', 'Proleće', 'Leto', 'Jesen'];
+const SEASONS = ['Winter', 'Spring', 'Summer', 'Autumn'];
 
 function iconFor(scene: ActionSceneId): ActionIconKind {
   if (scene.startsWith('training-')) return 'training';
@@ -78,7 +78,7 @@ function mockToast(
         text: good ? `${CAREER.meters.fame} +6` : `${CAREER.meters.fame} -6`,
         good,
       },
-      { text: `-55 glizara`, good: false },
+      { text: `-55 glizars`, good: false },
     ],
   };
 }
@@ -139,7 +139,7 @@ export default function ActionScenePreview({
                 : 'border-sky-200/20 bg-slate-800/60 text-slate-300 hover:border-sky-200/45 hover:text-white'
             }`}
           >
-            {hasLevelUp || value !== 'good' ? OUTCOME_LABELS[value] : 'Uspeh'}
+            {hasLevelUp || value !== 'good' ? OUTCOME_LABELS[value] : 'Success'}
           </button>
         ))}
         <span className="mx-1 h-4 w-px bg-slate-700" />
@@ -164,13 +164,13 @@ export default function ActionScenePreview({
           onClick={() => setReplay(replay + 1)}
           className="rounded-lg border border-sky-200/20 bg-slate-800/60 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-sky-200/45 hover:text-white"
         >
-          Ponovi
+          Replay
         </button>
         <button
           onClick={() => setModal(true)}
           className="rounded-lg border border-sky-200/20 bg-slate-800/60 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-sky-200/45 hover:text-white"
         >
-          Ceo prozor
+          Full window
         </button>
       </div>
       <div

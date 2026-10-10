@@ -13,6 +13,8 @@ import SabotageHitPreview from '@/components/preview/SabotageHitPreview';
 import QuoteScenePreview from '@/components/preview/QuoteScenePreview';
 import FinalReportPreview from '@/components/preview/FinalReportPreview';
 import ElectionPreviewLab from '@/components/preview/ElectionPreviewLab';
+import LabSection from '@/components/preview/LabSection';
+import TriggerButton from '@/components/preview/TriggerButton';
 import BroadcastOpenPanel from '@/components/games/career/BroadcastOpenPanel';
 import CareerCupPhase from '@/components/games/career/CareerCupPhase';
 import CareerMailbox from '@/components/games/career/CareerMailbox';
@@ -48,11 +50,11 @@ import type {
 } from '@/lib/utils/tournamentSim';
 
 const EXIT_REASONS: { reason: MatchForfeitReason; label: string }[] = [
-  { reason: 'meltdown', label: 'Nervni slom' },
-  { reason: 'police', label: 'Policija' },
-  { reason: 'overfull-forfeit', label: 'Prejeo se' },
-  { reason: 'withdrawn', label: 'Predaja' },
-  { reason: 'removed', label: 'Uklonjen (stranka)' },
+  { reason: 'meltdown', label: 'Nervous breakdown' },
+  { reason: 'police', label: 'Police' },
+  { reason: 'overfull-forfeit', label: 'Ate too much' },
+  { reason: 'withdrawn', label: 'Withdrew' },
+  { reason: 'removed', label: 'Removed (party)' },
 ];
 
 const EVENT_KINDS: MatchEventKind[] = [
@@ -329,7 +331,7 @@ function forfeitResult(
 const VIEWER_SCENARIOS: ViewerScenario[] = [
   {
     id: 'normal',
-    label: 'Regularan meč',
+    label: 'Regular match',
     result: {
       turns: [
         turn(1, 'a', 'hat', 'sock'),
@@ -349,7 +351,7 @@ const VIEWER_SCENARIOS: ViewerScenario[] = [
   },
   {
     id: 'sniff',
-    label: 'Njuh sa obe strane',
+    label: 'Sniffing on both sides',
     result: {
       // Three dodges: the top seat twice, the bottom seat once, each one a
       // turn where the nose caught the spot and the hand went elsewhere
@@ -377,7 +379,7 @@ const VIEWER_SCENARIOS: ViewerScenario[] = [
   },
   {
     id: 'tiebreak',
-    label: 'Produžeci',
+    label: 'Overtime',
     // Level at the seek cap, so the sixth round is sudden death
     result: {
       turns: [
@@ -402,17 +404,17 @@ const VIEWER_SCENARIOS: ViewerScenario[] = [
       livesCapB: 3,
     },
   },
-  { id: 'meltdown', label: 'Nervni slom', result: forfeitResult('meltdown') },
-  { id: 'police', label: 'Policija', result: forfeitResult('police') },
+  { id: 'meltdown', label: 'Nervous breakdown', result: forfeitResult('meltdown') },
+  { id: 'police', label: 'Police', result: forfeitResult('police') },
   {
     id: 'overfull-forfeit',
-    label: 'Prejeo se',
+    label: 'Ate too much',
     result: forfeitResult('overfull-forfeit'),
   },
-  { id: 'withdrawn', label: 'Predaja', result: forfeitResult('withdrawn') },
+  { id: 'withdrawn', label: 'Withdrew', result: forfeitResult('withdrawn') },
   {
     id: 'removed',
-    label: 'Uklonjen (stranka)',
+    label: 'Removed (party)',
     result: forfeitResult('removed', 'stranka'),
   },
 ];
@@ -425,58 +427,13 @@ const SAMPLE_RUNS: ('w' | 'l')[][] = [
   ['l', 'l', 'w', 'w', 'l'],
 ];
 
-function Section({
-  title,
-  note,
-  children,
-}: {
-  title: string;
-  note?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="flex flex-col gap-3 rounded-3xl border border-sky-200/15 bg-slate-900/50 p-4 sm:p-5">
-      <div className="flex flex-col gap-0.5">
-        <h2 className="text-sm font-black uppercase tracking-widest text-sky-200">
-          {title}
-        </h2>
-        {note && <p className="text-xs text-slate-400">{note}</p>}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function TriggerButton({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
-        active
-          ? 'border-red-500/60 bg-red-500/20 text-red-200'
-          : 'border-sky-200/20 bg-slate-800/60 text-slate-300 hover:border-sky-200/45 hover:text-white'
-      }`}
-    >
-      {label}
-    </button>
-  );
-}
-
 export default function AnimationsPreviewLab() {
   const characters = CHARACTER_ROSTER;
   const characterBySlug = useMemo(
     () => new Map(characters.map((c) => [c.slug, c])),
     [characters],
   );
-  // Cone stands in for every single-character preview
+  // The Egg Man stands in for every single-character preview
   const charA = characters.find((c) => c.slug === 'cone') ?? characters[0];
   const charB = characters.find((c) => c.slug !== charA.slug) ?? charA;
   const pick = (i: number) => characters[i % characters.length];
@@ -562,78 +519,78 @@ export default function AnimationsPreviewLab() {
 
   return (
     <div className="flex flex-col gap-5">
-      <Section
-        title="Oblačići raspoloženja"
-        note="Sve reakcije na holesterol, apetit, ambiciju, ego i slavu, sa vrednostima koje ih aktiviraju."
+      <LabSection
+        title="Mood bubbles"
+        note="Every reaction to cholesterol, appetite, ambition, ego and fame, with the values that trigger it."
       >
         <MoodPreviewGrid character={charA} />
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Ponašanje van sezone"
-        note="Promeni raspoloženje ili godišnje doba da proveriš pozu, efekte i prelaz između animacija."
+      <LabSection
+        title="Off-season behaviour"
+        note="Change the mood or the season to check the pose, the effects and the transition between animations."
       >
         <MoodActivityPreview character={charA} />
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Scene mesečnih aktivnosti"
-        note="ActionCutscene: kratka scena za svaki trening, odmor, medije, obezbeđenje, ulaganje i sabotažu. Ceo prozor otvara pravi modal sa računom."
+      <LabSection
+        title="Monthly activity scenes"
+        note="ActionCutscene: a short scene for every training, rest, media, security, investment and sabotage. Full window opens the real modal with the receipt."
       >
         <ActionScenePreview character={charA} />
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Scene sabotaže nad tobom"
-        note="SabotageHitReel: pre otvaranja novina, po jedna scena za svaku priču o udarcu na tvog lika. Ceo prozor otvara modal sa računom, ceo niz pušta tri redom."
+      <LabSection
+        title="Sabotage against you"
+        note="SabotageHitReel: before the paper opens, one scene for every story about a hit on your character. Full window opens the modal with the receipt, full reel plays three in a row."
       >
         <SabotageHitPreview character={charA} />
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Scene sa replikama"
-        note="QuoteCutscene: snimljena replika lika posle događaja u kupu. Ceo prozor pušta klip i titl kao u igri."
+      <LabSection
+        title="Quote scenes"
+        note="QuoteCutscene: a character's recorded line after a cup event. Full window plays the clip and the subtitle as in the game."
       >
         <QuoteScenePreview characterBySlug={characterBySlug} />
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Sponzorski izgled"
-        note="Uporedi sponzorsku atmosferu van sezone kroz sva godišnja doba."
+      <LabSection
+        title="Sponsor look"
+        note="Compare the off-season sponsor atmosphere across every season."
       >
         <SponsorFlavorPreview character={charA} />
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Rezultati kalendara"
-        note="Sve oznake plasmana koje se prikazuju posle završenog kupa."
+      <LabSection
+        title="Calendar results"
+        note="Every placing badge shown after a finished cup."
       >
         <CalendarResultPreview />
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Izlazna scena posle meča"
-        note="MatchExitScene: nosila, privođenje, povraćanje i bela zastava, gore ili dole."
+      <LabSection
+        title="Exit scene after a match"
+        note="MatchExitScene: the stretcher, the arrest, the puking and the white flag, top or bottom."
       >
         <div className="flex flex-wrap gap-2">
           {EXIT_REASONS.map(({ reason, label }) =>
             (['top', 'bottom'] as const).map((side) => (
               <TriggerButton
                 key={`${reason}-${side}`}
-                label={`${label} · ${side === 'top' ? 'gore' : 'dole'}`}
+                label={`${label} · ${side === 'top' ? 'top' : 'bottom'}`}
                 active={exit.reason === reason && exit.side === side}
                 onClick={() => setExit({ reason, side, key: exit.key + 1 })}
               />
             )),
           )}
           <TriggerButton
-            label="Ponovi"
+            label="Replay"
             onClick={() => setExit({ ...exit, key: exit.key + 1 })}
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-            Ko sklanja
+            Who removes
           </span>
           {SPONSOR_IDS.map((id) => (
             <TriggerButton
@@ -669,11 +626,11 @@ export default function AnimationsPreviewLab() {
             }
           />
         </div>
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Događaji tokom meča"
-        note="MatchEventOverlay: komične upadice preko stola."
+      <LabSection
+        title="Match events"
+        note="MatchEventOverlay: comic interruptions over the table."
       >
         <div className="flex flex-wrap gap-2">
           {EVENT_KINDS.map((kind) => (
@@ -685,22 +642,22 @@ export default function AnimationsPreviewLab() {
             />
           ))}
           <TriggerButton
-            label="Ponovi"
+            label="Replay"
             onClick={() => setEvent({ ...event, key: event.key + 1 })}
           />
         </div>
         <div className="relative h-32 overflow-hidden rounded-2xl border border-sky-200/10 bg-slate-950/70">
           <MatchEventOverlay key={event.key} kind={event.kind} />
         </div>
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Njuh na meču"
-        note="SniffCue: Super Snifer namiriše glizi i skloni ruku sa te kutije."
+      <LabSection
+        title="Sniffing in a match"
+        note="SniffCue: Super Sniffer smells the glizzy and pulls the hand away from that box."
       >
         <div className="flex flex-wrap gap-2">
           <TriggerButton
-            label="Ponovi"
+            label="Replay"
             onClick={() => setSniffKey((k) => k + 1)}
           />
         </div>
@@ -722,11 +679,11 @@ export default function AnimationsPreviewLab() {
             />
           </span>
         </div>
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Ceo meč"
-        note="MatchViewer sa publikom, nasumičnim transparentima i sponzorskim navijačima."
+      <LabSection
+        title="Full match"
+        note="MatchViewer with the crowd, random banners and sponsor fans."
       >
         <div className="flex flex-wrap gap-2">
           {VIEWER_SCENARIOS.map((scenario) => (
@@ -740,15 +697,15 @@ export default function AnimationsPreviewLab() {
             />
           ))}
           {viewer && (
-            <TriggerButton label="Sakrij" onClick={() => setViewer(null)} />
+            <TriggerButton label="Hide" onClick={() => setViewer(null)} />
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-            Gornji igrač
+            Top player
           </span>
           <TriggerButton
-            label="Bez sponzora"
+            label="No sponsor"
             active={matchSponsor === null}
             onClick={() => setMatchSponsor(null)}
           />
@@ -767,10 +724,10 @@ export default function AnimationsPreviewLab() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-            Donji igrač
+            Bottom player
           </span>
           <TriggerButton
-            label="Bez sponzora"
+            label="No sponsor"
             active={opponentSponsor === null}
             onClick={() => setOpponentSponsor(null)}
           />
@@ -800,11 +757,11 @@ export default function AnimationsPreviewLab() {
             onDone={() => setViewer(null)}
           />
         )}
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Novinske sličice"
-        note="FreezeframeGraphic: sve scene koje mogu da osvanu u novinama."
+      <LabSection
+        title="Newspaper pictures"
+        note="FreezeframeGraphic: every scene that can turn up in the paper."
       >
         <div className="flex flex-wrap items-end gap-3">
           {FREEZEFRAME_SCENES.map((scene, i) => (
@@ -816,15 +773,15 @@ export default function AnimationsPreviewLab() {
             </div>
           ))}
         </div>
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Novine"
-        note="NewspaperSpread: uzorak vesti sa svim vrstama članaka i sličica."
+      <LabSection
+        title="Newspaper"
+        note="NewspaperSpread: a sample issue with every kind of article and picture."
       >
         <div className="flex flex-wrap gap-2">
           <TriggerButton
-            label="Ponovi zavrtaj"
+            label="Replay the spin"
             onClick={() => setNewspaperKey(newspaperKey + 1)}
           />
         </div>
@@ -838,11 +795,11 @@ export default function AnimationsPreviewLab() {
             onDone={() => setNewspaperKey(newspaperKey + 1)}
           />
         </div>
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Izborne vesti"
-        note="NewspaperSpread samo sa gradskim vestima: izborna godina, anketa, rezultat, cena glizija i usluge stranaka, svaka sa svojom sličicom."
+      <LabSection
+        title="Election news"
+        note="NewspaperSpread with only the city news: election year, poll, result, glizzy price and party favors, each with its own picture."
       >
         <div className="flex justify-center">
           <NewspaperSpread
@@ -859,18 +816,18 @@ export default function AnimationsPreviewLab() {
             onDone={() => setNewspaperKey(newspaperKey + 1)}
           />
         </div>
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Izbori"
-        note="Izborna noć, skupština i anketa nad probnim rezultatima, isto što i /election-preview."
+      <LabSection
+        title="Election"
+        note="Election night, the assembly and the poll over sample results, the same as /preview/election."
       >
         <ElectionPreviewLab />
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Skupština u karijeri"
-        note="ParliamentPanel, oba taba jedan uz drugi: skupština sa vladom Stranka i Zidari i anketom pred izbore, pa popularnost sa kasom, aferama, rejtingom i rejting grafikom. Ispod, info panel sa efektima svake stranke na vlasti."
+      <LabSection
+        title="Assembly in the career"
+        note="ParliamentPanel, both tabs side by side: the assembly with a Party and Masons government and the pre-election poll, then popularity with the war chest, affairs, rating and the rating chart. Below, the info panel with the effects of each party in power."
       >
         <div className="mx-auto grid w-full max-w-3xl gap-6 sm:grid-cols-2">
           <ParliamentPanel
@@ -888,15 +845,15 @@ export default function AnimationsPreviewLab() {
             leader={governedCareer.parliament?.government[0] ?? null}
           />
         </div>
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Pošta"
-        note="CareerMailbox: po jedno pismo svake vrste, uključujući anketu, donaciju, rezultat izbora, uslugu, porez i povraćaj."
+      <LabSection
+        title="Mail"
+        note="CareerMailbox: one letter of every kind, including the poll, the donation, the election result, the favor, the tax and the refund."
       >
         <div className="flex flex-wrap gap-2">
           <TriggerButton
-            label="Vrati sva pisma"
+            label="Restore all letters"
             onClick={() => setMail(governedCareer.mail)}
           />
         </div>
@@ -930,11 +887,11 @@ export default function AnimationsPreviewLab() {
             }
           />
         </div>
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Tabela u karijeri"
-        note="CareerTable: tabela lige sa sponzorima i rivalom, bez boje stranke."
+      <LabSection
+        title="Career table"
+        note="CareerTable: the league table with sponsors and the rival, without party colors."
       >
         <CareerTable
           characters={governedCareer.characters}
@@ -943,11 +900,11 @@ export default function AnimationsPreviewLab() {
           lastCupRanks={governedCareer.lastCupRanks}
           rivalSlug={governedCareer.rivalSlug}
         />
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Kalendar sa izborima"
-        note="YearCalendar: oznaka IZBORI na Krvavom kupu izborne godine (godina 2 i 4)."
+      <LabSection
+        title="Calendar with elections"
+        note="YearCalendar: the ELECTION mark on the Bloody Cup of an election year (years 2 and 4)."
       >
         <div className="mx-auto w-full max-w-2xl">
           <YearCalendar career={{ ...governedCareer, year: 4 }} />
@@ -957,15 +914,15 @@ export default function AnimationsPreviewLab() {
             <GlizacijaPanel career={governedCareer} />
           </div>
         </div>
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Kup sa uslugom stranke"
-        note="CareerCupPhase uživo: igrač je donator vodeće stranke, pa ima dugme Pozovi stranku pre meča. Odigraj ili gledaj mečeve, AI takođe koristi usluge."
+      <LabSection
+        title="Cup with a party favor"
+        note="CareerCupPhase live: the player donates to the leading party, so there is a Call the party button before a match. Play or watch the matches, the AI uses favors too."
       >
         <div className="flex flex-wrap gap-2">
           <TriggerButton
-            label={cupCareer ? 'Ponovo' : 'Prikaži'}
+            label={cupCareer ? 'Again' : 'Show'}
             onClick={() =>
               setCupCareer(
                 sampleCareer({ slugs, phase: 'cup', year: 3, season: 1 }),
@@ -973,7 +930,7 @@ export default function AnimationsPreviewLab() {
             }
           />
           {cupCareer && (
-            <TriggerButton label="Sakrij" onClick={() => setCupCareer(null)} />
+            <TriggerButton label="Hide" onClick={() => setCupCareer(null)} />
           )}
         </div>
         {cupCareer && (
@@ -988,11 +945,11 @@ export default function AnimationsPreviewLab() {
             />
           </div>
         )}
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Studio uvod pred turnir"
-        note="BroadcastOpenPanel: kartice se smenjuju same (prognoza, u formi, nizovi, šansa za titulu), traka gore skače na karticu, odbrojavanje kreće tek na poslednjoj. Temperatura i tekst se rolaju po godini i sezoni."
+      <LabSection
+        title="Studio intro before the cup"
+        note="BroadcastOpenPanel: the cards rotate on their own (weather forecast, their season, streaks, title chance), the strip on top jumps to a card, and the countdown only starts on the last one. The temperature and the text roll by year and season."
       >
         <div className="flex flex-wrap gap-2">
           {Array.from({ length: SEASON_COUNT }, (_, season) => (
@@ -1004,11 +961,11 @@ export default function AnimationsPreviewLab() {
             />
           ))}
           <TriggerButton
-            label={`Godina ${openYear}: nova prognoza`}
+            label={`Year ${openYear}: new forecast`}
             onClick={() => setOpenYear((y) => y + 1)}
           />
           <TriggerButton
-            label="Prikaži"
+            label="Show"
             onClick={() => {
               setOpenKey((k) => k + 1);
               setShowOpen(true);
@@ -1023,15 +980,15 @@ export default function AnimationsPreviewLab() {
             preview
           />
         )}
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Glizi Overlord"
-        note="OverlordCelebration: proslava prvog lika koji stigne do 500 poena."
+      <LabSection
+        title="Glizzy Overlord"
+        note="OverlordCelebration: the celebration for the first character to reach 300 points."
       >
         <div className="flex flex-wrap gap-2">
           <TriggerButton
-            label="Ponovi"
+            label="Replay"
             onClick={() => setOverlordKey(overlordKey + 1)}
           />
         </div>
@@ -1044,20 +1001,20 @@ export default function AnimationsPreviewLab() {
             onContinue={() => setOverlordKey(overlordKey + 1)}
           />
         </div>
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Kraj kampanje"
-        note="OverlordCelebration, pa izveštaj kampanje na klik: verzija za jednog igrača i verzija za sobu (Glizi Rivals)."
+      <LabSection
+        title="End of the campaign"
+        note="OverlordCelebration, then the campaign report on a click: the single-player version and the room version (Glizzy Rivals)."
       >
         <div className="flex flex-wrap gap-2">
           <TriggerButton
-            label="Kruna kod AI lika"
+            label="Crown to an AI character"
             active={reportWinner === 'ai'}
             onClick={() => setReportWinner('ai')}
           />
           <TriggerButton
-            label="Kruna kod igrača"
+            label="Crown to the player"
             active={reportWinner === 'player'}
             onClick={() => setReportWinner('player')}
           />
@@ -1077,22 +1034,22 @@ export default function AnimationsPreviewLab() {
           />
         </div>
         <FinalReportPreview career={finishedCareer} characters={characters} />
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Izbor rivala"
-        note="RivalChoiceDialog: konferencija za medije i prozivanje s table."
+      <LabSection
+        title="Rival choice"
+        note="RivalChoiceDialog: the press conference and calling someone out from the table."
       >
         <div className="flex flex-wrap gap-2">
           <TriggerButton
-            label={showRival ? 'Ponovi' : 'Prikaži'}
+            label={showRival ? 'Replay' : 'Show'}
             onClick={() => {
               setShowRival(true);
               setRivalKey(rivalKey + 1);
             }}
           />
           {showRival && (
-            <TriggerButton label="Sakrij" onClick={() => setShowRival(false)} />
+            <TriggerButton label="Hide" onClick={() => setShowRival(false)} />
           )}
         </div>
         {showRival && (
@@ -1104,22 +1061,22 @@ export default function AnimationsPreviewLab() {
             onChoose={() => setShowRival(false)}
           />
         )}
-      </Section>
+      </LabSection>
 
-      <Section
-        title="Uvodna scena"
-        note="CareerIntroCutscene: novine koje se zavrte na početku karijere."
+      <LabSection
+        title="Intro scene"
+        note="CareerIntroCutscene: the newspaper that spins in at the start of a career."
       >
         <div className="flex flex-wrap gap-2">
           <TriggerButton
-            label={showIntro ? 'Ponovi' : 'Prikaži'}
+            label={showIntro ? 'Replay' : 'Show'}
             onClick={() => {
               setShowIntro(true);
               setIntroKey(introKey + 1);
             }}
           />
           {showIntro && (
-            <TriggerButton label="Sakrij" onClick={() => setShowIntro(false)} />
+            <TriggerButton label="Hide" onClick={() => setShowIntro(false)} />
           )}
         </div>
         {showIntro && (
@@ -1130,7 +1087,7 @@ export default function AnimationsPreviewLab() {
             />
           </div>
         )}
-      </Section>
+      </LabSection>
     </div>
   );
 }

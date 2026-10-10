@@ -1,3 +1,4 @@
+import { OVERLORD_POINTS } from '@/data/games/careerEconomy';
 import { SPONSOR_IDS } from '@/data/games/careerSponsors';
 import { PERSONALITY_IDS } from '@/data/games/careerPersonalities';
 import { rivalLetterStakes } from '@/data/games/careerRivals';
@@ -75,7 +76,7 @@ function letter(
 export function sampleMail(): MailItem[] {
   return [
     letter('info', 'welcome', { params: { amount: 100 }, amount: 100 }),
-    letter('info', 'overlord', { params: { points: 500 } }),
+    letter('info', 'overlord', { params: { points: OVERLORD_POINTS } }),
     letter('stipend', 'stipend', { params: { amount: 40 }, amount: 40 }),
     letter('sponsor-offer', 'sponsor-offer', { sponsorId: 'korporacija' }),
     letter('rival', 'rival-taunt', {
@@ -172,14 +173,14 @@ export function sampleCareer(options: SampleCareerOptions): SavedCareer {
           government: result.government,
           electedYear: year - 1,
           // Two rungs of the chest for the player, one for Bane on the
-          // junior partner, and a Korporacija donor the opposition cannot cash
+          // junior partner, and a Corporation donor the opposition cannot cash
           lastDonors: {
             [playerSlug]: 500,
             'bane': 100,
             nikola: 2000,
           },
           // The next campaign is already moving: money in, affairs on record,
-          // the price of glizi against the leader, and a poll on the stands
+          // the glizzy price against the leader, and a poll on the stands
           donations: { stranka: 250, korporacija: 60, zidari: 120, ostrvo: 20 },
           donors: {
             [playerSlug]: 100,

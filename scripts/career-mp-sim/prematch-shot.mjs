@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { setSerbianLocale } from './serbianLocale.mjs';
+import { setLocale } from './setLocale.mjs';
 const puppeteer = (await import(process.env.PUPPETEER_CORE ?? 'puppeteer-core')).default;
 const SHOTS = process.env.SHOTS_DIR ?? `${import.meta.dirname}/output`;
 mkdirSync(SHOTS, { recursive: true });
@@ -14,6 +14,7 @@ const tb = j.token;
 const j2 = await api(`/rooms/${code}/join`, { method: 'POST', body: { coachName: 'Dax', slug: 'dax' } });
 const tc = j2.token;
 const all = [ta, tb, tc];
+for (const t of [tb, tc]) await act(code, t, { type: 'ready', ready: true });
 await act(code, ta, { type: 'start' });
 for (const t of all) { const v = await api(`/rooms/${code}`, { token: t }); for (const m of v.career.mail) await act(code, t, { type: 'readMail', mailId: m.id }); }
 // two seasons through the API so betting opens
@@ -28,10 +29,10 @@ await act(code, tb, { type: 'bet', side: 'b' });
 await act(code, tc, { type: 'bet', side: 'a' });
 const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true });
 for (const [name, width] of [['P1-prematch-1440', 1440], ['P2-prematch-390', 390]]) {
-  const page = await browser.newPage(); await setSerbianLocale(page); await page.setViewport({ width, height: width < 500 ? 900 : 1100 });
+  const page = await browser.newPage(); await setLocale(page); await page.setViewport({ width, height: width < 500 ? 900 : 1100 });
   await page.evaluateOnNewDocument((c, t) => localStorage.setItem(`glizzy-rivals:${c}`, t), code, ta);
   await page.goto(`http://localhost:3000/rivals/${code}`, { waitUntil: 'networkidle2' });
-  await page.waitForFunction(() => document.body.innerText.includes('PRE MEČA'), { timeout: 20000 });
+  await page.waitForFunction(() => document.body.innerText.includes('PRE-MATCH'), { timeout: 20000 });
   if (width > 500) { await page.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => /^x\d/.test(x.textContent.trim())); b?.click(); }); await sleep(2500); }
   await sleep(1500);
   await page.screenshot({ path: `${SHOTS}/${name}.png` });
@@ -40,7 +41,7 @@ for (const [name, width] of [['P1-prematch-1440', 1440], ['P2-prematch-390', 390
   await page.screenshot({ path: `${SHOTS}/${name}-scrolled.png` });
 }
 // the paper: check no tag on a league article
-const p = await browser.newPage(); await setSerbianLocale(p); await p.setViewport({ width: 1440, height: 1000 });
+const p = await browser.newPage(); await setLocale(p); await p.setViewport({ width: 1440, height: 1000 });
 await p.evaluateOnNewDocument((c, t) => localStorage.setItem(`glizzy-rivals:${c}`, t), code, ta);
 for (const t of all) await act(code, t, { type: 'pass' });
 await browser.close();

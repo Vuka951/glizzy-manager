@@ -1,7 +1,7 @@
 // Two-browser playtest against the running dev server (BASE, default :3000).
 // Browser A (Vuka) and B (Cone) click through the UI; a third coach (Dax)
 // only speaks to the API. Screenshots land in SHOTS_DIR.
-import { setSerbianLocale } from './serbianLocale.mjs';
+import { setLocale } from './setLocale.mjs';
 const puppeteer = (await import(process.env.PUPPETEER_CORE ?? 'puppeteer-core')).default;
 import { mkdirSync, writeFileSync } from 'node:fs';
 
@@ -76,11 +76,11 @@ async function clickText(page, text, { exact = false, nth = 0, regex = false } =
 // The pre-match footer: a pass button once the bookie is open, a ready button before
 async function passOrReady(page) {
   const passed = await page.evaluate(() => {
-    const b = [...document.querySelectorAll('button')].find((e) => (e.textContent || '').trim() === 'Preskačem opkladu');
+    const b = [...document.querySelectorAll('button')].find((e) => (e.textContent || '').trim() === 'Skip the bet');
     if (b) { b.click(); return true; }
     return false;
   });
-  if (!passed) await clickText(page, 'Spreman', { exact: true });
+  if (!passed) await clickText(page, 'Ready', { exact: true });
 }
 // The clip skip button sits in the fixed row through the bets and the pre-roll,
 // greyed out; enabled means the clip is really running
@@ -148,8 +148,8 @@ async function launch(dir, width) {
     args: ['--no-first-run', '--no-default-browser-check'],
   });
   const page = await browser.newPage();
-  // The buttons are found by their Serbian text
-  await setSerbianLocale(page, BASE);
+  // The buttons are found by their English text
+  await setLocale(page, BASE);
   await page.setViewport({ width, height: 900 });
   page.on('pageerror', (e) => console.log(`[${dir} pageerror]`, e.message));
   page.on('console', (m) => {
@@ -168,53 +168,56 @@ try {
   // 1. Lobby: A creates through the form, name only, and picks inside the room
   await A.page.goto(`${BASE}/rivals`, { waitUntil: 'networkidle2' });
   await A.page.type('input[placeholder]', 'Vuka');
-  await clickText(A.page, 'Bez', { exact: true });
-  note('create form has no character select', !(await hasButton(A.page, 'Izaberi lika')) && !(await hasText(A.page, 'Mali oglasi')));
+  await clickText(A.page, 'None', { exact: true });
+  note('create form has no character select', !(await hasButton(A.page, 'Pick a character')) && !(await hasText(A.page, 'Classifieds · Coach wanted')));
   await shot(A.page, '01-lobby-form-a');
-  await clickText(A.page, 'Otvori sobu', { exact: true });
+  await clickText(A.page, 'Open room', { exact: true });
   await A.page.waitForFunction(() => /rivals\/[A-Z0-9]{6}$/.test(location.pathname), { timeout: 20000 });
   code = A.page.url().split('/').pop();
-  await waitText(A.page, 'Počni ligu');
+  await waitText(A.page, 'Start the league');
   tokens.a = await tokenOf(A.page, code);
   note('room created through the form', Boolean(code && tokens.a), code);
   note('host joined without a character', (await view(code, tokens.a)).coaches[0].slug === null);
-  note('start blocked until the host picks', await stampDisabled(A.page, 'Počni ligu'));
-  await clickText(A.page, 'Izaberi lika');
-  await waitText(A.page, 'Mali oglasi');
-  await clickText(A.page, 'Vuk', { exact: true });
-  await A.page.waitForFunction(() => !document.body.innerText.includes('Mali oglasi'), { timeout: 20000 });
+  note('start blocked until the host picks', await stampDisabled(A.page, 'Start the league'));
+  await clickText(A.page, 'Pick a character');
+  await waitText(A.page, 'Classifieds · Coach wanted');
+  await clickText(A.page, 'The Wolf', { exact: true });
+  await A.page.waitForFunction(() => !document.body.innerText.includes('CLASSIFIEDS · COACH WANTED'), { timeout: 20000 });
   note('host picked Vuka in the lobby', await waitSlug(code, tokens.a, 0, 'vuka'));
 
   // 2. B joins through the room link by name, then picks with Vuka taken
   await B.page.goto(`${BASE}/rivals/${code}`, { waitUntil: 'networkidle2' });
   await waitText(B.page, code);
   await B.page.type('input[placeholder]', 'Cone');
-  note('join form has no character select', !(await hasButton(B.page, 'Izaberi lika')));
+  note('join form has no character select', !(await hasButton(B.page, 'Pick a character')));
   await shot(B.page, '01-join-form-b');
-  await clickText(B.page, 'Uđi u sobu', { exact: true });
-  await waitText(B.page, 'Nisu svi izabrali lika');
+  await clickText(B.page, 'Join room', { exact: true });
+  await waitText(B.page, 'Not everyone has picked a character');
   tokens.b = await tokenOf(B.page, code);
   note('second browser joined', Boolean(tokens.b));
   await waitText(A.page, 'Cone');
-  await waitText(A.page, 'Nisu svi izabrali lika');
-  note('host start blocked while Cone has not picked', await stampDisabled(A.page, 'Počni ligu'));
+  await waitText(A.page, 'Not everyone has picked a character');
+  note('host start blocked while Cone has not picked', await stampDisabled(A.page, 'Start the league'));
   await shot(A.page, '02-lobby-a-waiting-pick');
-  await clickText(B.page, 'Izaberi lika');
-  await waitText(B.page, 'Mali oglasi');
+  await clickText(B.page, 'Pick a character');
+  await waitText(B.page, 'Classifieds · Coach wanted');
   const vukaTaken = await B.page.evaluate(() =>
-    [...document.querySelectorAll('button')].some((b) => (b.textContent || '').trim() === 'Vuk' && b.disabled),
+    [...document.querySelectorAll('button')].some((b) => (b.textContent || '').trim() === 'The Wolf' && b.disabled),
   );
   note('Vuka shown as taken in the lobby picker', vukaTaken);
   await sleep(700);
   await shot(B.page, '02-lobby-pick-b-taken');
   await clickText(B.page, 'Daniel', { exact: true });
-  await waitText(B.page, 'Promeni lika');
-  await clickText(B.page, 'Promeni lika');
-  await waitText(B.page, 'Mali oglasi');
-  await clickText(B.page, 'Jajoglavi', { exact: true });
-  await waitText(B.page, 'Čeka se domaćin');
+  await waitText(B.page, 'Change character');
+  await clickText(B.page, 'Change character');
+  await waitText(B.page, 'Classifieds · Coach wanted');
+  await clickText(B.page, 'The Egg Man', { exact: true });
+  await waitText(B.page, 'Waiting for every coach to be ready');
+  note('host start blocked while Cone is not ready', await stampDisabled(A.page, 'Start the league'));
+  await clickText(B.page, '^Ready(?! for)', { regex: true });
+  await waitText(B.page, 'Waiting for the host');
   note('B changed the pick from Dax to Cone', await waitSlug(code, tokens.b, 1, 'cone'));
-  await waitText(A.page, 'Treneri (2/');
+  await waitText(A.page, 'Coaches (2/');
   await shot(A.page, '02-lobby-a');
   await shot(B.page, '02-lobby-b');
   await checkOverflow(B.page, 'lobby 820');
@@ -227,6 +230,8 @@ try {
   note('taken pick refused over the API', takenPick.status === 409 && takenPick.json.error === 'character-taken', JSON.stringify(takenPick.json.error));
   const pickC = await act(code, tokens.c, { type: 'pickCharacter', slug: 'dax' });
   note('third coach picked Dax', pickC.status === 200, String(pickC.status));
+  const readyC = await act(code, tokens.c, { type: 'ready', ready: true });
+  note('third coach is ready', readyC.status === 200, String(readyC.status));
   const settings = await act(code, tokens.a, {
     type: 'setSettings',
     settings: { windowSeconds: 60, paperSeconds: null, preRoundSeconds: null, matchBetSeconds: null, seasonEndSeconds: null, matchLingerSeconds: 0 },
@@ -235,17 +240,17 @@ try {
 
   // 4. Start
   await waitText(A.page, 'Dax');
-  await A.page.waitForFunction(() => [...document.querySelectorAll('button')].some((b) => (b.textContent || '').trim() === 'Počni ligu' && !b.disabled), { timeout: 20000 });
-  await clickText(A.page, 'Počni ligu', { exact: true });
-  await waitText(A.page, 'Gotovo 0 od 3', 30000);
-  await waitText(B.page, 'Gotovo 0 od 3', 30000);
+  await A.page.waitForFunction(() => [...document.querySelectorAll('button')].some((b) => (b.textContent || '').trim() === 'Start the league' && !b.disabled), { timeout: 20000 });
+  await clickText(A.page, 'Start the league', { exact: true });
+  await waitText(A.page, 'Done 0 of 3', 30000);
+  await waitText(B.page, 'Done 0 of 3', 30000);
   // The expansion issue opens the league once per browser
-  await waitText(A.page, 'Liga se širi', 30000);
-  await clickText(A.page, 'Na prelazni rok', { exact: true });
-  await waitText(B.page, 'Liga se širi', 30000);
-  await clickText(B.page, 'Na prelazni rok', { exact: true });
+  await waitText(A.page, 'The league expands', 30000);
+  await clickText(A.page, 'To the off-season', { exact: true });
+  await waitText(B.page, 'The league expands', 30000);
+  await clickText(B.page, 'To the off-season', { exact: true });
   await sleep(500);
-  note('expansion issue shown and dismissed on both screens', !(await hasText(A.page, 'Liga se širi')) && !(await hasText(B.page, 'Liga se širi')));
+  note('expansion issue shown and dismissed on both screens', !(await hasText(A.page, 'The league expands')) && !(await hasText(B.page, 'The league expands')));
   const v0 = await view(code, tokens.a);
   slugs = Object.fromEntries(v0.coaches.map((c) => [c.name, c.slug]));
   note('league started, window open', v0.phase.kind === 'window', JSON.stringify(slugs));
@@ -262,34 +267,35 @@ try {
     const mail = (await view(code, t)).career.mail;
     for (const m of mail) await act(code, t, { type: 'readMail', mailId: m.id });
   }
+  for (const t of [tokens.b, tokens.c]) await act(code, t, { type: 'media', kind: 'interview' });
   const trainA = await act(code, tokens.a, { type: 'train', trainingId: 'fans' });
   note('train over the API returns a receipt', Boolean(trainA.json.receipt), trainA.json.receipt?.title);
-  await clickText(A.page, 'Gotovo', { exact: true });
-  await waitText(A.page, 'Neje gotovo');
-  await waitText(B.page, 'Gotovo 1 od 3');
-  await clickText(A.page, 'Neje gotovo', { exact: true });
-  await waitText(A.page, 'Gotovo 0 od 3');
+  await clickText(A.page, 'Done', { exact: true });
+  await waitText(A.page, 'Not done');
+  await waitText(B.page, 'Done 1 of 3');
+  await clickText(A.page, 'Not done', { exact: true });
+  await waitText(A.page, 'Done 0 of 3');
   const restA = await act(code, tokens.a, { type: 'rest', fasting: false });
   const afterUndo = await view(code, tokens.a);
   note('Done toggled off then another action taken', restA.status === 200 && afterUndo.coaches.find((c) => c.name === 'Vuka').done === false, `slots ${afterUndo.career.slotsUsed}`);
   await shot(A.page, '04-window-a-after-actions');
-  await clickText(A.page, 'Gotovo', { exact: true });
-  await clickText(B.page, 'Gotovo', { exact: true });
+  await clickText(A.page, 'Done', { exact: true });
+  await clickText(B.page, 'Done', { exact: true });
   await act(code, tokens.c, { type: 'setDone', done: true });
-  await waitText(A.page, 'GLIZIĆ GLASNIK', 30000);
+  await waitText(A.page, 'THE GLIZZY GAZETTE', 30000);
   await sleep(1200);
   await shot(A.page, '05-paper-a');
   // B polls on its own cadence, so give it a poll or two to catch up
-  await waitText(B.page, 'GLIZIĆ GLASNIK', 15000).catch(() => null);
+  await waitText(B.page, 'THE GLIZZY GAZETTE', 15000).catch(() => null);
   await shot(B.page, '05-paper-b-820');
   await checkOverflow(B.page, 'paper 820');
-  note('paper phase reached on both screens', await hasText(B.page, 'GLIZIĆ GLASNIK'));
+  note('paper phase reached on both screens', await hasText(B.page, 'THE GLIZZY GAZETTE'));
 
   // 6. Paper -> bracket draw with tags -> pre-match
-  await clickText(A.page, 'Gotovo', { exact: true });
+  await clickText(A.page, 'Done', { exact: true });
   await act(code, tokens.b, { type: 'setDone', done: true });
   await act(code, tokens.c, { type: 'setDone', done: true });
-  await waitText(A.page, 'Osmina finala', 30000);
+  await waitText(A.page, 'Round of 16', 30000);
   await sleep(1200);
   await shot(A.page, '06-bracket-draw-a');
   await shot(B.page, '06-bracket-draw-b-820');
@@ -306,14 +312,14 @@ try {
 
   // 7. Withdrawal by a human in round 0 (through the UI when it is A or B)
   if (inRound0.includes('Vuka')) {
-    await clickText(A.page, 'Povuci se iz turnira');
-    await clickText(A.page, 'Da, povuci ga');
+    await clickText(A.page, 'Withdraw from the cup');
+    await clickText(A.page, 'Yes, withdraw');
     await sleep(1500);
     const w = await view(code, tokens.a);
     note('withdrawal through the UI', w.coaches.find((c) => c.name === 'Vuka').withdrawn);
   } else if (inRound0.includes('Cone')) {
-    await clickText(B.page, 'Povuci se iz turnira');
-    await clickText(B.page, 'Da, povuci ga');
+    await clickText(B.page, 'Withdraw from the cup');
+    await clickText(B.page, 'Yes, withdraw');
     await sleep(1500);
     const w = await view(code, tokens.b);
     note('withdrawal through the UI', w.coaches.find((c) => c.name === 'Cone').withdrawn);
@@ -324,29 +330,29 @@ try {
   await shot(A.page, '07-bracket-after-withdraw-a');
 
   // 8. Pre-match, clip, majority clip skip
-  await clickText(A.page, 'Gotovo', { exact: true });
+  await clickText(A.page, 'Done', { exact: true });
   await act(code, tokens.b, { type: 'setDone', done: true });
   await act(code, tokens.c, { type: 'setDone', done: true });
-  await waitText(A.page, 'Pre meča', 30000);
+  await waitText(A.page, 'Pre-match', 30000);
   await sleep(800);
   await shot(A.page, '06-prematch-locked-a');
   await checkOverflow(A.page, 'prematch 1440');
-  note('pre-match card in cup 1 has no bookie, only the ready button', !(await hasText(A.page, 'Preskačem opkladu')) && (await hasText(A.page, 'Spreman')));
+  note('pre-match card in cup 1 has no bookie, only the ready button', !(await hasText(A.page, 'Skip the bet')) && (await hasText(A.page, 'Ready')));
   await passOrReady(A.page);
   await act(code, tokens.b, { type: 'pass' });
   await act(code, tokens.c, { type: 'pass' });
-  await waitEnabled(A.page, 'Preskoči do rezultata');
+  await waitEnabled(A.page, 'Skip to result');
   await sleep(4000);
   await shot(A.page, '08-clip-a');
   await shot(B.page, '08-clip-b-820');
   await checkOverflow(B.page, 'clip 820');
-  note('clip runs on both screens', (await hasText(A.page, 'Preskoči do rezultata')) && (await hasText(B.page, 'Preskoči do rezultata')));
+  note('clip runs on both screens', (await hasText(A.page, 'Skip to result')) && (await hasText(B.page, 'Skip to result')));
 
   // Majority clip skip: A and B vote (2 of 3)
-  await clickText(A.page, 'Preskoči do rezultata');
+  await clickText(A.page, 'Skip to result');
   await sleep(300);
-  await waitEnabled(B.page, 'Preskoči do rezultata');
-  await clickText(B.page, 'Preskoči do rezultata');
+  await waitEnabled(B.page, 'Skip to result');
+  await clickText(B.page, 'Skip to result');
   await sleep(2500);
   const afterSkip = await view(code, tokens.a);
   const skipped = afterSkip.phase.kind === 'match-clip' ? afterSkip.phase.playback.skippedAt !== undefined : afterSkip.phase.kind === 'match-bets' && afterSkip.phase.index >= 1;
@@ -354,13 +360,13 @@ try {
   await shot(A.page, '08-after-clip-skip-a');
 
   // 9. Unanimous round skip on the rest of round 0 lands on the quarterfinal
-  await waitText(A.page, 'Preskoči kolo', 30000);
-  await clickText(A.page, 'Preskoči kolo');
+  await waitText(A.page, 'Skip round', 30000);
+  await clickText(A.page, 'Skip round');
   await sleep(300);
-  await waitText(B.page, 'Preskoči kolo', 30000);
-  await clickText(B.page, 'Preskoči kolo');
+  await waitText(B.page, 'Skip round', 30000);
+  await clickText(B.page, 'Skip round');
   await act(code, tokens.c, { type: 'voteSkipRound', on: true });
-  await waitText(A.page, 'Četvrtfinale', 30000);
+  await waitText(A.page, 'Quarterfinals', 30000);
   await sleep(1200);
   await shot(A.page, '09-bracket-round1-a');
   await shot(B.page, '09-bracket-round1-b-820');
@@ -369,52 +375,55 @@ try {
   note('unanimous round skip resolved round 0 into round 1', round1View.phase.kind === 'cup-pre' && round1View.phase.round === 1);
 
   // 10. Round 1 by round skip, then the unanimous cup skip from round 2
-  await clickText(A.page, 'Gotovo', { exact: true });
+  await clickText(A.page, 'Done', { exact: true });
   await act(code, tokens.b, { type: 'setDone', done: true });
   await act(code, tokens.c, { type: 'setDone', done: true });
-  await waitText(A.page, 'Pre meča', 30000);
-  await clickText(A.page, 'Preskoči kolo');
+  await waitText(A.page, 'Pre-match', 30000);
+  await clickText(A.page, 'Skip round');
   await act(code, tokens.b, { type: 'voteSkipRound', on: true });
   await act(code, tokens.c, { type: 'voteSkipRound', on: true });
-  await waitText(A.page, 'Polufinale', 30000);
+  await waitText(A.page, 'Semifinals', 30000);
   await sleep(800);
   await shot(A.page, '11-bracket-round2-a');
-  await clickText(A.page, 'Preskoči ceo kup');
+  await clickText(A.page, 'Skip whole cup');
   await act(code, tokens.b, { type: 'voteSkipCup', on: true });
   await act(code, tokens.c, { type: 'voteSkipCup', on: true });
-  await waitText(A.page, 'Završen kup', 30000);
+  await waitText(A.page, 'Cup finished', 30000);
   await sleep(1200);
   await shot(A.page, '12-season-end-bracket-a');
-  note('unanimous cup skip from round 2 landed on the finished bracket', await hasText(A.page, 'Na podijum'));
-  await clickText(A.page, 'Na podijum');
+  note('unanimous cup skip from round 2 landed on the finished bracket', await hasText(A.page, 'To the podium'));
+  await clickText(A.page, 'To the podium');
   await sleep(1500);
   await shot(A.page, '13-podium-a');
-  await clickText(A.page, 'Novine', { exact: true });
-  await waitText(A.page, 'GLIZIĆ GLASNIK');
+  await clickText(A.page, 'Newspaper', { exact: true });
+  await waitText(A.page, 'THE GLIZZY GAZETTE');
   await sleep(800);
   await shot(A.page, '14-recap-a');
-  await clickText(A.page, 'Tabela', { exact: true });
-  await waitText(A.page, 'Konačna tabela');
+  await clickText(A.page, 'Standings', { exact: true });
+  await waitText(A.page, 'Final season table');
   await sleep(500);
   await shot(A.page, '15-standings-a');
   await checkOverflow(A.page, 'standings 1440');
   note('coach tags in the table', (await hasText(A.page, 'VUKA')) && (await hasText(A.page, 'CONE')));
-  await clickText(A.page, 'Spreman za sledeću sezonu');
+  await clickText(A.page, 'Ready for next season');
   await act(code, tokens.b, { type: 'setDone', done: true });
   await act(code, tokens.c, { type: 'setDone', done: true });
-  await waitText(A.page, 'Gotovo 0 od 3', 30000);
+  await waitText(A.page, 'Done 0 of 3', 30000);
   const s2 = await view(code, tokens.a);
   note('season 2 window open', s2.phase.kind === 'window' && s2.career.season === 1);
 
-  // 11. Plots between humans, a guard, and the paper that follows
-  const plot = await act(code, tokens.b, { type: 'sabotage', targetSlug: slugs.Vuka, tier: 1, boostSteps: 0 });
-  note('B plots against A', plot.status === 200, plot.json.error ?? plot.json.receipt?.title);
-  const guard = await act(code, tokens.a, { type: 'guard', steps: 0 });
-  note('A hires a crew', guard.status === 200, guard.json.error ?? guard.json.receipt?.title);
+  // 11. Plots between humans, a guard, and the paper that follows. The cup
+  // and the price index leave balances to chance, so the plotters collect
+  // their letters and a paid interview first
   for (const t of [tokens.a, tokens.b, tokens.c]) {
     const mail = (await view(code, t)).career.mail.filter((m) => !m.read && m.kind !== 'sponsor-offer');
     for (const m of mail) await act(code, t, { type: 'readMail', mailId: m.id });
   }
+  for (const t of [tokens.b, tokens.c]) await act(code, t, { type: 'media', kind: 'interview' });
+  const plot = await act(code, tokens.b, { type: 'sabotage', targetSlug: slugs.Vuka, tier: 1, boostSteps: 0 });
+  note('B plots against A', plot.status === 200, plot.json.error ?? plot.json.receipt?.title);
+  const guard = await act(code, tokens.a, { type: 'guard', steps: 0 });
+  note('A hires a crew', guard.status === 200, guard.json.error ?? guard.json.receipt?.title);
   const plot2 = await act(code, tokens.c, { type: 'sabotage', targetSlug: slugs.Cone, tier: 1, boostSteps: 0 });
   note('C plots against B', plot2.status === 200, plot2.json.error ?? '');
   const bView = await view(code, tokens.b);
@@ -439,7 +448,7 @@ try {
   await sleep(1000);
   await shot(A.page, '16-window-s2-a');
   const t0 = Date.now();
-  await waitText(A.page, 'GLIZIĆ GLASNIK', 90000);
+  await waitText(A.page, 'THE GLIZZY GAZETTE', 90000);
   const waited = Math.round((Date.now() - t0) / 1000);
   const afterExpiry = await view(code, tokens.c);
   const restsC = afterExpiry.career.slotLog.filter((s) => s.kind === 'rest').length;
@@ -489,12 +498,14 @@ try {
   note('fast forward to season 3', v3.phase.kind === 'window' && v3.career.standingsHistory.length === 2, `year ${v3.career.year} season ${v3.career.season}`);
 
   // 13. Rival pick shows up at the new year; play through to it later. First: live bet tokens from three coaches
+  // A paid interview keeps every bettor above the stake whatever the plots cost
+  for (const t of all) await act(code, t, { type: 'media', kind: 'interview' });
   // Window, paper and the bracket draw each close on everyone's Done
   for (let i = 0; i < 4 && (await view(code, tokens.a)).phase.kind !== 'match-bets'; i++) {
     for (const t of all) await act(code, t, { type: 'setDone', done: true });
     await sleep(300);
   }
-  await waitText(A.page, 'Pre meča', 30000);
+  await waitText(A.page, 'Pre-match', 30000);
   await sleep(1000);
   for (const t of all) {
     const mail = (await view(code, t)).career.mail.filter((m) => !m.read && m.kind !== 'sponsor-offer');
@@ -516,22 +527,22 @@ try {
   } catch {}
   note('tokens show the coach names in the stands preview', tokensOnScreen);
   // the third coach passes so the bets close (A and B placed bets)
-  await waitEnabled(A.page, 'Preskoči do rezultata');
+  await waitEnabled(A.page, 'Skip to result');
   await sleep(3000);
   await shot(A.page, '19-clip-tokens-a');
   const standTokens = await A.page.evaluate(() => document.querySelectorAll('[data-coach-tokens]').length);
   note('crowd tokens rendered in the stands during the clip', standTokens >= 1, `${standTokens} stands with tokens`);
   // 14. Reconnect mid-clip
   await B.page.reload({ waitUntil: 'networkidle2' });
-  await waitEnabled(B.page, 'Preskoči do rezultata');
+  await waitEnabled(B.page, 'Skip to result');
   await sleep(500);
   await shot(B.page, '20-reconnect-mid-clip-b-820');
-  const roundLabel = await B.page.evaluate(() => (document.body.innerText.match(/Runda (\d+)|Kraj meča|Meč počinje/i) || [])[0] ?? null);
+  const roundLabel = await B.page.evaluate(() => (document.body.innerText.match(/Round (\d+)|Match over|Match start/i) || [])[0] ?? null);
   note('reconnect lands in the running clip', roundLabel !== null, `round label ${roundLabel}`);
   // let the clip play out for real for a bit, then skip the rest of the cup
   await sleep(4000);
   for (const t of all) await act(code, t, { type: 'voteSkipCup', on: true });
-  await waitText(A.page, 'Završen kup', 30000);
+  await waitText(A.page, 'Cup finished', 30000);
   const settled = await view(code, tokens.a);
   const winners = settled.coaches.map((c) => `${c.name}:${c.balance}`).join(' ');
   note('bets settled at the clip end', true, winners);
@@ -547,14 +558,14 @@ try {
     }
     let vy2 = await view(code, tokens.a);
     note('year 2 window', vy2.phase.kind === 'window' && vy2.career.year === 2, `rival shortlist ${vy2.career.rivalChoice?.length ?? 0}`);
-    await waitText(A.page, 'Izbor rivala', 30000);
-    await clickText(A.page, 'Izbor rivala');
-    await waitText(A.page, 'Njega');
+    await waitText(A.page, 'Rival pick', 30000);
+    await clickText(A.page, 'Rival pick');
+    await waitText(A.page, 'This one');
     await sleep(800);
     await shot(A.page, '21-rival-pick-a');
-    await clickText(A.page, 'Njega');
+    await clickText(A.page, 'This one');
     await sleep(400);
-    await clickText(A.page, 'Nastavi', { exact: true });
+    await clickText(A.page, 'Continue', { exact: true });
     await sleep(1500);
     vy2 = await view(code, tokens.a);
     note('rival picked through the dialog', vy2.career.rivalSlug !== null && !vy2.career.rivalChoice, vy2.career.rivalSlug);
@@ -565,18 +576,18 @@ try {
     }
     const vy3 = await view(code, tokens.a);
     note('election counted at the year 2 wrap', vy3.lastElection?.year === 2 && (vy3.career.parliament?.government.length ?? 0) > 0, JSON.stringify(vy3.lastElection?.result.government));
-    await waitText(A.page, 'Izborna noć', 30000);
-    await clickText(A.page, 'Izborna noć');
-    await waitText(A.page, 'Skupština Leskovca', 30000);
+    await waitText(A.page, 'Election night', 30000);
+    await clickText(A.page, 'Election night');
+    await waitText(A.page, 'Leskovac Assembly', 30000);
     await sleep(7000);
     await shot(A.page, '22-election-night-a');
     await A.page.waitForFunction(
-      () => [...document.querySelectorAll('button')].some((b) => b.textContent.trim() === 'Nastavi' && !b.disabled),
+      () => [...document.querySelectorAll('button')].some((b) => b.textContent.trim() === 'Continue' && !b.disabled),
       { timeout: 40000 },
     );
-    await clickText(A.page, 'Nastavi', { exact: true });
+    await clickText(A.page, 'Continue', { exact: true });
     await sleep(800);
-    note('election night cutscene shown and closed', !(await hasText(A.page, 'Skupština Leskovca')));
+    note('election night cutscene shown and closed', !(await hasText(A.page, 'Leskovac Assembly')));
 
     // 16. Overlord: run seasons until the room finishes
     let finished = null;
@@ -586,22 +597,20 @@ try {
     }
     note('Overlord finish', Boolean(finished), finished ? `${finished.career.year} ${finished.report?.overlordSlug}` : 'not reached');
     if (finished) {
-      await waitText(A.page, 'Kampanja je gotova', 30000);
+      await waitText(A.page, 'The campaign is over', 30000);
       await sleep(1500);
       await shot(A.page, '23-finished-a');
-      await clickText(A.page, 'Izveštaj', { exact: true });
-      await sleep(800);
       await shot(A.page, '24-report-a');
       await A.page.evaluate(() => window.scrollBy(0, 700));
       await sleep(400);
       await shot(A.page, '24b-report-a-scrolled');
       await checkOverflow(A.page, 'report 1440');
       await B.page.reload({ waitUntil: 'networkidle2' });
-      await waitText(B.page, 'Igramo dalje', 30000);
-      await clickText(A.page, 'Igramo dalje');
+      await waitText(B.page, 'Keep playing', 30000);
+      await clickText(A.page, 'Keep playing');
       await sleep(500);
-      await clickText(B.page, 'Igramo dalje');
-      await waitText(A.page, 'Gotovo 0 od 3', 30000);
+      await clickText(B.page, 'Keep playing');
+      await waitText(A.page, 'Done 0 of 3', 30000);
       const reopened = await view(code, tokens.a);
       note('majority reopen vote reopened the room', reopened.status === 'playing' && reopened.phase.kind === 'window');
       await shot(A.page, '25-reopened-a');
@@ -610,7 +619,7 @@ try {
       await sleep(1500);
       await shot(B.page, '26-window-b-390');
       await checkOverflow(B.page, 'window 390');
-      await B.page.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => x.title === 'Tabela lige'); b?.click(); });
+      await B.page.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => x.title === 'League table'); b?.click(); });
       await sleep(800);
       await shot(B.page, '27-table-b-390');
       await checkOverflow(B.page, 'table modal 390');

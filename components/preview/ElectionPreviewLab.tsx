@@ -5,6 +5,7 @@ import ElectionNightCutscene from '@/components/games/career/ElectionNightCutsce
 import ElectionPollBars from '@/components/games/career/ElectionPollBars';
 import ParliamentChamber from '@/components/games/career/ParliamentChamber';
 import SponsorEmblem from '@/components/games/career/SponsorEmblem';
+import ChoiceButton from '@/components/preview/ChoiceButton';
 import { PARTY_SEAT_ORDER } from '@/data/games/careerElections';
 import { SPONSOR_IDS } from '@/data/games/careerSponsors';
 import { GAMES_UI } from '@/data/games/locale';
@@ -19,50 +20,27 @@ const SPONSOR_NAMES = GAMES_UI.career.sponsors.names as Record<
 // Sample vote shares that land on each shape of government
 const PRESETS: { label: string; votes: Record<SponsorId, number> }[] = [
   {
-    label: 'Stranka + Zidari',
+    label: 'Party + Masons',
     votes: { stranka: 35, korporacija: 26, zidari: 25, ostrvo: 14 },
   },
   {
-    label: 'Korporacija sama',
+    label: 'Corporation alone',
     votes: { korporacija: 54, zidari: 20, stranka: 16, ostrvo: 10 },
   },
   {
-    label: 'Zidari + Korporacija',
+    label: 'Masons + Corporation',
     votes: { zidari: 38, korporacija: 22, ostrvo: 21, stranka: 19 },
   },
   {
-    label: 'Trojka',
+    label: 'Three-way',
     votes: { ostrvo: 30, korporacija: 28, zidari: 24, stranka: 18 },
   },
 ];
 
 const PLAYER_CHOICES: { id: SponsorId | null; label: string }[] = [
-  { id: null, label: 'Bez sponzora' },
+  { id: null, label: 'No sponsor' },
   ...SPONSOR_IDS.map((id) => ({ id, label: SPONSOR_NAMES[id] })),
 ];
-
-function ChoiceButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
-        active
-          ? 'border-amber-300/60 bg-amber-400/15 text-amber-100'
-          : 'border-sky-200/20 bg-slate-800/60 text-slate-300 hover:border-sky-200/45 hover:text-white'
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
 
 // Everything the election adds to the career, on a click: the broadcast,
 // the chamber and the poll bars, over a few sample results
@@ -80,7 +58,7 @@ export default function ElectionPreviewLab() {
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-3 rounded-3xl border border-frost-border/40 bg-slate-900/70 p-4 sm:p-5">
         <h2 className="text-sm font-black uppercase tracking-[0.3em] text-sky-200">
-          Rezultat
+          Result
         </h2>
         <div className="flex flex-wrap gap-2">
           {PRESETS.map((entry, index) => (
@@ -109,24 +87,24 @@ export default function ElectionPreviewLab() {
         </div>
         <div className="flex flex-wrap gap-2">
           <ChoiceButton active={first} onClick={() => setFirst(true)}>
-            Prvi izbori
+            First election
           </ChoiceButton>
           <ChoiceButton active={!first} onClick={() => setFirst(false)}>
-            Redovni izbori
+            Regular election
           </ChoiceButton>
         </div>
         <button
           onClick={() => setPlaying((k) => k + 1)}
           className="self-start rounded-xl border border-red-400/50 bg-red-500/15 px-5 py-2 text-xs font-black uppercase tracking-[0.3em] text-red-200 transition hover:border-red-300 hover:bg-red-500/25 hover:text-white"
         >
-          Pusti prenos
+          Play broadcast
         </button>
       </section>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <section className="flex flex-col gap-3 rounded-3xl border border-frost-border/40 bg-slate-900/70 p-4 sm:p-5">
           <h2 className="text-sm font-black uppercase tracking-[0.3em] text-sky-200">
-            Skupština
+            Assembly
           </h2>
           <ParliamentChamber
             seats={result.seats}
@@ -164,7 +142,7 @@ export default function ElectionPreviewLab() {
                             : 'border-red-400/50 text-red-300'
                       }`}
                     >
-                      {leads ? 'vodi' : inGovernment ? 'vlada' : 'opozicija'}
+                      {leads ? 'leads' : inGovernment ? 'government' : 'opposition'}
                     </span>
                   </li>
                 );
@@ -178,18 +156,18 @@ export default function ElectionPreviewLab() {
         <section className="flex flex-col gap-3 rounded-3xl border border-frost-border/40 bg-slate-900/70 p-4 sm:p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-black uppercase tracking-[0.3em] text-sky-200">
-              Anketa
+              Poll
             </h2>
             <button
               onClick={() => setBarsKey((k) => k + 1)}
               className="rounded-lg border border-sky-200/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-300 transition hover:border-sky-200/45 hover:text-white"
             >
-              Ponovo
+              Again
             </button>
           </div>
           <ElectionPollBars key={barsKey} votes={result.votes} />
           <span className="text-[11px] text-slate-400">
-            Pobednik se označava u prenosu, ovde su samo trake.
+            The winner is marked in the broadcast, here there are only the bars.
           </span>
         </section>
       </div>

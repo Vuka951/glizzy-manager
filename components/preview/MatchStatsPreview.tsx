@@ -1,11 +1,9 @@
 "use client";
 
-import type { ReactNode } from "react";
-import MatchStatsStrip from "@/components/games/match/MatchStatsStrip";
-import SpectateTable from "@/components/games/match/SpectateTable";
-import type { DuelCharacter, HidingSpotId } from "@/data/games/glizzyDuel";
+import PreviewCase from "@/components/preview/PreviewCase";
+import PreviewSpectateTable from "@/components/preview/PreviewSpectateTable";
 import { CHARACTER_ROSTER } from "@/data/games/roster";
-import { FULL_REVEAL, type ScoutReveal } from "@/lib/utils/careerScouting";
+import type { ScoutReveal } from "@/lib/utils/careerScouting";
 import type { CharacterCareerState } from "@/lib/utils/careerSave";
 
 const pick = (slug: string, index: number) =>
@@ -79,147 +77,84 @@ const plainStateB = state({ nutrition: skill(1), fanSkill: skill(1) });
 const SKILLS_ONLY: ScoutReveal = { skills: true, meters: false, detail: false };
 const NOTHING: ScoutReveal = { skills: false, meters: false, detail: false };
 
-const spotVariants: Record<HidingSpotId, number> = { box: 0, hat: 1, sock: 2 };
-
-function Table({
-  top,
-  bottom,
-  topState,
-  bottomState,
-  topReveal = FULL_REVEAL,
-  bottomReveal = FULL_REVEAL,
-}: {
-  top: DuelCharacter;
-  bottom: DuelCharacter;
-  topState: CharacterCareerState;
-  bottomState: CharacterCareerState;
-  topReveal?: ScoutReveal;
-  bottomReveal?: ScoutReveal;
-}) {
-  return (
-    <SpectateTable
-      top={top}
-      bottom={bottom}
-      topLives={3}
-      bottomLives={2}
-      topCap={4}
-      bottomCap={3}
-      topMood={topState}
-      bottomMood={bottomState}
-      topFame={topState.fame}
-      bottomFame={bottomState.fame}
-      spotVariants={spotVariants}
-      glizzyVariant={0}
-      phase={{ kind: "think", seeker: "bottom" }}
-      outcome={null}
-      betSlug={top.slug}
-      topStats={<MatchStatsStrip ch={topState} reveal={topReveal} seat="top" />}
-      bottomStats={
-        <MatchStatsStrip ch={bottomState} reveal={bottomReveal} seat="bottom" />
-      }
-    />
-  );
-}
-
-function Case({
-  label,
-  note,
-  children,
-}: {
-  label: string;
-  note: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="flex w-[26rem] max-w-full flex-col items-center gap-3">
-      <span className="rounded-full border border-sky-200/20 bg-slate-950/70 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-sky-200">
-        {label}
-      </span>
-      <p className="max-w-xs text-center text-[11px] leading-relaxed text-slate-400">
-        {note}
-      </p>
-      {children}
-    </div>
-  );
-}
-
 export default function MatchStatsPreview() {
   return (
     <>
       <section className="flex flex-wrap justify-center gap-10 rounded-3xl border border-sky-200/15 bg-slate-900/40 p-5">
-        <Case
-          label="Krajnosti"
-          note="Gore sve istrenirano i miran, dole ništa istrenirano i puca po šavovima."
+        <PreviewCase
+          label="Extremes"
+          note="Top: everything trained and calm. Bottom: nothing trained and coming apart at the seams."
         >
-          <Table
+          <PreviewSpectateTable
             top={veteran}
             bottom={wreck}
             topState={veteranState}
             bottomState={wreckState}
           />
-        </Case>
-        <Case
-          label="Obična večer"
-          note="Dva prosečna lika bez ijedne veštine preko prvog nivoa: traka je skoro prazna i ne odvlači pažnju."
+        </PreviewCase>
+        <PreviewCase
+          label="An ordinary night"
+          note="Two average characters with no skill above level 1: the strip is nearly empty and stays out of the way."
         >
-          <Table
+          <PreviewSpectateTable
             top={plainA}
             bottom={plainB}
             topState={plainStateA}
             bottomState={plainStateB}
           />
-        </Case>
+        </PreviewCase>
       </section>
 
       <section className="flex flex-col gap-4 rounded-3xl border border-sky-200/15 bg-slate-900/40 p-5">
         <div className="flex flex-col gap-1 text-center">
           <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-sky-400">
-            Doušnik
+            Informant
           </span>
           <h2 className="text-lg font-bold text-white">
-            Koliko se vidi po nivou ulaganja
+            How much shows at each investment level
           </h2>
           <p className="mx-auto max-w-lg text-xs leading-relaxed text-slate-400">
-            Tvoj lik gore se uvek vidi ceo. Protivnik dole zavisi od doušnika:
-            znak pitanja se može kliknuti i kaže šta otvara sledeći nivo.
+            Your character on top always shows in full. The opponent below depends
+            on the informant: the question mark is clickable and says what the next
+            level opens.
           </p>
         </div>
         <div className="flex flex-wrap justify-center gap-10 pt-2">
-          <Case
-            label="Bez doušnika"
-            note="Samo znak pitanja. Klik ili prelazak mišem kaže da treba doušnik."
+          <PreviewCase
+            label="No informant"
+            note="Only a question mark. A click or a hover says you need an informant."
           >
-            <Table
+            <PreviewSpectateTable
               top={veteran}
               bottom={wreck}
               topState={veteranState}
               bottomState={wreckState}
               bottomReveal={NOTHING}
             />
-          </Case>
-          <Case
-            label="Doušnik 1. nivo"
-            note="Veštine se vide, karton još ne. Znak pitanja ostaje na mestu upozorenja."
+          </PreviewCase>
+          <PreviewCase
+            label="Informant level 1"
+            note="The skills show, the chart does not yet. The question mark stays where the warnings go."
           >
-            <Table
+            <PreviewSpectateTable
               top={veteran}
               bottom={wreck}
               topState={veteranState}
               bottomState={wreckState}
               bottomReveal={SKILLS_ONLY}
             />
-          </Case>
-          <Case
-            label="Doušnik 2. nivo"
-            note="Sve otvoreno: holesterol pukao i prejeden je, oba upozorenja crvena."
+          </PreviewCase>
+          <PreviewCase
+            label="Informant level 2"
+            note="Everything open: cholesterol has blown and he is stuffed, both warnings red."
           >
-            <Table
+            <PreviewSpectateTable
               top={veteran}
               bottom={wreck}
               topState={veteranState}
               bottomState={wreckState}
             />
-          </Case>
+          </PreviewCase>
         </div>
       </section>
     </>

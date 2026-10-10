@@ -1839,6 +1839,7 @@
         "other": "Potrebno bar {min} trenera."
       },
       "needCharacters": "Nisu svi izabrali lika.",
+      "needReady": "Čeka se da svi treneri budu spremni.",
       "waitingHost": "Čeka se domaćin da počne.",
       "coaches": "Treneri ({count}/{max})",
       "host": "domaćin",
@@ -1969,6 +1970,7 @@
       "expired": "Soba je istekla: niko nije bio u njoj 10 minuta.",
       "bad-slug": "Nema takvog lika.",
       "missing-slug": "Nisu svi izabrali lika.",
+      "not-ready": "Nisu svi treneri još spremni.",
       "league-started": "Liga je već počela.",
       "letter-expired": "Izbori su prošli.",
       "bad-room": "Soba nije u ispravnom stanju.",

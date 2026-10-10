@@ -9,7 +9,7 @@ import { GAMES_UI } from '@/data/games/locale';
 import { newCharacterState } from '@/lib/utils/careerMeters';
 import type { SponsorId } from '@/lib/utils/careerSave';
 
-const SEASONS = ['Zima', 'Proleće', 'Leto', 'Jesen'];
+const SEASONS = ['Winter', 'Spring', 'Summer', 'Autumn'];
 const SPONSOR_NAMES = GAMES_UI.career.sponsors.names as Record<SponsorId, string>;
 
 export default function SponsorFlavorPreview({
