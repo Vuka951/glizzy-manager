@@ -27,3 +27,11 @@ next-env.d.ts
 
 # local outputs of the check scripts
 /scripts/**/output/
+
+# local-only tooling (trailer, voice and music generators, preview shots);
+# only the checks below are tracked
+/scripts/*
+!/scripts/career-mp-sim/
+!/scripts/career-sim/
+!/scripts/locale-check.mjs
+!/scripts/audio-check.mjs

@@ -275,8 +275,8 @@ the 16 are AI.
 
 ## Trailer and screenshots
 
-The trailer at the top is regenerated with `npm run trailer:build` (see
-Scripts); the game also plays it from the hub and the first onboarding step.
+The trailer at the top is footage of the game itself; the game also plays it
+from the hub and the first onboarding step.
 
 | | |
 | --- | --- |
@@ -423,8 +423,7 @@ Copy `.env.example` to `.env.local`.
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST endpoint for Rivals rooms. `KV_REST_API_URL` is read as a fallback. |
 | `UPSTASH_REDIS_REST_TOKEN` | Its token. `KV_REST_API_TOKEN` is read as a fallback. |
 | `CAREER_MP_UNLIMITED` | Set to `1` to lift the room creation limits during local testing. Ignored in production. |
-| `XI_API_KEY` | ElevenLabs key, only for the audio generators under `scripts/`. |
-| `XI_VOICE_ID` | ElevenLabs voice id for the commentary generator. |
+| `XI_API_KEY` | ElevenLabs key, only for `scripts/career-mp-sim/coin-sfx.mjs` (never needed by the app). |
 
 Without the Redis variables the room store falls back to an in-memory map,
 which is fine for `next dev` and wrong for serverless: a production server
@@ -441,9 +440,6 @@ started without them prints one warning and rooms vanish between instances.
 | `npm run typecheck` | `tsc --noEmit`. |
 | `npm run check:locale` | `en.json` and `sr.json` share one key tree, placeholders and plural shapes. |
 | `npm run check:audio` | Every clip the code can play exists under `public/games/audio`, and nothing is orphaned. |
-| `npm run commentary:voices` | Shortlists ElevenLabs voices for the English commentary booth; `-- --add <public_user_id> <voice_id>` adds a shared one to the account. Needs `XI_API_KEY`. |
-| `npm run commentary:render` | Renders the English commentary bank (`-- --dry-run` shows the plan and the character count). Needs `XI_API_KEY` and `XI_VOICE_ID`. |
-| `npm run trailer:build` | Rebuilds the trailer under `public/trailer/` from the running dev server: renders the narration once (`XI_API_KEY`), films the game, composes and encodes. `-- --screenshots` also retakes `docs/screenshots/`. See `scripts/trailer/build.mjs`. |
 | `npm run sim` | Headless Manager league simulation, 5 years x 200 runs. |
 | `npm run sim:rivals` | Rivals engine smoke test, must report `"failures":0`. |
 
@@ -538,33 +534,15 @@ is game-agnostic and lives in `lib/server/rooms/`.
 All artwork is SVG written by hand in the components, with no raster files
 under `public/`. Characters have no portraits: each one is a creature drawn
 from a hash of its name (`components/games/creature/`, species and palettes
-under `lib/constants/creatures/`). The cutscene sound bank comes from
-`scripts/career-cutscenes/generate.mjs` and the season music from the Python
-scripts under `scripts/career-music/`; those mp3s are committed, as are the
-other sound effects and mood clips, so nothing is rendered during a build.
-The match commentary banks for English and Serbian under
-`public/games/audio/commentary/career/` are committed too, rendered by
-`scripts/career-commentary/generate.mjs` (one voice per language, model
-`eleven_v4`); a language without a bank shows the commentator's lines as
-captions. Each bank holds 93 clips. The lines that name a character get no
+under `lib/constants/creatures/`). The cutscene sound bank, the season music,
+the sound effects and the mood clips are committed mp3s, so nothing is
+rendered during a build. The match commentary banks for English and Serbian
+under `public/games/audio/commentary/career/` are committed too (one generated
+voice per language); a language without a bank shows the commentator's lines
+as captions. Each bank holds 93 clips. The lines that name a character get no
 take, since the league is random, and the twelve election-night party lines
 (`CAPTION_ONLY_LINES` in `lib/constants/careerCommentaryVoice.ts`) stay
-captions until they are rendered under the color names. Both `generate.mjs` scripts call ElevenLabs and need
-`XI_API_KEY`, and the commentary one also `XI_VOICE_ID`. The scripts read
-both from the shell, so put them in `.env.local` (gitignored) and load it with
-`set -a; source .env.local; set +a`, or prefix the command with the variables.
-
-To re-voice the English booth: `npm run commentary:voices` lists candidate
-voices with preview links (a shared voice is added to the account with
-`npm run commentary:voices -- --add <public_user_id> <voice_id>`), then set
-`XI_VOICE_ID`, check the plan and cost with `npm run commentary:render -- --dry-run`,
-render with `npm run commentary:render` (the generator skips clips that
-already exist, so delete a clip to re-roll it), keep the locale in
-`COMMENTARY_VOICE_LOCALES` in `lib/constants/careerCommentaryVoice.ts`, and run
-`npm run check:audio`. The Serbian bank renders the same way with
-`node --no-warnings scripts/career-commentary/generate.mjs --locale sr`
-(the npm script fixes the locale to English). The vocal takes under `scripts/career-music/vocals/` are not
-included, so `scripts/career-music/vocal.py` is reference only.
+captions until they are rendered under the color names.
 
 ## Deployment
 
