@@ -1,195 +1,101 @@
-import BuyButton from '@/components/games/career/BuyButton';
+import CareerButton from '@/components/games/career/CareerButton';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
 import { GAMES_UI } from '@/data/games/locale';
 import { fmt, plural } from '@/lib/utils/format';
 
 const OS = GAMES_UI.career.offseason;
 
-const CHIP_TONES = {
-  muted: 'border-slate-600/50 bg-slate-800/60 text-slate-400',
-  good: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300',
-  warn: 'border-amber-400/40 bg-amber-500/10 text-amber-300',
-  danger: 'border-red-500/40 bg-red-500/10 text-red-300',
+const STAMP_TONES = {
+  good: 'border-[#166534] text-[#166534]',
+  warn: 'border-[#92400e] text-[#92400e]',
+  danger: 'border-[#b91c1c] text-[#b91c1c]',
 } as const;
 
-const TONES = {
-  sky: {
-    idle: 'border-sky-200/15 hover:border-sky-200/45',
-    selected: 'border-sky-300/70 bg-sky-500/10',
-    pip: 'bg-sky-300',
-  },
-  amber: {
-    idle: 'border-amber-400/20 hover:border-amber-400/50',
-    selected: 'border-amber-300/70 bg-amber-500/10',
-    pip: 'bg-amber-400',
-  },
-  red: {
-    idle: 'border-red-500/20 hover:border-red-500/50',
-    selected: 'border-red-400/70 bg-red-500/15',
-    pip: 'bg-red-400',
-  },
-} as const;
+export type ShopChip = { label: string; tone: keyof typeof STAMP_TONES };
 
-export type ShopChip = { label: string; tone?: keyof typeof CHIP_TONES };
-
-// Every offer in the career reads the same way: a glyph, a name, a price, one
-// line of what it does, then the pips and chips that say where it stands and
-// the single button that commits it. Cards that are one option inside a bigger
-// dialog swap the button for a selected state and let the dialog commit
+// An offer as a typed contract sheet from the folder: the emblem and the name
+// over a double rule with the price stamped beside them, the terms, what the
+// current level gives and the next one would, levels ticked off in ink, rubber
+// stamps for what bears on the price, and the key that signs it
 export default function ShopCard({
   icon,
   title,
   desc,
   price,
-  earn,
   pips,
   chips = [],
   highlight,
   note,
-  tone = 'sky',
-  selected,
-  disabled = false,
-  onSelect,
   action,
 }: {
   icon: React.ReactNode;
   title: string;
-  desc?: string;
+  desc: string;
   price?: number;
-  earn?: number;
-  pips?: {
-    level: number;
-    max: number;
-    progress?: number;
-    progressMax?: number;
-    tone?: keyof typeof TONES;
-  };
+  pips: { level: number; max: number };
   chips?: ShopChip[];
   highlight?: string;
   note?: string;
-  tone?: keyof typeof TONES;
-  selected?: boolean;
-  disabled?: boolean;
-  onSelect?: () => void;
-  action?: { label: string; disabled?: boolean; tone?: 'buy' | 'danger' | 'neutral'; onClick: () => void };
+  action?: { label: string; disabled: boolean; onClick: () => void };
 }) {
-  const T = TONES[tone];
-  const body = (
-    <>
-      <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center">
+  return (
+    <PaperSheet className="flex flex-col gap-2 p-3 text-left odd:-rotate-[0.4deg] even:rotate-[0.3deg]">
+      <div className="flex items-center gap-2.5 border-b-[3px] border-double border-slate-100 pb-1.5">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center">
           {icon}
         </span>
-        <span className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
-            <span className="text-xs font-bold text-white">{title}</span>
-            {price !== undefined && (
-              <span className="font-mono text-[10px] font-bold text-emerald-300">
-                {plural(OS.cost, price, { cost: price })}
-              </span>
-            )}
-            {earn !== undefined && (
-              <span className="font-mono text-[10px] font-bold text-amber-300">
-                +{plural(OS.cost, earn, { cost: earn })}
-              </span>
-            )}
-          </span>
-          {desc && (
-            <span className="text-[10px] leading-snug text-slate-400">{desc}</span>
-          )}
+        <span className="min-w-0 flex-1 font-serif text-[15px] font-bold leading-tight text-slate-100">
+          {title}
         </span>
+        {price !== undefined && (
+          <span className="shrink-0 -rotate-2 rounded-[3px] border-2 border-[#166534] px-1.5 font-sign text-[14px] font-bold tabular-nums text-[#166534]">
+            {plural(OS.cost, price, { cost: price })}
+          </span>
+        )}
       </div>
+      <p className="text-[11px] leading-snug text-slate-300">{desc}</p>
       {(highlight || note) && (
-        <span className="flex flex-col gap-0.5">
+        <span className="flex flex-col gap-0.5 font-sign text-[14px] leading-tight">
           {highlight && (
-            <span className="font-mono text-[10px] font-bold text-emerald-300">
-              {highlight}
-            </span>
+            <span className="font-bold text-[#166534]">{highlight}</span>
           )}
-          {note && (
-            <span className="font-mono text-[10px] text-slate-400">{note}</span>
-          )}
+          {note && <span className="text-slate-400">{note}</span>}
         </span>
       )}
-      {(pips || chips.length > 0) && (
-        <span className="flex flex-wrap items-center gap-1.5">
-          {pips && (
-            <span className="flex items-center gap-1.5">
-              <span className="flex items-center gap-0.5">
-                {Array.from({ length: pips.max }, (_, i) => (
-                  <span
-                    key={i}
-                    className={`h-2 w-2 rounded-full ${
-                      i < pips.level
-                        ? TONES[pips.tone ?? tone].pip
-                        : 'border border-slate-600'
-                    }`}
-                  />
-                ))}
-              </span>
-              {pips.progressMax !== undefined && (
-                <span className="flex items-center gap-0.5">
-                  {Array.from({ length: pips.progressMax }, (_, i) => (
-                    <span
-                      key={i}
-                      className={`h-1 w-2 rounded-sm ${
-                        pips.level < pips.max && i < (pips.progress ?? 0)
-                          ? 'bg-sky-400'
-                          : 'bg-slate-800'
-                      }`}
-                    />
-                  ))}
-                </span>
-              )}
-              <span className="font-mono text-[9px] font-bold text-slate-500">
-                {fmt(OS.level, { level: pips.level })}
-              </span>
-            </span>
-          )}
-          {chips.map((chip) => (
+      <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+        <span className="flex items-center gap-1">
+          {Array.from({ length: pips.max }, (_, i) => (
             <span
-              key={chip.label}
-              className={`rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest ${
-                CHIP_TONES[chip.tone ?? 'muted']
+              key={i}
+              className={`h-3 w-3 rounded-[1px] border border-slate-300 ${
+                i < pips.level ? 'bg-slate-200' : ''
               }`}
-            >
-              {chip.label}
-            </span>
+            />
           ))}
         </span>
-      )}
-    </>
-  );
-
-  const shell = `flex flex-col gap-2.5 rounded-2xl border p-3.5 text-left transition ${
-    disabled ? 'border-sky-200/10 bg-slate-900/30 opacity-50' : 'bg-slate-800/40'
-  }`;
-
-  if (onSelect) {
-    return (
-      <button
-        onClick={onSelect}
-        disabled={disabled}
-        aria-pressed={selected}
-        className={`${shell} ${
-          disabled ? '' : selected ? T.selected : `${T.idle} hover:bg-slate-800/70`
-        }`}
-      >
-        {body}
-      </button>
-    );
-  }
-
-  return (
-    <div className={`${shell} ${disabled ? '' : T.idle}`}>
-      {body}
+        <span className="font-sign text-[13px] font-semibold tabular-nums text-slate-400">
+          {fmt(OS.level, { level: pips.level })}
+        </span>
+        {chips.map((chip) => (
+          <span
+            key={chip.label}
+            className={`-rotate-2 rounded-[3px] border-2 px-1.5 font-sign text-[13px] font-bold uppercase tabular-nums tracking-[0.06em] ${STAMP_TONES[chip.tone]}`}
+          >
+            {chip.label}
+          </span>
+        ))}
+      </span>
       {action && (
-        <BuyButton
-          label={action.label}
-          tone={action.tone ?? 'buy'}
+        <CareerButton
+          tone="buy"
+          full
           disabled={action.disabled}
+          className="mt-auto min-h-11"
           onClick={action.onClick}
-        />
+        >
+          {action.label}
+        </CareerButton>
       )}
-    </div>
+    </PaperSheet>
   );
 }

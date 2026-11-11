@@ -8,6 +8,7 @@ import { electionNightSounds } from '@/lib/constants/cutsceneSounds';
 import { SPONSOR_THEMES } from '@/lib/constants/sponsorThemes';
 import type { SponsorId } from '@/lib/utils/careerSave';
 import { playCutsceneClip } from '@/lib/utils/cutsceneSounds';
+import { PARTY_PAINT } from '@/lib/utils/partyPaint';
 
 const SPONSOR_NAMES = GAMES_UI.career.sponsors.names as Record<
   SponsorId,
@@ -16,18 +17,17 @@ const SPONSOR_NAMES = GAMES_UI.career.sponsors.names as Record<
 const BAR_STAGGER_MS = 220;
 const BAR_GROW_MS = 900;
 
-// The vote share as a horizontal bar chart, biggest list first. Bars grow
-// in from the left one after another; the winner, once named, stays lit
-// while the others fade back
+// The vote share as a printed bar chart, biggest list first, each bar in the
+// party's seat colour. Bars grow in from the left one after another; the
+// winner, once named, stays lit while the others fade back. Dark-first, so it
+// prints on a sheet as well as it reads on the broadcast
 export default function ElectionPollBars({
   votes,
   winner = null,
-  animate = true,
   sound = false,
 }: {
   votes: Record<SponsorId, number>;
   winner?: SponsorId | null;
-  animate?: boolean;
   // Each bar whooshes in as it grows, for the live broadcast only
   sound?: boolean;
 }) {
@@ -36,7 +36,7 @@ export default function ElectionPollBars({
 
   useEffect(() => {
     const el = rootRef.current;
-    if (!el || !animate) return;
+    if (!el) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const animations = Array.from(
       el.querySelectorAll<SVGRectElement>('[data-bar]'),
@@ -61,7 +61,7 @@ export default function ElectionPollBars({
       animations.forEach((animation) => animation.cancel());
       whooshes.forEach((id) => window.clearTimeout(id));
     };
-  }, [animate, sound, votes]);
+  }, [sound, votes]);
 
   return (
     <div ref={rootRef} className="flex w-full flex-col gap-2">
@@ -71,21 +71,21 @@ export default function ElectionPollBars({
         return (
           <div
             key={id}
-            className={`grid grid-cols-[1.75rem_minmax(0,1fr)_2.5rem] items-center gap-2.5 transition-opacity duration-500 ${faded ? 'opacity-35' : 'opacity-100'}`}
+            className={`grid grid-cols-[1.75rem_minmax(0,1fr)_2.75rem] items-center gap-2.5 transition-opacity duration-500 ${PARTY_PAINT} ${faded ? 'opacity-35' : 'opacity-100'}`}
           >
             <span
-              className={`flex h-7 w-7 items-center justify-center rounded-full bg-slate-900/70 ring-2 transition ${lit ? 'ring-white' : 'ring-transparent'}`}
+              className={`flex h-7 w-7 items-center justify-center rounded-full bg-[#0f172a]/70 ring-2 transition ${lit ? 'ring-[#ffffff]' : 'ring-transparent'}`}
             >
               <SponsorEmblem sponsorId={id} className="h-5 w-5" />
             </span>
             <span className="flex min-w-0 flex-col gap-1">
-              <span className="truncate text-[11px] font-bold uppercase tracking-[0.18em] text-slate-200">
+              <span className="truncate font-sign text-[14px] font-bold uppercase leading-tight tracking-[0.06em] text-slate-200">
                 {SPONSOR_NAMES[id]}
               </span>
               <svg
                 viewBox="0 0 100 8"
                 preserveAspectRatio="none"
-                className="h-3 w-full overflow-visible rounded-sm bg-slate-800/80"
+                className="h-3 w-full overflow-visible rounded-[2px] bg-slate-800 shadow-[inset_0_1px_2px_rgb(0_0_0/0.6)]"
                 aria-hidden="true"
               >
                 <rect
@@ -94,13 +94,12 @@ export default function ElectionPollBars({
                   y="0"
                   width={votes[id]}
                   height="8"
-                  rx="1"
                   className={`origin-left ${SPONSOR_THEMES[id].bar}`}
                 />
               </svg>
             </span>
             <span
-              className={`text-right font-mono text-lg font-black tabular-nums opacity-0 [animation-fill-mode:forwards] animate-[bubblein_0.4s_ease-out] ${lit ? 'text-white' : 'text-slate-100'} ${index === 0 ? '[animation-delay:700ms]' : index === 1 ? '[animation-delay:900ms]' : index === 2 ? '[animation-delay:1100ms]' : '[animation-delay:1300ms]'}`}
+              className={`text-right font-sign text-[22px] font-bold tabular-nums opacity-0 [animation-fill-mode:forwards] animate-[bubblein_0.4s_ease-out] ${lit ? 'text-amber-300' : 'text-slate-100'} ${index === 0 ? '[animation-delay:700ms]' : index === 1 ? '[animation-delay:900ms]' : index === 2 ? '[animation-delay:1100ms]' : '[animation-delay:1300ms]'}`}
             >
               {votes[id]}%
             </span>

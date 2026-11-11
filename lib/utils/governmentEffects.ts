@@ -1,14 +1,14 @@
 import {
-  KORPORACIJA_LEAD_REFUND,
-  KORPORACIJA_LEAD_TAX,
-  OSTRVO_LEAD_SABOTAGE_TAX,
-  STRANKA_LEAD_FAME_BONUS,
-  STRANKA_LEAD_FANS_TRAINING_SCALE,
-  STRANKA_LEAD_OUTSIDE_FAME_SCALE,
-  STRANKA_LEAD_OUTSIDE_PAY_SCALE,
-  ZIDARI_LEAD_BLOCK_BONUS,
-  ZIDARI_LEAD_BLOCK_CAP,
-  ZIDARI_LEAD_GUARD_TAX,
+  YELLOW_LEAD_REFUND,
+  YELLOW_LEAD_TAX,
+  GREEN_LEAD_SABOTAGE_TAX,
+  RED_LEAD_FAME_BONUS,
+  RED_LEAD_FANS_TRAINING_SCALE,
+  RED_LEAD_OUTSIDE_FAME_SCALE,
+  RED_LEAD_OUTSIDE_PAY_SCALE,
+  BLUE_LEAD_BLOCK_BONUS,
+  BLUE_LEAD_BLOCK_CAP,
+  BLUE_LEAD_GUARD_TAX,
 } from '@/data/games/careerElections';
 import { GAMES_UI } from '@/data/games/locale';
 import type { SponsorId } from '@/lib/utils/careerSave';
@@ -21,25 +21,25 @@ export function percentOf(scale: number): number {
 }
 
 const OWN_PARAMS: Record<SponsorId, Record<string, number>> = {
-  zidari: {
-    bonus: percentOf(ZIDARI_LEAD_BLOCK_BONUS),
-    cap: percentOf(ZIDARI_LEAD_BLOCK_CAP),
+  blue: {
+    bonus: percentOf(BLUE_LEAD_BLOCK_BONUS),
+    cap: percentOf(BLUE_LEAD_BLOCK_CAP),
   },
-  ostrvo: {},
-  korporacija: { refund: KORPORACIJA_LEAD_REFUND },
-  stranka: {
-    fame: STRANKA_LEAD_FAME_BONUS,
-    discount: percentOf(1 - STRANKA_LEAD_FANS_TRAINING_SCALE),
+  green: {},
+  yellow: { refund: YELLOW_LEAD_REFUND },
+  red: {
+    fame: RED_LEAD_FAME_BONUS,
+    discount: percentOf(1 - RED_LEAD_FANS_TRAINING_SCALE),
   },
 };
 
 const OUTSIDE_PARAMS: Record<SponsorId, Record<string, number>> = {
-  zidari: { tax: percentOf(ZIDARI_LEAD_GUARD_TAX) },
-  ostrvo: { tax: percentOf(OSTRVO_LEAD_SABOTAGE_TAX) },
-  korporacija: { tax: KORPORACIJA_LEAD_TAX },
-  stranka: {
-    fame: percentOf(STRANKA_LEAD_OUTSIDE_FAME_SCALE),
-    pay: percentOf(STRANKA_LEAD_OUTSIDE_PAY_SCALE),
+  blue: { tax: percentOf(BLUE_LEAD_GUARD_TAX) },
+  green: { tax: percentOf(GREEN_LEAD_SABOTAGE_TAX) },
+  yellow: { tax: YELLOW_LEAD_TAX },
+  red: {
+    fame: percentOf(RED_LEAD_OUTSIDE_FAME_SCALE),
+    pay: percentOf(RED_LEAD_OUTSIDE_PAY_SCALE),
   },
 };
 

@@ -1,16 +1,11 @@
 import {
   commentaryCopy,
-  commentaryNameForm,
   introAngleLines,
   matchCueLines,
   type CommentaryLine,
   type IntroAngle,
 } from '@/data/games/matchCommentary';
-import {
-  DUEL_AI_PROFILES,
-  type DuelCharacter,
-  type HidingSpotId,
-} from '@/data/games/glizzyDuel';
+import type { DuelCharacter, HidingSpotId } from '@/data/games/glizzyDuel';
 import {
   CAPTION_HOLD_BASE_MS,
   CAPTION_HOLD_MS_PER_CHAR,
@@ -20,10 +15,12 @@ import {
   QUICK_MATCH_MAX_TURNS,
 } from '@/lib/constants/careerCommentary';
 import {
+  CAPTION_ONLY_LINES,
   COMMENTARY_CLIP_BASE,
   COMMENTARY_VOICED,
 } from '@/lib/constants/careerCommentaryVoice';
 import type { CharacterCareerState } from '@/lib/utils/careerSave';
+import { duelAiProfile } from '@/lib/utils/characterTraits';
 import { characterEpithet } from '@/lib/utils/localeNames';
 import { buildMatchFrames } from '@/lib/utils/matchFrames';
 import { tiebreakStartTurn, type CupMatchResult } from '@/lib/utils/tournamentSim';
@@ -46,19 +43,9 @@ export type CommentaryContext = {
   playerSlug?: string | null;
 };
 
-function variantIndex(id: string): number {
-  return Number(id.match(/(\d+)$/)?.[1] ?? 1);
-}
-
-// Mirrors the generator: even-numbered variants baked the short name
-function spokenName(character: DuelCharacter, lineId: string): string {
-  const short = commentaryNameForm(character.slug).short;
-  return short && variantIndex(lineId) % 2 === 0 ? short : character.name;
-}
-
-function clipUrl(line: CommentaryLine, slug?: string): string | null {
-  if (!COMMENTARY_VOICED) return null;
-  return `${COMMENTARY_CLIP_BASE}/${line.id}${slug ? `--${slug}` : ''}.mp3`;
+function clipUrl(line: CommentaryLine): string | null {
+  if (!COMMENTARY_VOICED || CAPTION_ONLY_LINES.has(line.id)) return null;
+  return `${COMMENTARY_CLIP_BASE}/${line.id}.mp3`;
 }
 
 // The plan is drawn from a generator seeded by the match itself, so every
@@ -103,8 +90,7 @@ const SPOT_ANGLE: Record<HidingSpotId, IntroAngle> = {
 };
 
 function favouriteSpot(slug: string): HidingSpotId | null {
-  const hide = DUEL_AI_PROFILES[slug]?.hide;
-  if (!hide) return null;
+  const { hide } = duelAiProfile(slug);
   const best = (Object.entries(hide) as [HidingSpotId, number][]).sort(
     (x, y) => y[1] - x[1],
   )[0];
@@ -185,7 +171,7 @@ function introStoriesFor(
 
 function fillCaption(line: CommentaryLine, character: DuelCharacter): string {
   return commentaryCopy(line.id)
-    .text.replaceAll('{name}', spokenName(character, line.id))
+    .text.replaceAll('{name}', character.name)
     .replaceAll('{epithet}', characterEpithet(character.slug));
 }
 
@@ -211,7 +197,7 @@ export function planCommentary(
   ) => {
     plan.push({
       frameIndex,
-      clip: clipUrl(line, character?.slug),
+      clip: clipUrl(line),
       text: character ? fillCaption(line, character) : commentaryCopy(line.id).text,
       priority,
     });

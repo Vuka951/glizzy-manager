@@ -9,8 +9,19 @@ import {
   seatParams,
   withPartyStatuses,
 } from '@/lib/utils/careerElections';
+import type { LawInForce } from '@/lib/utils/careerLaws';
+import { debtInterest } from '@/lib/utils/careerCredit';
+import {
+  debtInterestLetter,
+  debtWarningLetter,
+  electionLetter,
+} from '@/lib/utils/careerMail';
 import { newCharacterState } from '@/lib/utils/careerMeters';
 import { careerPoints } from '@/lib/utils/careerPoints';
+import { characterBySlug, registerLeague } from '@/lib/utils/duelCharacters';
+import type { LeagueEntry } from '@/lib/utils/leagueRoster';
+import { previewLeague } from '@/components/preview/previewRoster';
+import { CAREER_SAVE_VERSION } from '@/lib/utils/careerSave';
 import type {
   CharacterCareerState,
   MailItem,
@@ -32,24 +43,48 @@ export type SampleCareerOptions = {
   pendingElection?: boolean;
   // No parliament at all, the league before its first election year
   noParliament?: boolean;
+  // The books: laws in force under the sitting government
+  laws?: LawInForce[];
 };
 
-const SPONSORS: Record<string, SponsorId> = {
-  vuka: 'stranka',
-  kosta: 'stranka',
-  nikola: 'korporacija',
-  'halvard': 'korporacija',
-  'bane': 'zidari',
-  dusan: 'zidari',
-  'jovan': 'ostrvo',
-  dax: 'ostrvo',
+// Sponsors by seed: two coaches on each list, the rest free agents
+const SPONSOR_BY_SEED: Partial<Record<number, SponsorId>> = {
+  0: 'red',
+  1: 'green',
+  2: 'red',
+  4: 'blue',
+  5: 'yellow',
+  6: 'green',
+  7: 'blue',
+  12: 'yellow',
 };
+
+// The character who plays the part of the given seed: the seed itself, or
+// someone else when the seed is the player or the list is too short for it
+function seatOf(slugs: string[], playerSlug: string, seed: number): string {
+  const slug = slugs[seed];
+  if (slug && slug !== playerSlug) return slug;
+  const others = slugs.filter((s) => s !== playerSlug);
+  return others[seed % Math.max(others.length, 1)] ?? playerSlug;
+}
+
+// The preview league's own entries for the slugs, registered so the
+// screens read their names
+function sampleLeague(slugs: string[]): LeagueEntry[] {
+  const known = new Map(previewLeague().map((entry) => [entry.slug, entry]));
+  const league = slugs.map(
+    (slug, i) =>
+      known.get(slug) ?? { slug, name: characterBySlug(slug).name, epithet: i },
+  );
+  registerLeague(league);
+  return league;
+}
 
 const SAMPLE_VOTES: Record<SponsorId, number> = {
-  stranka: 33,
-  korporacija: 27,
-  zidari: 25,
-  ostrvo: 15,
+  red: 33,
+  yellow: 27,
+  blue: 25,
+  green: 15,
 };
 
 let sampleMailId = 0;
@@ -73,24 +108,68 @@ function letter(
 }
 
 // One of every letter the mailbox knows, sealed
-export function sampleMail(): MailItem[] {
+export function sampleMail(
+  playerSlug: string,
+  rivalSlug: string,
+  oppositionSlug: string,
+): MailItem[] {
   return [
     letter('info', 'welcome', { params: { amount: 100 }, amount: 100 }),
     letter('info', 'overlord', { params: { points: OVERLORD_POINTS } }),
     letter('stipend', 'stipend', { params: { amount: 40 }, amount: 40 }),
-    letter('sponsor-offer', 'sponsor-offer', { sponsorId: 'korporacija' }),
+    letter('sponsor-offer', 'sponsor-offer', { sponsorId: 'yellow' }),
     letter('rival', 'rival-taunt', {
-      params: { name: 'dusan', ...rivalLetterStakes },
+      params: { name: rivalSlug, ...rivalLetterStakes },
       refs: { name: 'character' },
     }),
-    letter('donation', 'donation', { sponsorId: 'stranka' }),
+    letter('donation', 'donation', { sponsorId: 'red' }),
     letter('campaign', 'campaign'),
-    letter('info', 'campaign-declined', { sponsorId: 'zidari' }),
+    letter('info', 'campaign-declined', { sponsorId: 'blue' }),
     letter('election', 'election', { params: { status: 'leader' } }),
-    letter('favor', 'favor', { sponsorId: 'stranka', params: { count: 2 } }),
+    electionLetter(3, 0, 'leader', { slug: playerSlug, you: true }),
+    electionLetter(3, 0, 'opposition', { slug: oppositionSlug, you: false }),
+    letter('favor', 'favor', { sponsorId: 'red', params: { count: 2 } }),
     letter('tax', 'tax', { params: { amount: 30 } }),
     letter('tax-refund', 'tax-refund', { params: { amount: 30 }, amount: 30 }),
+    debtInterestLetter(3, 0, 180, debtInterest(180)),
+    debtWarningLetter(3, 0),
     letter('info', 'season-prices', { params: { pct: 15 } }),
+    letter('info', 'glizzy-market-unlocked'),
+    letter('info', 'glizzy-bet', {
+      params: { call: 'up', actualPct: 8, stake: 50, payout: 135 },
+    }),
+    letter('info', 'glizzy-bet', {
+      params: { call: 'down', actualPct: 0, stake: 25, payout: 0 },
+    }),
+    ...sampleLawMail(),
+  ];
+}
+
+// The chamber's post after a law vote, one of each verdict, and the city's
+// statement of what the laws took and paid
+export function sampleLawMail(): MailItem[] {
+  const vote = (
+    law: string,
+    action: 'pass' | 'repeal',
+    outcome: 'passed' | 'failed',
+    yes: number,
+    no: number,
+    repealed = '',
+  ) =>
+    letter('law', 'law-vote', {
+      params: { law, action, outcome, yes, no, repealed, party: 'red' },
+    });
+  return [
+    vote('training-subsidy', 'pass', 'passed', 14, 3),
+    vote('amnesty', 'pass', 'passed', 11, 6, 'public-order'),
+    vote('fencing', 'pass', 'failed', 4, 13),
+    vote('curfew', 'repeal', 'passed', 12, 5),
+    letter('law', 'law-bill', {
+      params: {
+        lines: 'tourist-tax=30;lottery=-20;wealth-tax=-25',
+        total: -15,
+      },
+    }),
   ];
 }
 
@@ -109,20 +188,20 @@ export function sampleElectionNews(
   playerSlug: string,
   otherSlug: string,
 ): NewsItem[] {
-  const poll = { stranka: 31, korporacija: 27, zidari: 24, ostrvo: 18 };
+  const poll = { red: 31, yellow: 27, blue: 24, green: 18 };
   return [
     news(
       'election-year',
       playerSlug,
-      { parties: 'ostrvo,stranka,korporacija,zidari' },
+      { parties: 'green,red,yellow,blue' },
       'ballot',
       { parties: 'sponsorList' },
     ),
     news('election-poll', playerSlug, seatParams(poll), 'poll'),
     news('glizi-price-up', playerSlug, { pct: 10 }),
     news('glizi-price-down', playerSlug, { pct: 10 }),
-    news('removal-stranka', otherSlug, {}, 'police'),
-    news('removal-affair', otherSlug, { sponsor: 'stranka' }),
+    news('removal-red', otherSlug, {}, 'police'),
+    news('removal-affair', otherSlug, { sponsor: 'red' }),
     news('cup-removed', otherSlug, {}, 'police'),
   ];
 }
@@ -138,24 +217,26 @@ const SLOT_SAMPLE: SlotAction[] = [
 export function sampleCareer(options: SampleCareerOptions): SavedCareer {
   const {
     slugs,
-    playerSlug = 'vuka',
+    playerSlug = slugs[0],
     phase = 'offseason',
     year = 3,
     season = 0,
     pendingElection = false,
     noParliament = false,
+    laws,
   } = options;
+  const seat = (seed: number) => seatOf(slugs, playerSlug, seed);
   const characters: Record<string, CharacterCareerState> = {};
   slugs.forEach((slug, i) => {
     const base = newCharacterState(slug, slug !== playerSlug);
-    const sponsor = SPONSORS[slug];
+    const sponsor = SPONSOR_BY_SEED[i];
     characters[slug] = {
       ...base,
       fame: 25 + ((i * 11) % 65),
       wins: (i * 5) % 11,
       losses: (i * 3) % 7,
-      titles: slug === 'cone' ? 3 : slug === 'kosta' ? 2 : 0,
-      titleStreak: slug === 'cone' ? 3 : 0,
+      titles: slug === seat(3) ? 3 : slug === seat(2) ? 2 : 0,
+      titleStreak: slug === seat(3) ? 3 : 0,
       money: 200 + ((i * 37) % 300),
       sponsor: sponsor ? { sponsorId: sponsor } : null,
       lastPlace: (i % 16) + 1,
@@ -163,6 +244,11 @@ export function sampleCareer(options: SampleCareerOptions): SavedCareer {
   });
 
   const result = electionResult(SAMPLE_VOTES);
+  // The leading list's best placed coach took the office on election night
+  const primeMinister =
+    slugs.find(
+      (slug) => characters[slug].sponsor?.sponsorId === result.government[0],
+    ) ?? null;
   const parliament: Parliament | undefined = noParliament
     ? undefined
     : pendingElection
@@ -171,29 +257,32 @@ export function sampleCareer(options: SampleCareerOptions): SavedCareer {
           ...emptyParliament(),
           seats: result.seats,
           government: result.government,
+          primeMinister,
           electedYear: year - 1,
-          // Two rungs of the chest for the player, one for Bane on the
-          // junior partner, and a Corporation donor the opposition cannot cash
+          // Two rungs of the chest for the player, one for the eighth seed
+          // on the junior partner, and a Yellow Party donor the opposition
+          // cannot cash
           lastDonors: {
+            [seat(7)]: 100,
+            [seat(5)]: 2000,
             [playerSlug]: 500,
-            'bane': 100,
-            nikola: 2000,
           },
           // The next campaign is already moving: money in, affairs on record,
           // the glizzy price against the leader, and a poll on the stands
-          donations: { stranka: 250, korporacija: 60, zidari: 120, ostrvo: 20 },
+          donations: { red: 250, yellow: 60, blue: 120, green: 20 },
           donors: {
+            [seat(1)]: 20,
+            [seat(4)]: 20,
+            [seat(7)]: 100,
+            [seat(5)]: 60,
+            [seat(2)]: 150,
             [playerSlug]: 100,
-            kosta: 150,
-            nikola: 60,
-            'bane': 100,
-            dusan: 20,
-            dax: 20,
           },
-          penalties: { stranka: 4, korporacija: 2, zidari: 0, ostrvo: 1 },
+          penalties: { red: 4, yellow: 2, blue: 0, green: 1 },
           rating: -3,
-          poll: { stranka: 40, korporacija: 22, zidari: 24, ostrvo: 14 },
+          poll: { red: 40, yellow: 22, blue: 24, green: 14 },
           elections: 1,
+          ...(laws ? { laws } : {}),
         };
   const governed = parliament?.government ?? [];
   const seeds = [playerSlug, ...slugs.filter((s) => s !== playerSlug)];
@@ -226,7 +315,7 @@ export function sampleCareer(options: SampleCareerOptions): SavedCareer {
       standingsHistory.push({
         year: y,
         season: s,
-        champion: s % 2 === 0 ? 'cone' : 'kosta',
+        champion: s % 2 === 0 ? seat(3) : seat(2),
         playerPlace: ranks.indexOf(playerSlug) + 1,
         ranks,
         points: { ...points },
@@ -235,7 +324,8 @@ export function sampleCareer(options: SampleCareerOptions): SavedCareer {
   }
 
   return {
-    version: 1,
+    version: CAREER_SAVE_VERSION,
+    league: sampleLeague(slugs),
     playerSlug,
     year,
     season,
@@ -249,20 +339,24 @@ export function sampleCareer(options: SampleCareerOptions): SavedCareer {
     gliziPricePct: 10,
     gliziPriceIndex: 1.21,
     gliziPriceHistory: [1, 1, 0.92, 0.92, 1.03, 1.03, 1.15, 1.1, 1.21],
-    rivalSlug: 'dusan',
+    rivalSlug: seat(4),
     logsByYear,
     characters: withPartyStatuses(characters, governed),
     pendingSabotages: [],
-    newsQueue: sampleElectionNews(playerSlug, 'nikola'),
+    newsQueue: sampleElectionNews(playerSlug, seat(5)),
     newsSeen: false,
-    mail: sampleMail(),
+    mail: sampleMail(playerSlug, seat(4), seat(2)),
     cup,
     cupStartRanks: seeds,
     lastCupRanks: seeds,
     standingsHistory,
     ...(parliament ? { parliament } : {}),
     ...(parliament && !pendingElection
-      ? { governments: [{ year: year - 1, government: result.government }] }
+      ? {
+          governments: [
+            { year: year - 1, government: result.government, primeMinister },
+          ],
+        }
       : {}),
   };
 }
@@ -278,20 +372,19 @@ export function sampleFinishedCareer(
   const save = sampleCareer({ slugs, phase: 'offseason', year: 6, season: 1 });
   const playerSlug = save.playerSlug;
   const cups = save.standingsHistory.length;
-  const present = (slug: string) => slugs.includes(slug);
+  const seat = (seed: number) => seatOf(slugs, playerSlug, seed);
 
   const share: Record<string, number> = {};
   const give = (slug: string, titles: number) => {
-    share[present(slug) ? slug : overlordSlug] =
-      (share[present(slug) ? slug : overlordSlug] ?? 0) + titles;
+    share[slug] = (share[slug] ?? 0) + titles;
   };
   give(overlordSlug, 7);
-  give(playerSlug === overlordSlug ? 'cone' : playerSlug, 3);
-  give('kosta', 4);
-  give('nikola', 2);
-  give('dax', 2);
-  give('bane', 1);
-  give('dusan', 1);
+  give(playerSlug === overlordSlug ? seat(3) : playerSlug, 3);
+  give(seat(2), 4);
+  give(seat(5), 2);
+  give(seat(1), 2);
+  give(seat(7), 1);
+  give(seat(4), 1);
   const given = Object.values(share).reduce((a, b) => a + b, 0);
   share[overlordSlug] += cups - given;
 
@@ -417,10 +510,20 @@ export function sampleFinishedCareer(
   const parties = [...SPONSOR_IDS];
   const governments = standingsHistory
     .filter((record) => record.year % 2 === 0 && record.season === 3)
-    .map((record, i) => ({
-      year: record.year,
-      government: [parties[(i * 2) % parties.length], parties[(i * 2 + 1) % parties.length]],
-    }));
+    .map((record, i) => {
+      const government = [
+        parties[(i * 2) % parties.length],
+        parties[(i * 2 + 1) % parties.length],
+      ];
+      return {
+        year: record.year,
+        government,
+        primeMinister:
+          Object.keys(characters).find(
+            (slug) => characters[slug].sponsor?.sponsorId === government[0],
+          ) ?? null,
+      };
+    });
   return {
     ...save,
     characters,

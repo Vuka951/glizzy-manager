@@ -8,11 +8,14 @@ import {
   useSyncExternalStore,
 } from 'react';
 import { createPortal } from 'react-dom';
+import CareerButton from '@/components/games/career/CareerButton';
+import TelevisionSet from '@/components/games/career/TelevisionSet';
 import BroadcastFrame from '@/components/games/career/quotes/BroadcastFrame';
 import QuoteSceneStage from '@/components/games/career/quotes/QuoteSceneStage';
 import QuoteSubtitle from '@/components/games/career/quotes/QuoteSubtitle';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
+import { ELECTION_SCENE_IDS } from '@/lib/constants/electionCutscenes';
 import {
   QUOTE_SCENE_BY_ID,
   QUOTE_WORD_BLIP,
@@ -22,6 +25,7 @@ import {
   playCutsceneClip,
   playQuoteSounds,
 } from '@/lib/utils/cutsceneSounds';
+import { fullscreenHost } from '@/lib/utils/fullscreen';
 import { gameAudio } from '@/lib/utils/gameAudio';
 import {
   readGameSettings,
@@ -41,11 +45,11 @@ function playWordBlip(): HTMLAudioElement | null {
   return playCutsceneClip(QUOTE_WORD_BLIP, QUOTE_WORD_BLIP_VOLUME * voice);
 }
 
-// A line as a breaking news window floating over the game, which stays
-// usable underneath: the scene inside the broadcast frame, the line typed
-// on word by word in its lower third, a tick under each word. It closes on
-// its own, on its skip button or on Escape; Enter and Space belong to the
-// game. Several scenes from one event play back to back
+// A line as a breaking news bulletin on a small television floating over the
+// game, which stays usable underneath: the scene inside the broadcast frame,
+// the line typed on word by word in its lower third, a tick under each word.
+// It closes on its own, on its skip key or on Escape; Enter and Space belong
+// to the game. Several scenes from one event play back to back
 export default function QuoteCutscene({
   queue,
   characterBySlug,
@@ -72,7 +76,7 @@ export default function QuoteCutscene({
   // A parent that appends to the queue or re-renders with a fresh array
   // must not restart the scene that is already on air
   const sceneKey = play
-    ? `${index}|${play.id}|${play.speaker}|${play.other ?? ''}|${variant ?? ''}|${play.lineRoll}`
+    ? `${index}|${play.id}|${play.speaker}|${play.other ?? ''}|${play.third ?? ''}|${variant ?? ''}|${play.lineRoll}`
     : null;
 
   useEffect(() => {
@@ -138,55 +142,61 @@ export default function QuoteCutscene({
     ? quoteSceneSchedule(def, play).subtitles[typed.line]
     : null;
   const nameOf = (slug: string) => characterBySlug.get(slug)?.name ?? slug;
+  const election = ELECTION_SCENE_IDS.has(play.id);
 
   return createPortal(
     <div
       key={`${play.id}-${index}`}
       role="dialog"
       aria-label={QUOTE.breaking}
-      className="fixed inset-x-3 bottom-3 z-50 overflow-hidden rounded-3xl border border-frost-border/40 bg-slate-950 shadow-[0_12px_48px_rgba(2,6,23,0.7),0_0_40px_rgba(220,38,38,0.2)] sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[28rem]"
+      className="fixed inset-x-1 bottom-1.5 z-50 sm:inset-x-auto sm:bottom-5 sm:right-5 sm:w-[29.375rem] phone-landscape:bottom-0 phone-landscape:w-[35.375rem]"
     >
-      <BroadcastFrame
-        headline={quoteHeadline(def.id, variant, {
-          name: nameOf(play.speaker),
-          other: play.other && nameOf(play.other),
-        })}
-        subtitle={
-          typed &&
-          subtitle && (
-            <QuoteSubtitle
-              key={typed.line}
-              speakerName={nameOf(subtitle.speaker)}
-              words={subtitle.words}
-              shown={typed.words}
-            />
-          )
+      <TelevisionSet
+        side
+        channel={
+          election ? GAMES_UI.career.election.title : GAMES_UI.cup.studio.title
+        }
+        controls={
+          <>
+            {playsLeft > 1 && (
+              <CareerButton size="sm" className="min-h-11" onClick={skipAll}>
+                {QUOTE.skipAll}
+              </CareerButton>
+            )}
+            <CareerButton size="sm" className="min-h-11" onClick={advance}>
+              {QUOTE.skip}
+            </CareerButton>
+          </>
         }
       >
-        <QuoteSceneStage
-          scene={play.id}
-          speaker={play.speaker}
-          other={play.other}
-          variant={variant}
-        />
-      </BroadcastFrame>
-      <div className="absolute right-2 top-2 z-[70] flex gap-1.5 sm:right-3 sm:top-3">
-        {playsLeft > 1 && (
-          <button
-            onClick={skipAll}
-            className="rounded-md border border-sky-200/30 bg-slate-950/80 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.25em] text-sky-200 transition hover:border-sky-200/60 hover:text-white sm:text-[10px]"
-          >
-            {QUOTE.skipAll}
-          </button>
-        )}
-        <button
-          onClick={advance}
-          className="rounded-md border border-sky-200/30 bg-slate-950/80 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.25em] text-sky-200 transition hover:border-sky-200/60 hover:text-white sm:text-[10px]"
+        <BroadcastFrame
+          ticker={election ? QUOTE.electionTicker : undefined}
+          headline={quoteHeadline(def.id, variant, {
+            name: nameOf(play.speaker),
+            other: play.other && nameOf(play.other),
+          })}
+          subtitle={
+            typed &&
+            subtitle && (
+              <QuoteSubtitle
+                key={typed.line}
+                speakerName={nameOf(subtitle.speaker)}
+                words={subtitle.words}
+                shown={typed.words}
+              />
+            )
+          }
         >
-          {QUOTE.skip}
-        </button>
-      </div>
+          <QuoteSceneStage
+            scene={play.id}
+            speaker={play.speaker}
+            other={play.other}
+            third={play.third}
+            variant={variant}
+          />
+        </BroadcastFrame>
+      </TelevisionSet>
     </div>,
-    document.fullscreenElement ?? document.body,
+    fullscreenHost(),
   );
 }

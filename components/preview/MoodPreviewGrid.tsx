@@ -79,7 +79,7 @@ const MOOD_SCENARIOS: MoodScenario[] = [
   scenario('hungry', 'Hungry', 'Appetite is between 66 and 80.', { appetite: 75 }),
   scenario('tired', 'No drive', 'Ambition is between 15 and 24.', { ambition: 20 }),
   scenario('nervous', 'Insecure', 'Ego is between 15 and 24.', { ego: 20 }),
-  scenario('low-profile', 'Low profile', 'Fame is between 25 and 49.', { fame: 40 }),
+  scenario('low-profile', 'Low profile', 'Fame is between 15 and 29.', { fame: 22 }),
   scenario('calm', 'Calm', 'Cholesterol is 20 or less.', { stress: 10 }),
   scenario('happy', 'In great spirits', 'The numbers are healthy and balanced.', {
     stress: 25,

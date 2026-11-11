@@ -31,7 +31,7 @@ function armShape(x: number, y: number) {
         width="6"
         height="18"
         rx="3"
-        className="fill-frost-border"
+        className="fill-[#9bd7f9]"
       />
       <circle cx={x + PALM} cy={y} r="10" className="fill-slate-200" />
       <circle cx={x + PALM - 3} cy={y - 9} r="5" className="fill-slate-200" />
@@ -110,7 +110,7 @@ function pressPitShape(flip: boolean, handUp: boolean) {
         r={r}
         strokeWidth="1.5"
         strokeOpacity="0.35"
-        className="fill-none stroke-frost-border"
+        className="fill-none stroke-[#9bd7f9]"
       />
     </>
   );
@@ -341,7 +341,9 @@ export default function PressConferenceStage({
   }, [angry]);
 
   return (
-    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-frost-border/40 shadow-2xl">
+    <div
+      className="relative aspect-[4/3] w-full overflow-hidden rounded-[7px] shadow-[0_0_0_3px_#0b0a09,0_0_0_5px_#40291a]"
+    >
       <svg
         viewBox="0 0 400 300"
         className="absolute inset-0 h-full w-full"
@@ -363,7 +365,7 @@ export default function PressConferenceStage({
           d="M60 0V300M200 0V300M340 0V300"
           strokeWidth="1.5"
           strokeOpacity="0.12"
-          className="fill-none stroke-frost-border"
+          className="fill-none stroke-[#9bd7f9]"
         />
 
         <circle cx="200" cy="162" r="28" className="fill-card-strong" />
@@ -382,7 +384,7 @@ export default function PressConferenceStage({
           d="M126 220H274L266 300H134Z"
           strokeWidth="1.5"
           strokeOpacity="0.35"
-          className="fill-none stroke-frost-border"
+          className="fill-none stroke-[#9bd7f9]"
         />
         <rect
           x="140"
@@ -400,7 +402,7 @@ export default function PressConferenceStage({
           rx="5"
           strokeWidth="1.5"
           strokeOpacity="0.4"
-          className="fill-none stroke-frost-border"
+          className="fill-none stroke-[#9bd7f9]"
         />
 
         {restingArmShape(178, 172, 170)}
@@ -453,7 +455,7 @@ export default function PressConferenceStage({
             className={`h-full w-full transition duration-500 ${
               angry
                 ? 'ring-4 ring-red-400 saturate-150'
-                : 'ring-2 ring-frost-border/50'
+                : 'ring-2 ring-[#9bd7f9]/50'
             }`}
           />
         )}

@@ -34,6 +34,8 @@ export type QuotePlayback = {
   id: QuoteSceneId;
   speaker: string;
   other?: string;
+  // The third party of a three-way government, on the coalition scene
+  third?: string;
   variant?: string;
   // 0 to 1, picks one of the wordings of each line. Rolled with the scene,
   // so a reload and every screen of a room show the same words
@@ -253,7 +255,9 @@ function matchResultCast(
   const won = trigger.role === 'winner';
   const speaker = won ? event.winner : event.loser;
   const opponent = won ? event.loser : event.winner;
-  if (trigger.opponent && opponent !== trigger.opponent) return null;
+  const opponentSponsor = won ? event.loserSponsor : event.winnerSponsor;
+  if (trigger.opponentSponsor && opponentSponsor !== trigger.opponentSponsor)
+    return null;
   if (!sceneRounds(def).includes(event.round)) return null;
   if (trigger.minMargin !== undefined && event.margin < trigger.minMargin)
     return null;
@@ -398,12 +402,12 @@ const CUP_PLACE_ORDER: QuoteCupPlace[] = ['champion', 'runner-up', 'last'];
 
 // The tiers one event asks one after another. A cup finish asks the
 // champion's scenes, then the runner-up's, then the last place's; any other
-// event asks the scenes tied to this very opponent before the ones any
+// event asks the scenes tied to the opponent's party before the ones any
 // result of the kind would cue
 function tierOf(trigger: QuoteTrigger): number {
   if (trigger.kind === 'cup-finished')
     return CUP_PLACE_ORDER.indexOf(trigger.place);
-  return trigger.kind === 'match-result' && trigger.opponent !== undefined
+  return trigger.kind === 'match-result' && trigger.opponentSponsor !== undefined
     ? 0
     : 1;
 }

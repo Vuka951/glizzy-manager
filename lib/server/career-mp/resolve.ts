@@ -2,13 +2,16 @@ import {
   CAREER_BET_UNLOCK_CUPS,
   COMEBACK_START_FAME,
   OFFSEASON_SLOTS,
+  OVERLORD_POINTS,
   STARTING_CAREER_BALANCE,
+  type OverlordPoints,
 } from '@/data/games/careerEconomy';
 import {
   ELECTION_POLL_SEASON,
   ELECTION_SEASON,
   PARTY_SEAT_ORDER,
 } from '@/data/games/careerElections';
+import { settleGlizzyBet } from '@/lib/utils/careerGlizzflationBets';
 import { SPONSOR_TOP_SEED_COUNT } from '@/data/games/careerSponsors';
 import { TRAINING_DEFS, type TrainingId } from '@/data/games/careerTraining';
 import { BROADCAST_OPEN_UNLOCK_CUPS } from '@/lib/constants/careerCommentary';
@@ -24,23 +27,30 @@ import {
   cueQuotes,
   resetQuotesForSeason,
 } from '@/lib/server/career-mp/quotes';
-import { ROSTER_SLUGS } from '@/lib/server/career-mp/roster';
 import type {
   CoachState,
   LeagueState,
   Room,
 } from '@/lib/server/career-mp/room';
-import { deadlineFor, logEvent } from '@/lib/server/career-mp/roomOps';
+import { logEvent } from '@/lib/server/rooms/log';
+import { deadlineFor } from '@/lib/server/rooms/presence';
 import type { Receipt } from '@/lib/types/careerMp';
 import {
   closeCampaignLetters,
   emptyParliament,
   isElectionYear,
-  korporacijaTax,
+  yellowTax,
   pollSeats,
   seatParams,
 } from '@/lib/utils/careerElections';
 import { applyStandingInvestments } from '@/lib/utils/careerInvestments';
+import { debtLetters, openLeagueDebt } from '@/lib/utils/careerCredit';
+import {
+  applySeasonLaws,
+  lawBillFor,
+  lawMovesTotal,
+  withPrimeMinister,
+} from '@/lib/utils/careerLaws';
 import {
   bettingUnlockedLetter,
   broadcastUnlockLetter,
@@ -72,7 +82,7 @@ import {
   rivalChosenNews,
 } from '@/lib/utils/careerRivals';
 import {
-  applyKorpVendetta,
+  applyYellowVendetta,
   guardChance,
   guardCost,
   guardPriceScale,
@@ -101,13 +111,17 @@ const LEVELED_TRAININGS: TrainingId[] = [
   'fans',
 ];
 
-export function newCoachState(slug: string, rivalSlug: string): CoachState {
+export function newCoachState(
+  slug: string,
+  rivalSlug: string,
+  overlordPoints: OverlordPoints,
+): CoachState {
   return {
     slug,
     balance: STARTING_CAREER_BALANCE,
     mail: [
       welcomeLetter(),
-      overlordLetter(),
+      overlordLetter(overlordPoints),
       rivalTauntLetter(1, 0, rivalSlug),
     ],
     slotsUsed: 0,
@@ -142,12 +156,16 @@ export function newCoachState(slug: string, rivalSlug: string): CoachState {
 }
 
 // The lobby becomes a league: every human is a comeback story on the last
-// seeds, everyone else is a veteran, and the first window opens at once
+// seeds, everyone else is a veteran, and the first window opens at once. The
+// league is the lobby's offer, every coach's man in it
 export function startGame(room: Room, now: number): Room {
   const coaches = Object.values(room.coaches);
   const humanSlugs = coaches.map((c) => c.slug as string);
+  const overlordPoints = room.settings.overlordPoints ?? OVERLORD_POINTS;
+  const roster = room.roster;
+  const slugs = roster.map((e) => e.slug);
   const characters = Object.fromEntries(
-    ROSTER_SLUGS.map((slug) => [
+    slugs.map((slug) => [
       slug,
       newCharacterState(slug, !humanSlugs.includes(slug)),
     ]),
@@ -160,12 +178,15 @@ export function startGame(room: Room, now: number): Room {
     const slug = coach.slug as string;
     coachStates[coach.id] = newCoachState(
       slug,
-      firstYearRival(slug, ROSTER_SLUGS),
+      firstYearRival(slug, slugs),
+      overlordPoints,
     );
   });
   const league: LeagueState = {
     year: 1,
     season: 0,
+    roster,
+    overlordPoints,
     characters,
     coachStates,
     humanSlugs,
@@ -223,6 +244,7 @@ function openCoachWindow(
   coachId: string,
   before: LeagueState['characters'],
   seeding: string[],
+  runOver: string[],
 ): LeagueState {
   const receipts: Receipt[] = [];
   let career = careerFor(league, coachId, 'offseason');
@@ -271,7 +293,7 @@ function openCoachWindow(
   };
   let ledgerTax = 0;
   let guardSpent = 0;
-  const tax = korporacijaTax(ch, career.parliament);
+  const tax = yellowTax(ch, career.parliament);
   if (tax < 0) {
     ledgerTax = tax;
     career = {
@@ -389,7 +411,21 @@ function openCoachWindow(
     ...merged.coachStates[coachId],
     done: false,
     passed: false,
-    windowIntro: { key: `${career.year}-${career.season}`, receipts },
+    windowIntro: {
+      key: `${career.year}-${career.season}`,
+      receipts,
+      ...(runOver.includes(career.playerSlug)
+        ? {
+            scenes: [
+              {
+                id: 'yellow-run-over',
+                speaker: career.playerSlug,
+                lineRoll: Math.random(),
+              },
+            ],
+          }
+        : {}),
+    },
   };
   if (ledgerTax !== 0) {
     next = withLedger(next, career.year, career.season, 'tax', ledgerTax);
@@ -401,10 +437,78 @@ function openCoachWindow(
   return { ...merged, coachStates: { ...merged.coachStates, [coachId]: next } };
 }
 
+// The Yellow Party's books close first: interest on every debt, a ledger line
+// and a letter for every coach below zero, the warning and the car for
+// whoever has been there too long
+function debtOpenWindow(league: LeagueState): {
+  league: LeagueState;
+  runOver: string[];
+} {
+  const wallets = Object.fromEntries(
+    Object.values(league.coachStates).map((cs) => [cs.slug, cs.balance]),
+  );
+  const debt = openLeagueDebt(league.characters, wallets);
+  const coachStates: Record<string, CoachState> = {};
+  Object.entries(league.coachStates).forEach(([coachId, cs]) => {
+    const updated: CoachState = {
+      ...cs,
+      balance: debt.wallets[cs.slug] ?? cs.balance,
+      mail: [
+        ...cs.mail,
+        ...debtLetters(debt, cs.slug, league.year, league.season),
+      ],
+    };
+    coachStates[coachId] = withLedger(
+      updated,
+      league.year,
+      league.season,
+      'interest',
+      -(debt.interest[cs.slug]?.amount ?? 0),
+    );
+  });
+  return {
+    league: {
+      ...league,
+      characters: debt.characters,
+      coachStates,
+      newsQueue: [...league.newsQueue, ...debt.news],
+    },
+    runOver: debt.runOver,
+  };
+}
+
+// The laws on the books open the window right after the debts: the holiday,
+// the bills and payouts out of every wallet, a ledger line per law and the
+// bill letter for every coach they touched
+function lawsOpenWindow(league: LeagueState): LeagueState {
+  const wallets = Object.fromEntries(
+    Object.values(league.coachStates).map((cs) => [cs.slug, cs.balance]),
+  );
+  const lawed = applySeasonLaws(sharedCareer(league), wallets);
+  let next = mergeShared(league, lawed.state);
+  const coachStates: Record<string, CoachState> = {};
+  Object.entries(next.coachStates).forEach(([coachId, cs]) => {
+    const moves = lawed.moves[cs.slug] ?? [];
+    const bill = lawBillFor(moves, league.year, league.season);
+    let updated: CoachState = {
+      ...cs,
+      balance: cs.balance + lawMovesTotal(moves),
+      mail: bill ? [...cs.mail, bill] : cs.mail,
+    };
+    moves.forEach((m) => {
+      updated = withLedger(updated, league.year, league.season, 'laws', m.amount);
+    });
+    coachStates[coachId] = updated;
+  });
+  next = { ...next, coachStates };
+  return next;
+}
+
 // A new window: standing contracts pay out across the league, the season
 // rolls its price, the city writes, and every coach gets his letters
 export function openWindow(room: Room, now: number, first = false): Room {
-  const league = room.league as LeagueState;
+  const debt = debtOpenWindow(room.league as LeagueState);
+  const league = lawsOpenWindow(debt.league);
   const before = league.characters;
   const paid = Object.fromEntries(
     Object.entries(before).map(([slug, ch]) => [
@@ -471,8 +575,10 @@ export function openWindow(room: Room, now: number, first = false): Room {
   const seeding = rankBySeeding(next.characters, new Set(next.humanSlugs));
   Object.keys(room.coaches).forEach((coachId) => {
     if (!next.coachStates[coachId]) return;
-    next = openCoachWindow(next, coachId, before, seeding);
+    next = openCoachWindow(next, coachId, before, seeding, debt.runOver);
   });
+  // The prime minister's office is written down as the window opens
+  next = mergeShared(next, withPrimeMinister(sharedCareer(next)));
   const opened: Room = {
     ...room,
     league: next,
@@ -485,7 +591,7 @@ export function openWindow(room: Room, now: number, first = false): Room {
 }
 
 // The window shuts: unused months become rest, the AI runs its own window,
-// every plot resolves and the paper prints
+// every plot resolves, the paper prints and the table is set for the seeding
 export function closeWindow(room: Room, now: number): Room {
   let league = room.league as LeagueState;
   const windowStart = league;
@@ -583,6 +689,8 @@ export function closeWindow(room: Room, now: number): Room {
       bump(bySlug, 'plotsCaught');
     }
   });
+  // The story that moved the index this window settles every ticket
+  const actualPct = league.gliziPricePct ?? 0;
   Object.entries(league.coachStates).forEach(([coachId, cs]) => {
     const fine = resolution.fines[cs.slug] ?? 0;
     const suspects = resolution.saboteursByTarget[cs.slug] ?? [];
@@ -591,6 +699,16 @@ export function closeWindow(room: Room, now: number): Room {
       ...counters[coachId],
       saboteursThisYear: [...new Set([...cs.saboteursThisYear, ...suspects])],
     };
+    const settled = settleGlizzyBet(next, league.year, league.season, actualPct);
+    if (settled.result) {
+      next = withLedger(
+        settled.state,
+        league.year,
+        league.season,
+        'glizzflation',
+        settled.result.payout - settled.result.stake,
+      );
+    }
     if (fine > 0) {
       // Same floor as the single-player wallet: a fine never digs below zero
       const balance = Math.max(0, next.balance - fine);
@@ -605,20 +723,20 @@ export function closeWindow(room: Room, now: number): Room {
     league = { ...league, coachStates: { ...league.coachStates, [coachId]: next } };
   });
   Object.entries(league.coachStates).forEach(([coachId, cs]) => {
-    if (!cs.korpVendetta) return;
-    league = mergeShared(league, applyKorpVendetta(sharedCareer(league), cs.slug));
+    if (!cs.yellowVendetta) return;
+    league = mergeShared(league, applyYellowVendetta(sharedCareer(league), cs.slug));
     league = {
       ...league,
       coachStates: {
         ...league.coachStates,
-        [coachId]: { ...league.coachStates[coachId], korpVendetta: false },
+        [coachId]: { ...league.coachStates[coachId], yellowVendetta: false },
       },
     };
   });
 
-  // The paper prints, the in-form roster walking in with the season's
-  // stress drop
-  const buffed = buffedSlugsForSeason(league.season);
+  // The paper prints and the table is set for the seeding, the in-form
+  // roster walking in with the season's stress drop
+  const buffed = buffedSlugsForSeason(league.season, Object.keys(league.characters));
   const withBuff = Object.fromEntries(
     Object.entries(league.characters).map(([slug, ch]) => [
       slug,
@@ -631,6 +749,7 @@ export function closeWindow(room: Room, now: number): Room {
     ...league,
     characters: withBuff,
     lastIssue: { news: league.newsQueue, year: league.year, season: league.season },
+    lastIssueRecap: false,
     newsQueue: [],
   };
   const seeded = sharedCareer(league);
@@ -645,7 +764,7 @@ export function closeWindow(room: Room, now: number): Room {
           ...cs,
           done: false,
           passed: false,
-                matchBets: {},
+          matchBets: {},
           withdrawn: false,
         },
       ]),

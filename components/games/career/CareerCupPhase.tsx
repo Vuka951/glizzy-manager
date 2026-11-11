@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
-import { studioAccents } from '@/lib/constants/studioThemes';
+import CareerButton from '@/components/games/career/CareerButton';
+import CareerIconButton from '@/components/games/career/CareerIconButton';
+import CupBetBoard from '@/components/games/career/CupBetBoard';
+import StreetSignPlate from '@/components/games/career/street/StreetSignPlate';
 import MatchViewer from '@/components/games/match/MatchViewer';
 import TournamentBracket from '@/components/games/tournament/TournamentBracket';
 import ActionIcon from '@/components/icons/ActionIcon';
 import SeasonBackdrop from '@/components/games/SeasonBackdrop';
-import StakePicker from '@/components/games/StakePicker';
 import {
   CAREER_BET_FALLBACK_ODDS,
   CAREER_BET_STAKE,
-  CAREER_BET_STAKES,
 } from '@/data/games/careerEconomy';
 import { livesForLevel } from '@/data/games/careerTraining';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
@@ -128,15 +129,18 @@ export default function CareerCupPhase({
   const playerSlug = career.playerSlug;
   const bettingUnlocked = careerBettingUnlocked(career);
   const theme = seasonThemeIndex(career.season);
-  const accent = studioAccents(theme);
-  const buffedSlugs = buffedSlugsForSeason(career.season);
+  const buffedSlugs = buffedSlugsForSeason(career.season, Object.keys(career.characters));
   const playerState = career.characters[playerSlug];
 
   const currentMatches = cup.rounds[cup.currentRound] ?? [];
   const roundDone =
     currentMatches.length > 0 && currentMatches.every((m) => m.result);
   const isFinalRound = cup.currentRound === cup.rounds.length - 1;
+  const spectating = !cup.rounds[0].some(
+    (m) => m.a === playerSlug || m.b === playerSlug,
+  );
   const playerEliminated =
+    spectating ||
     cup.withdrawn ||
     cup.rounds.some((r) =>
       r.some((m) => m.result && cupMatchLoser(m) === playerSlug),
@@ -605,36 +609,29 @@ export default function CareerCupPhase({
   };
 
   return (
-    <div className="relative min-h-[calc(100dvh-10rem)] w-full overflow-hidden group-[:fullscreen]:min-h-screen">
-      <SeasonBackdrop season={career.season} />
-      <div className="absolute inset-0 bg-slate-950/55" />
+    <div className="relative min-h-[calc(100dvh/var(--game-zoom,1)_-_10rem)] w-full overflow-hidden group-fullscreen:min-h-[calc(100dvh/var(--game-zoom,1))]">
+      <div className="absolute inset-0 z-0">
+        <SeasonBackdrop season={career.season} />
+        <div className="absolute inset-0 bg-[#060912]/55" />
+      </div>
       <div className="absolute inset-x-2 top-2 z-40">{topBar}</div>
-      <div className="relative z-10 mx-auto flex w-full flex-col items-center gap-4 px-2 pb-4 pt-28 sm:px-4 sm:pt-16 lg:min-h-[calc(100dvh-10rem)] lg:justify-center lg:group-[:fullscreen]:min-h-[91vh] lg:group-[:fullscreen]:max-w-[1024px] lg:group-[:fullscreen]:[zoom:1.1] xl:group-[:fullscreen]:max-w-[1140px] xl:group-[:fullscreen]:[zoom:1.1] 2xl:group-[:fullscreen]:min-h-[80vh] 2xl:group-[:fullscreen]:max-w-[1400px] 2xl:group-[:fullscreen]:[zoom:1.25]">
+      <div className="relative mx-auto flex w-full flex-col items-center gap-4 px-2 pb-4 pt-28 sm:px-4 sm:pt-16 lg:min-h-[calc(100dvh/var(--game-zoom,1)_-_10rem)] lg:justify-center lg:group-fullscreen:min-h-[calc(91vh/var(--game-zoom,1))] lg:group-fullscreen:max-w-[1024px] lg:group-fullscreen:[zoom:1.1] xl:group-fullscreen:max-w-[1140px] xl:group-fullscreen:[zoom:1] 2xl:group-fullscreen:min-h-[calc(80vh/var(--game-zoom,1))] 2xl:group-fullscreen:max-w-[1400px] 2xl:group-fullscreen:[zoom:1.1] min-[120rem]:group-fullscreen:gap-2 min-[120rem]:group-fullscreen:pb-1 min-[120rem]:group-fullscreen:[zoom:1]">
         <div className="flex w-full flex-wrap items-center justify-center gap-2">
-          <span
-            className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${accent.chip}`}
-          >
-            {cupRoundName(cup.currentRound)}
-          </span>
-          <button
+          <StreetSignPlate flat>{cupRoundName(cup.currentRound)}</StreetSignPlate>
+          <CareerIconButton
+            label={GAMES_UI.career.table.title}
             onClick={onOpenTable}
-            title={GAMES_UI.career.table.title}
-            className="rounded-full border border-sky-200/15 bg-slate-950/70 p-2 text-sky-300 backdrop-blur-sm transition hover:border-sky-200/40 hover:text-white"
           >
             <ActionIcon kind="table" className="h-3.5 w-3.5" />
-          </button>
+          </CareerIconButton>
           {watching?.tape && (
-            <button
+            <CareerIconButton
+              label={GAMES_UI.career.broadcast.tape}
+              active={tapeOpen}
               onClick={() => setTapeOpen((open) => !open)}
-              title={GAMES_UI.career.broadcast.tape}
-              className={`rounded-full border p-2 backdrop-blur-sm transition ${
-                tapeOpen
-                  ? 'border-sky-200/50 bg-sky-200/10 text-white'
-                  : 'border-sky-200/15 bg-slate-950/70 text-sky-300 hover:border-sky-200/40 hover:text-white'
-              }`}
             >
               <ActionIcon kind="stats" className="h-3.5 w-3.5" />
-            </button>
+            </CareerIconButton>
           )}
         </div>
 
@@ -671,18 +668,18 @@ export default function CareerCupPhase({
                     {CC.withdrawConfirm}
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
-                    <button
+                    <CareerButton
+                      tone="danger"
                       onClick={withdraw}
-                      className="rounded-lg border border-red-500/40 bg-red-500/15 px-4 py-1.5 text-xs font-semibold text-red-200 transition hover:border-red-500/60 hover:text-white"
                     >
                       {CC.withdrawYes}
-                    </button>
-                    <button
+                    </CareerButton>
+                    <CareerButton
+                      tone="quiet"
                       onClick={() => setConfirmWithdraw(false)}
-                      className="rounded-lg border border-sky-200/20 bg-slate-800/60 px-4 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-200/40 hover:text-white"
                     >
                       {CC.withdrawNo}
-                    </button>
+                    </CareerButton>
                   </div>
                 </div>
               </GameModal>
@@ -701,36 +698,42 @@ export default function CareerCupPhase({
             {(favorReady || (!playerEliminated && playerCurrentMatch)) && (
               <div className="flex flex-wrap items-center justify-center gap-2">
                 {favorReady && (
-                  <button
+                  <CareerButton
+                    tone="buy"
+                    size="sm"
                     onClick={() => setFavorOpen(true)}
-                    className="rounded-lg border border-amber-400/40 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-200 transition hover:border-amber-300 hover:text-white"
+                    className="min-h-11"
                   >
                     {fmt(FAVOR.button, { left: favorsRemaining })}
-                  </button>
+                  </CareerButton>
                 )}
                 {!playerEliminated && playerCurrentMatch && (
-                  <button
+                  <CareerButton
+                    tone="danger"
+                    size="sm"
                     onClick={() => setConfirmWithdraw(true)}
-                    className="rounded-lg border border-red-500/30 bg-red-500/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-red-300/80 transition hover:border-red-500/60 hover:text-red-200"
+                    className="min-h-11"
                   >
                     {CC.withdraw}
-                  </button>
+                  </CareerButton>
                 )}
               </div>
             )}
 
             {bettingUnlocked && (
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                  {CC.stake}
-                </span>
-                <StakePicker
-                  options={CAREER_BET_STAKES}
-                  value={career.betStake ?? CAREER_BET_STAKE}
-                  balance={career.balance}
-                  onPick={(stake) => onUpdate({ ...career, betStake: stake })}
-                />
-              </div>
+              <CupBetBoard
+                matches={currentMatches}
+                round={cup.currentRound}
+                characterBySlug={characterBySlug}
+                matchBets={cup.matchBets}
+                playerSlug={playerSlug}
+                stake={career.betStake ?? CAREER_BET_STAKE}
+                balance={career.balance}
+                oddsFor={(a, b) => matchOdds(career.characters, a, b)}
+                onPickStake={(stake) => onUpdate({ ...career, betStake: stake })}
+                onToggleBet={toggleBet}
+                onWatch={watchMatch}
+              />
             )}
 
             {broadcastUnlocks(career).open &&
@@ -751,49 +754,37 @@ export default function CareerCupPhase({
                 currentRound={cup.currentRound}
                 matchBets={cup.matchBets}
                 buffedSlugs={buffedSlugs}
-                oddsFor={
-                  bettingUnlocked
-                    ? (match) =>
-                        match.a && match.b
-                          ? matchOdds(career.characters, match.a, match.b)
-                          : null
-                    : undefined
-                }
-                onWatch={watchMatch}
-                onToggleBet={bettingUnlocked ? toggleBet : undefined}
+                onWatch={bettingUnlocked ? undefined : watchMatch}
               />
             </div>
 
             <div className="flex flex-wrap justify-center gap-3">
               {!roundDone && (
-                <button
+                <CareerButton
+                  tone="quiet"
                   onClick={skipPendingInRound}
-                  className="rounded-xl border border-sky-200/20 bg-slate-800/50 px-5 py-2 text-sm font-semibold text-slate-300 transition hover:border-sky-200/40 hover:text-white"
                 >
                   {GAMES_UI.cup.controls.skipRemaining}
-                </button>
+                </CareerButton>
               )}
               {roundDone && (
-                <button
+                <CareerButton
+                  tone={isFinalRound ? 'danger' : 'neutral'}
+                  size="lg"
                   onClick={advance}
-                  className={
-                    isFinalRound
-                      ? 'rounded-xl border border-red-500/40 bg-red-500/15 px-6 py-2 text-sm font-semibold text-red-200 transition hover:border-red-500/60 hover:bg-red-500/25 hover:text-white'
-                      : 'rounded-xl border border-sky-200/20 bg-slate-800/50 px-6 py-2 text-sm font-semibold text-slate-300 transition hover:border-sky-200/40 hover:text-white'
-                  }
                 >
                   {isFinalRound
                     ? GAMES_UI.cup.controls.podium
                     : GAMES_UI.cup.controls.nextRound}
-                </button>
+                </CareerButton>
               )}
               {playerEliminated && !(roundDone && isFinalRound) && (
-                <button
+                <CareerButton
+                  tone="danger"
                   onClick={skipToFinal}
-                  className="rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-2 text-sm font-semibold text-red-300 transition hover:border-red-500/60 hover:text-white"
                 >
                   {GAMES_UI.cup.elimination.toFinal}
-                </button>
+                </CareerButton>
               )}
             </div>
           </>

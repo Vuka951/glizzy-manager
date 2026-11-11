@@ -52,7 +52,7 @@ const STORY_BY_SCENE: Record<SabotageHitSceneId, NewsItem> = {
     stress: 8,
   }),
   'hit-catfish-date': story('catfish-date', { stress: 28, fame: -13 }),
-  'hit-catfish-zeka': story('catfish-zeka', { stress: 33, ego: -12 }),
+  'hit-catfish-beast': story('catfish-beast', { stress: 33, ego: -12 }),
   'hit-catfish-demons': story('catfish-demons', { stress: 30, ambition: -17 }),
   'hit-raid-tax': story('police-tax', { fame: -9 }),
   'hit-raid-stash': story('police-stash', { fame: -11 }),
@@ -63,7 +63,7 @@ const STORY_BY_SCENE: Record<SabotageHitSceneId, NewsItem> = {
 
 const REEL_SAMPLE: SabotageHitSceneId[] = [
   'hit-curse',
-  'hit-catfish-zeka',
+  'hit-catfish-beast',
   'hit-blocked',
 ];
 

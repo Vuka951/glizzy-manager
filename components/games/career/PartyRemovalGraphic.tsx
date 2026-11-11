@@ -41,15 +41,15 @@ export default function PartyRemovalGraphic({
         </span>
       </div>
       <p
-        className={`truncate pt-0.5 text-center font-mono font-bold uppercase tracking-widest text-slate-400 ${
-          small ? 'max-w-20 text-[6px]' : 'max-w-24 text-[7px]'
+        className={`truncate pt-0.5 text-center font-sign font-bold uppercase tracking-[0.06em] text-slate-400 ${
+          small ? 'max-w-20 text-[9px]' : 'max-w-24 text-[10px]'
         }`}
       >
         {character.name}
       </p>
       <p
-        className={`truncate rounded-sm border border-red-500/70 px-1 text-center font-black uppercase text-red-400 ${
-          small ? 'max-w-20 text-[5.5px] tracking-wider' : 'max-w-24 text-[6.5px] tracking-widest'
+        className={`text-balance rounded-sm border border-red-500/70 px-1 text-center font-sign font-bold uppercase leading-tight tracking-[0.04em] text-red-400 ${
+          small ? 'max-w-20 text-[9px]' : 'max-w-24 text-[10px]'
         }`}
       >
         {REASONS[party]}

@@ -1,5 +1,7 @@
 'use client';
 
+import CareerToggle from '@/components/games/career/CareerToggle';
+import RoomPlank from '@/components/games/career-mp/RoomPlank';
 import { GAMES_UI } from '@/data/games/locale';
 import type { RoomView } from '@/lib/types/careerMp';
 import { fmt } from '@/lib/utils/format';
@@ -13,21 +15,17 @@ function voteButton(
   tone: 'clip' | 'round' | 'cup',
   disabled = false,
 ) {
-  const tones = {
-    clip: 'border-sky-200/20 bg-slate-800/60 text-slate-200 hover:border-sky-200/45',
-    round: 'border-amber-400/30 bg-amber-500/10 text-amber-200 hover:border-amber-300',
-    cup: 'border-red-500/30 bg-red-500/10 text-red-300 hover:border-red-500/60 hover:text-red-200',
-  };
+  const tones = { clip: 'sky', round: 'amber', cup: 'red' } as const;
   return (
-    <button
+    <CareerToggle
+      selected={on}
+      tone={tones[tone]}
       onClick={onClick}
       disabled={disabled}
-      className={`rounded-xl border px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition disabled:cursor-not-allowed disabled:opacity-35 ${
-        on ? 'ring-2 ring-white/40' : ''
-      } ${tones[tone]}`}
+      className="min-h-11 w-full font-sign uppercase leading-tight tracking-[0.06em] sm:w-auto"
     >
       {label}
-    </button>
+    </CareerToggle>
   );
 }
 
@@ -59,7 +57,7 @@ export default function SkipVotes({
     view.phase.kind === 'match-clip' &&
     view.phase.playback.skippedAt !== undefined;
   return (
-    <div className="flex min-h-9 flex-wrap items-center justify-center gap-2">
+    <RoomPlank className="grid w-full grid-cols-3 items-stretch gap-1.5 sm:flex sm:w-auto sm:items-center sm:justify-center">
       {voteButton(
         fmt(SK.clip, { votes: count(clipVotes), total }),
         clipVotes.includes(view.coachId),
@@ -79,6 +77,6 @@ export default function SkipVotes({
         () => onVoteCup(!cupOn),
         'cup',
       )}
-    </div>
+    </RoomPlank>
   );
 }

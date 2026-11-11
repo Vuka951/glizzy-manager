@@ -21,14 +21,14 @@ export default function ResultPips({
       {cells.map((result, i) => (
         <span
           key={i}
-          className={`flex items-center justify-center rounded-sm font-black uppercase opacity-0 animate-[bubblein_0.3s_ease-out_forwards] ${
-            size === 'md' ? 'h-4 w-4 text-[9px]' : 'h-3 w-3 text-[7px]'
+          className={`flex items-center justify-center rounded-[2px] font-sign font-extrabold uppercase leading-none opacity-0 animate-[bubblein_0.3s_ease-out_forwards] ${
+            size === 'md' ? 'h-4 w-4 text-[12px]' : 'h-3.5 w-3.5 text-[11px]'
           } ${
             result === 'w'
-              ? 'bg-green-400/80 text-slate-950'
+              ? 'bg-[#15803d] text-[#f0fdf4]'
               : result === 'l'
-                ? 'bg-red-400/80 text-slate-950'
-                : 'border border-slate-700/80'
+                ? 'bg-[#b91c1c] text-[#fef2f2]'
+                : 'border border-[#64748b]'
           } ${INTRO_STAGGER[i]}`}
         >
           {result ?? ''}

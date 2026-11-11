@@ -3,7 +3,13 @@ import type {
   CutsceneCue,
   CutsceneSoundtrack,
 } from '@/lib/constants/cutsceneSounds';
+import {
+  ELECTION_QUOTE_SCENES,
+  type ElectionSceneId,
+} from '@/lib/constants/electionCutscenes';
+import { tableCollapseBeats } from '@/lib/constants/tableCollapse';
 import { QUOTE_LINE_START_MS } from '@/lib/types/quoteScenes';
+import type { SponsorId } from '@/lib/utils/careerSave';
 
 export type QuoteSceneId =
   | 'streak-broken'
@@ -27,7 +33,12 @@ export type QuoteSceneId =
   | 'runner-up'
   | 'wooden-spoon'
   | 'sponsor-signed'
-  | 'price-crash';
+  | 'price-crash'
+  | 'loss-streak'
+  | 'close-call'
+  | 'forfeit-win'
+  | 'yellow-run-over'
+  | ElectionSceneId;
 
 export type QuoteMatchRound =
   | 'earlier'
@@ -86,7 +97,8 @@ export type QuoteTrigger = { variant?: string } & (
       kind: 'match-result';
       // The speaker's side of the result
       role: 'winner' | 'loser';
-      opponent?: string;
+      // The opponent is signed to this party at the whistle
+      opponentSponsor?: SponsorId;
       // The winner finished at least this many lives ahead of the loser
       minMargin?: number;
       // The match went the distance and the winner finished at most this
@@ -198,6 +210,42 @@ const cue = (
 // bed about 12 dB under the one-shots. The arena crowd file runs hotter than
 // the cutscene beds
 const CROWD_BED_VOLUME = 0.7;
+
+// Three bites, then the monitor beep, the heart crack, the fall and the
+// stretcher crew for a burst, or the gurgle, the retch, the splash and the
+// slide under the table for a puke; the hall gasps either way
+const TABLE_COLLAPSE_CUES: QuoteCue[] = [
+  ...tableCollapseBeats.bites.map(
+    (at): QuoteCue => ({ at: at - 40, sfx: 'chomp', volume: 0.7 })
+  ),
+  {
+    ...cue(tableCollapseBeats.burst - 900, 'hit-iv-beep'),
+    variants: ['cholesterol'],
+  },
+  {
+    ...cue(tableCollapseBeats.burst, 'hit-heart-crack', 1.2),
+    variants: ['cholesterol'],
+  },
+  {
+    ...cue(tableCollapseBeats.faceplant, 'hit-thud-body'),
+    variants: ['cholesterol'],
+  },
+  {
+    ...cue(tableCollapseBeats.crewIn, 'footsteps-heavy', 1.75),
+    variants: ['cholesterol'],
+  },
+  {
+    ...cue(tableCollapseBeats.heave - 600, 'belly-gurgle'),
+    variants: ['puke'],
+  },
+  { ...cue(tableCollapseBeats.heave - 100, 'hit-retch'), variants: ['puke'] },
+  { at: tableCollapseBeats.spray, sfx: 'puke', variants: ['puke'] },
+  {
+    ...cue(tableCollapseBeats.underTable, 'hit-thud-body'),
+    variants: ['puke'],
+  },
+  cue(tableCollapseBeats.burst + 150, 'hit-crowd-gasp'),
+];
 
 export const QUOTE_SCENES: QuoteSceneDefinition[] = [
   {
@@ -481,7 +529,7 @@ export const QUOTE_SCENES: QuoteSceneDefinition[] = [
     lineStartMs: 3600,
     lines: [line()],
     triggers: [
-      { kind: 'match-result', role: 'loser', opponent: 'tax-inspector' },
+      { kind: 'match-result', role: 'loser', opponentSponsor: 'yellow' },
     ],
     fromRound: 'earlier',
     sounds: {
@@ -676,6 +724,115 @@ export const QUOTE_SCENES: QuoteSceneDefinition[] = [
       ],
     },
   },
+  // The scenes below are mute: the picture and the lower third carry the
+  // story
+  {
+    id: 'loss-streak',
+    component: 'LossStreakScene',
+    other: 'none',
+    lineMs: 3600,
+    lines: [],
+    triggers: [
+      { kind: 'match-result', role: 'loser', extendsLossStreak: true },
+    ],
+    fromRound: 'earlier',
+    chance: 1 / 3,
+    sounds: {
+      bed: 'bed-gym',
+      bedVolume: 0.8,
+      // The locker shuts behind him, then one paper per loss flutters in
+      // and slaps down on the bench, and the sting on the last one
+      cues: [
+        cue(1100, 'hit-locker-clang', 0.9),
+        cue(1750, 'paper-flutter', 0.7),
+        cue(2000, 'stamp-thud', 1.2),
+        cue(2300, 'paper-flutter', 0.7),
+        cue(2550, 'stamp-thud', 1.2),
+        cue(2850, 'paper-flutter', 0.7),
+        cue(3100, 'stamp-thud', 1.2),
+        cue(3400, 'paper-flutter', 0.8),
+        cue(3650, 'stamp-thud', 1.7),
+        cue(4200, 'sting-fail', 0.55),
+      ],
+    },
+  },
+  {
+    id: 'close-call',
+    component: 'CloseCallScene',
+    other: 'opponent',
+    lineMs: 3800,
+    lines: [],
+    triggers: [{ kind: 'match-result', role: 'winner', maxMargin: 1 }],
+    fromRound: 'earlier',
+    chance: 1 / 3,
+    sounds: {
+      bed: 'arena-crowd',
+      bedVolume: CROWD_BED_VOLUME,
+      // The hall holds its breath over the last glizzy, the other side hits
+      // the floor, and the cheer lands as the winner wipes his brow
+      cues: [
+        cue(900, 'drum-roll', 0.7),
+        cue(2500, 'hit-crowd-gasp', 0.9),
+        cue(3420, 'hit-thud-body'),
+        cue(3400, 'crowd-cheer', 0.95),
+      ],
+    },
+  },
+  {
+    id: 'forfeit-win',
+    component: 'ForfeitWinScene',
+    other: 'opponent',
+    lineMs: 1800,
+    lineStartMs: 4200,
+    lines: [],
+    triggers: [
+      {
+        kind: 'match-result',
+        role: 'winner',
+        lossCause: true,
+        lossCauses: ['cholesterol', 'puke'],
+      },
+    ],
+    fromRound: 'earlier',
+    chance: 1 / 3,
+    sounds: {
+      bed: 'arena-crowd',
+      bedVolume: CROWD_BED_VOLUME,
+      // The fanfare and the cheer greet the referee raising the winner's arm
+      cues: [
+        ...TABLE_COLLAPSE_CUES,
+        cue(4200, 'fanfare', 0.8),
+        cue(4250, 'crowd-cheer', 0.95),
+      ],
+    },
+  },
+  // Played by the credit line's collection rather than by a trigger: the
+  // speaker is the client who never paid the loan back
+  {
+    id: 'yellow-run-over',
+    component: 'YellowRunOverScene',
+    other: 'none',
+    lineMs: 4200,
+    lineStartMs: 6000,
+    lines: [line()],
+    triggers: [],
+    sounds: {
+      bed: 'bed-alley',
+      // The crash in the skid clip lands on the hit at 2950
+      cues: [
+        cue(450, 'hit-sneak-steps', 0.8),
+        cue(1600, 'car-skid-crash', 1.1),
+        cue(3550, 'hit-thud-body'),
+        cue(3750, 'car-brake', 0.9),
+        cue(4100, 'paper-flutter', 0.8),
+        cue(4700, 'hit-envelope-slide', 0.8),
+        cue(5000, 'throw-whoosh', 0.6),
+        cue(5200, 'stamp-thud'),
+        cue(5450, 'pen-scribble', 0.3),
+      ],
+    },
+  },
+  ...ELECTION_QUOTE_SCENES,
 ];
 
 export const QUOTE_SCENE_BY_ID = Object.fromEntries(

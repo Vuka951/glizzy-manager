@@ -34,7 +34,7 @@ export default function ChampionsStrip({
     <div className="flex flex-wrap gap-x-5 gap-y-3">
       {years.map((year) => (
         <div key={year} className="flex flex-col gap-1.5">
-          <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
+          <span className="font-sign text-[12px] font-bold uppercase tracking-[0.08em] text-slate-400">
             {fmt(GAMES_UI.career.hud.year, { year })}
           </span>
           <div className="flex gap-1.5">
@@ -58,7 +58,7 @@ export default function ChampionsStrip({
                     )}
                     <SeasonGlyph
                       season={c.season}
-                      className="h-3 w-3 text-slate-500"
+                      className="h-3 w-3 text-slate-400"
                     />
                   </span>
                 );

@@ -1,69 +1,88 @@
+'use client';
+
+import CareerIconButton from '@/components/games/career/CareerIconButton';
+import { useCareerFrames } from '@/components/games/career/careerFrames';
+import StreetModal from '@/components/games/career/street/StreetModal';
 import Icon from '@/components/icons/Icon';
 import { GAMES_UI } from '@/data/games/locale';
 
-// A sponsor or a mood can recolor the panel: the frame, the title, a wash
-// behind the content and a ribbon along the top edge
-export type GameModalAccent = {
-  frame: string;
-  title: string;
-  wash: string;
-  stripe: string;
-};
-
 // Overlay panel every game opens its secondary screens in: settings, info
-// and purchase dialogs sit on top of the scene instead of stacking below it
+// and purchase dialogs sit on top of the scene instead of stacking below it.
+// The career and Rivals hang theirs on the street board; the Duel and the Cup
+// keep the frosted panel
 export default function GameModal({
   title,
   wide = false,
+  board = false,
+  flush = false,
   titleExtra,
   headerExtra,
-  accent,
+  stripe,
   badge,
   onClose,
   children,
 }: {
   title: string;
   wide?: boolean;
+  // One fixed size whatever the content, wider on large screens, so tabbed
+  // panels do not jump; the body is laid out to fill it and scrolls itself
+  board?: boolean | 'tall';
   // Sits beside the title; headerExtra sits at the far right by the close
   titleExtra?: React.ReactNode;
   headerExtra?: React.ReactNode;
-  accent?: GameModalAccent;
+  // The body is one object filling the board edge to edge, street look only
+  flush?: boolean;
+  // A sponsor's colours painted along the board's seam, street look only
+  stripe?: string;
   badge?: React.ReactNode;
   onClose: () => void;
   children: React.ReactNode;
 }) {
+  const street = useCareerFrames() === 'street';
+  if (street) {
+    return (
+      <StreetModal
+        title={title}
+        wide={wide}
+        board={board}
+        flush={flush}
+        titleExtra={titleExtra}
+        headerExtra={headerExtra}
+        stripe={stripe}
+        badge={badge}
+        onClose={onClose}
+      >
+        {children}
+      </StreetModal>
+    );
+  }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3">
       <button
         aria-label={GAMES_UI.shared.close}
         onClick={onClose}
-        className="absolute inset-0 cursor-default bg-slate-950/75 backdrop-blur-sm"
+        className="absolute inset-0 cursor-default bg-slate-950/75 backdrop-blur-sm transition-opacity duration-300 starting:opacity-0"
       />
       <div
-        className={`relative z-10 max-h-[85vh] w-full overflow-y-auto rounded-2xl border bg-slate-900 shadow-2xl animate-[bubblein_0.25s_ease-out] ${
-          accent ? accent.frame : 'border-frost-border/40'
-        } ${wide ? 'max-w-2xl' : 'max-w-sm'}`}
+        className={`relative z-10 w-full rounded-3xl border border-frost-border/40 bg-slate-900 shadow-[0_30px_80px_-20px_rgb(0_0_0/0.85),inset_0_1px_0_rgb(255_255_255/0.06)] transition-[opacity,translate,scale] duration-300 ease-out starting:translate-y-4 starting:scale-[0.97] starting:opacity-0 motion-reduce:transition-none ${
+          board
+            ? 'flex h-[calc(100dvh/var(--game-zoom,1)_-_9rem)] max-w-sm flex-col overflow-hidden lg:h-[min(calc(100dvh/var(--game-zoom,1)_-_9rem),34rem)] lg:max-w-4xl phone-landscape:h-[calc(100dvh/var(--game-zoom,1)_-_1.5rem)] phone-landscape:max-w-2xl'
+            : `max-h-[calc(85vh/var(--game-zoom,1))] phone-landscape:max-h-[calc(100dvh/var(--game-zoom,1)_-_1.5rem)] overflow-y-auto overflow-x-hidden ${wide ? 'max-w-2xl' : 'max-w-sm'}`
+        }`}
       >
-        <div className="relative p-4">
-          {accent && (
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 overflow-hidden"
-            >
-              <span className={`absolute inset-0 ${accent.wash}`} />
-              <span
-                className={`absolute inset-x-0 top-0 h-1 opacity-80 ${accent.stripe}`}
-              />
-            </span>
-          )}
-          <div className="relative mb-3 flex items-center gap-2">
+        <div
+          className={`relative p-4 sm:p-5 ${board ? 'flex min-h-0 flex-1 flex-col' : ''}`}
+        >
+          <div
+            className="relative mb-4 flex items-center gap-2.5"
+          >
             {badge && (
-              <span className="flex shrink-0 items-center">{badge}</span>
+              <span className="flex shrink-0 items-center rounded-full bg-slate-950/60 p-1 ring-1 ring-frost-border/20">
+                {badge}
+              </span>
             )}
             <span
-              className={`shrink-0 text-[10px] font-bold uppercase tracking-[0.3em] ${
-                accent ? accent.title : 'text-sky-400'
-              }`}
+              className={`min-w-0 font-black leading-tight tracking-tight [overflow-wrap:anywhere] ${headerExtra ? 'text-sm sm:text-lg' : 'text-base sm:text-lg'} text-sky-200 [text-shadow:0_0_14px_color-mix(in_srgb,currentColor_40%,transparent)] `}
             >
               {title}
             </span>
@@ -73,17 +92,17 @@ export default function GameModal({
             {headerExtra && (
               <span className="ml-auto min-w-0">{headerExtra}</span>
             )}
-            <button
+            <CareerIconButton
+              label={GAMES_UI.shared.close}
               onClick={onClose}
-              aria-label={GAMES_UI.shared.close}
-              className={`shrink-0 rounded-full border border-sky-200/15 bg-slate-800/60 p-1.5 text-slate-400 transition hover:border-sky-200/40 hover:text-white ${
-                headerExtra ? '' : 'ml-auto'
-              }`}
+              className={headerExtra ? '' : 'ml-auto'}
             >
               <Icon name="close" className="h-3.5 w-3.5" />
-            </button>
+            </CareerIconButton>
           </div>
-          <div className="relative">{children}</div>
+          <div className={`relative ${board ? 'min-h-0 flex-1' : ''}`}>
+            {children}
+          </div>
         </div>
       </div>
     </div>

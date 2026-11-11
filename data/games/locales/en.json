@@ -5,7 +5,8 @@
     },
     "modes": {
       "single": "Single player",
-      "multi": "Multiplayer"
+      "multi": "Multiplayer",
+      "both": "Single or multiplayer"
     }
   },
   "shared": {
@@ -77,9 +78,13 @@
       "continue": "Continue",
       "continueIn": "Continue ({seconds})"
     },
-    "fullscreen": {
-      "enter": "Fullscreen",
-      "exit": "Exit fullscreen"
+    "display": {
+      "title": "Display",
+      "modes": {
+        "fullscreen": "Fullscreen",
+        "borderless": "Borderless",
+        "window": "Window"
+      }
     }
   },
   "duel": {
@@ -118,7 +123,8 @@
       "betOddsTitle": "Bet on the win, odds x{odds}",
       "betWon": "Bet +{payout}",
       "betLost": "Bet -{stake}",
-      "inForm": "In form"
+      "inForm": "In form",
+      "suddenDeath": "Out in extra time"
     },
     "viewer": {
       "start": "Match starting...",
@@ -147,7 +153,7 @@
       }
     },
     "podium": {
-      "fallen": "Eliminated",
+      "fallen": "Off the podium",
       "screenTitle": "Champion"
     },
     "studio": {
@@ -167,7 +173,6 @@
       "record": "Record",
       "titles": "Titles",
       "meltdowns": "Meltdowns",
-      "continue": "Continue",
       "chance": "Chance",
       "h2h": "Head to head",
       "form": "Last 5",
@@ -183,7 +188,6 @@
         "rival": "Derby",
         "titleHolder": "Defending champ"
       },
-      "inFormHint": "{theme} suits them",
       "streaks": "Streaks",
       "inForm": "Their season",
       "editionRecord": "This edition",
@@ -243,16 +247,16 @@
     "intro": {
       "headlines": [
         {
-          "title": "WHITE DWARF BACK IN THE LEAGUE",
-          "text": "Black Dwarf Corporation is back as league sponsor after a 10-year ban for blackmail. By the book this time, they insist."
+          "title": "THE YELLOW PARTY IS BACK IN THE LEAGUE",
+          "text": "The Yellow Party is back as league sponsor after a 10-year ban for blackmail. By the book this time, they insist."
         },
         {
           "title": "GLIZZY CRISIS HITS THE VALLEY",
           "text": "Glizzy prices jump for the third time this winter."
         },
         {
-          "title": "THE RABBIT BACK AT THE BLUE CABIN?",
-          "text": "Fresh tracks in the snow and a pantry without a single glizzy left. Mr Bones refuses to testify."
+          "title": "THE FOREST BEAST BACK AT THE BLUE CABIN?",
+          "text": "Fresh tracks in the snow and a pantry without a single glizzy left. The night watchman refuses to testify."
         }
       ],
       "ad": {
@@ -264,7 +268,20 @@
     "select": {
       "masthead": "THE GLIZZY GAZETTE",
       "section": "Classifieds · Coach wanted",
-      "hint": "Who needs a coach?"
+      "overlordPoints": "{points} points",
+      "overlordPointsLabel": "Crown at",
+      "crownPoints": "Crown at {points}",
+      "newFaces": "New faces",
+      "ownNameLabel": "Or write your own name",
+      "ownNamePlaceholder": "Your name",
+      "ownNameSubmit": "Sign up",
+      "ownNameHint": "{min} to {max} letters",
+      "nameProblems": {
+        "short": "Too short: at least {min} letters.",
+        "long": "Too long: at most {max} letters.",
+        "letters": "Letters only, with single spaces, hyphens or apostrophes between them.",
+        "taken": "Someone in the league already has that name."
+      }
     },
     "hud": {
       "year": "Year {year}",
@@ -275,8 +292,8 @@
       },
       "coach": "Coach: {name}",
       "currency": "glizars",
-      "overlord": "Glizzy Overlord",
-      "overlordBy": "Glizzy Overlord: {name}"
+      "overlordBy": "Glizzy Overlord: {name}",
+      "oneParty": "One-party rule: {party}"
     },
     "cutscene": {
       "kicker": "This month",
@@ -293,7 +310,20 @@
       "ticker": [
         "Special report",
         "Live from the arena"
-      ]
+      ],
+      "electionTicker": [
+        "Special report",
+        "Election night"
+      ],
+      "lossStreakPaper": "LOSS",
+      "lossStreakLastPaper": "FOURTH LOSS",
+      "flagSobBanner": "VICTORY!",
+      "runOverStamp": "WRITTEN OFF",
+      "closeCallLives": "Lives",
+      "whistle": "TWEET!",
+      "reconciliationBanner": "Declaration of reconciliation",
+      "newsStrap": "News",
+      "paperMasthead": "Gazette"
     },
     "quoteScenes": {
       "streak-broken": {
@@ -523,6 +553,59 @@
             "Floor prices, straight off the floor."
           ]
         ]
+      },
+      "loss-streak": {
+        "headline": "{name}: LOSS AFTER LOSS",
+        "lines": []
+      },
+      "close-call": {
+        "headline": "{name} WINS BY A HAIR",
+        "lines": []
+      },
+      "forfeit-win": {
+        "headline": "{other} BURSTS, {name} GOES THROUGH",
+        "headlineByVariant": {
+          "puke": "{other} PUKES, {name} GOES THROUGH"
+        },
+        "lines": []
+      },
+      "yellow-run-over": {
+        "headline": "{name} FLATTENED, DEBT COLLECTED",
+        "lines": [
+          [
+            "Paid... in full...",
+            "Is the debt... gone now?",
+            "I'll pay. Next month. Ow."
+          ]
+        ]
+      },
+      "election-flag-sob": {
+        "headline": "{name} WEEPS IN AN EMPTY HQ",
+        "lines": []
+      },
+      "election-fridge": {
+        "headline": "OPEN THE FRIDGE, AND THERE'S {name}",
+        "lines": []
+      },
+      "election-glizzy-rally": {
+        "headline": "A GLIZZY FOR EVERY VOTER, {name} CELEBRATES",
+        "lines": []
+      },
+      "election-all-channels": {
+        "headline": "ON EVERY CHANNEL: {name}",
+        "lines": []
+      },
+      "coalition-small-chair": {
+        "headline": "COALITION DEAL SIGNED",
+        "lines": []
+      },
+      "coalition-reconciliation": {
+        "headline": "HISTORIC RECONCILIATION",
+        "lines": []
+      },
+      "coalition-three-way": {
+        "headline": "A THREE-PARTY GOVERNMENT",
+        "lines": []
       }
     },
     "hitCutscene": {
@@ -537,8 +620,7 @@
         "one": "{training} -{n} session",
         "few": "{training} -{n} sessions",
         "other": "{training} -{n} sessions"
-      },
-      "blocked": "The security crew earned its pay"
+      }
     },
     "actions": {
       "training": "Training",
@@ -557,8 +639,8 @@
         "other": "Earn {pay} glizars. Fame +{fameMin} to +{fameMax}, ego +{ego}, ambition +{amb}, appetite +{appetite}, cholesterol +{stress}. {backfire}% of the time it backfires: fame {backfireFameMin} to {backfireFameMax}, ego -{ego}, cholesterol +{backfireStress}."
       },
       "island": "Island Weekend",
-      "islandDesc": "A little boat to The Island, where nobody counts the money. Cholesterol to zero, appetite and ambition maxed. Costs no month, once a year.",
-      "islandDescEveryWindow": "A little boat to The Island, where nobody counts the money. Cholesterol to zero, appetite and ambition maxed. Costs no month, once per off-season.",
+      "islandDesc": "A little boat to the island retreat, where nobody counts the money. Cholesterol to zero, appetite and ambition maxed. Costs no month, once a year.",
+      "islandDescEveryWindow": "A little boat to the island retreat, where nobody counts the money. Cholesterol to zero, appetite and ambition maxed. Costs no month, once per off-season.",
       "islandFree": "Free, costs no month",
       "guard": "Security crew",
       "guarded": "Protected",
@@ -603,6 +685,157 @@
       "egoHijack": "Ego over {threshold}: signed up for {training} without asking",
       "slumpGuard": "Ambition under {threshold}: paid a security crew to be left alone, stops {pct}% of attacks",
       "slumpFast": "Ambition under {threshold}: no money for a security crew, so it's a fast"
+    },
+    "town": {
+      "signs": {
+        "flowerVan": "Flowers",
+        "training": "Training Center",
+        "media": "TV",
+        "live": "Live",
+        "bank": "Bank",
+        "cafe": "Greasy Spoon",
+        "cellar": "Cellar",
+        "security": "Security",
+        "parliament": "Assembly",
+        "post": "Post Office",
+        "kiosk": "Kiosk",
+        "billboard": "League Table",
+        "dock": "Island Weekend",
+        "cup": "Cup",
+        "atm": "ATM",
+        "election": "Election",
+        "poll": "Party Poll"
+      },
+      "labels": {
+        "training": "Training",
+        "rest": "Rest",
+        "media": "Media",
+        "bank": "Bank",
+        "cafe": "Greasy Spoon Café",
+        "guard": "Security",
+        "guarded": "Protected",
+        "parliament": "Assembly",
+        "post": "Post Office",
+        "paper": "Newspaper",
+        "table": "Standings",
+        "dock": "Island Weekend",
+        "bus": "Cup bus",
+        "poll": "Poll"
+      },
+      "short": {
+        "training": "Training",
+        "rest": "Rest",
+        "media": "Media",
+        "bank": "Bank",
+        "cafe": "Café",
+        "guard": "Security",
+        "guarded": "Guarded",
+        "parliament": "Assembly",
+        "post": "Post",
+        "paper": "Paper",
+        "table": "Table",
+        "dock": "Island",
+        "bus": "Cup",
+        "poll": "Poll"
+      },
+      "electionAlarm": "Election night",
+      "rivalAlarm": "Rival pick",
+      "bankTitle": "Bank",
+      "bankGlizzflation": "Glizzflation",
+      "bankInvest": "Investments",
+      "bankOffice": "Counter",
+      "bankBack": "Back",
+      "account": {
+        "balance": "Balance",
+        "debt": "Debt",
+        "interest": "Interest",
+        "line": "Credit",
+        "lineOf": "{room} of {limit}",
+        "rate": "{pct}% per off-season",
+        "clock": "Off-seasons in debt",
+        "borrow": "Take a loan",
+        "borrowAmount": "Borrow {amount}",
+        "repay": "Repay debt",
+        "repayAmount": "Repay {amount}"
+      },
+      "playerCard": "Player card",
+      "goToCup": "Head to the cup",
+      "fountain": "Fountain",
+      "dog": "Stray dog",
+      "cat": "Black cat",
+      "bark": "Woof woof",
+      "campaignSlogan": "For a better future",
+      "cardCollapse": "Collapse card",
+      "cardExpand": "Open card",
+      "log": "Move log",
+      "labelsMode": {
+        "title": "Labels",
+        "always": "Always",
+        "hover": "On hover"
+      },
+      "motion": {
+        "title": "Animations",
+        "full": "All",
+        "lite": "Basic"
+      },
+      "stats": {
+        "title": "League stats",
+        "back": "Back",
+        "tabs": {
+          "table": "Table",
+          "cups": "Cup",
+          "charts": "Charts",
+          "power": "Power"
+        },
+        "rival": "Rival",
+        "perCupTitle": "Points per cup",
+        "perCupValue": "Yr {year}, cup {cup}: {gain}",
+        "h2hTitle": "Against you",
+        "h2hLost": "Losses",
+        "h2hWon": "Wins",
+        "metrics": {
+          "titles": "Titles",
+          "streak": "Streak",
+          "winRate": "Win rate",
+          "eaten": "Eaten",
+          "fame": "Fame",
+          "money": "Money",
+          "punished": "Penalties",
+          "meltdowns": "Meltdowns",
+          "forfeits": "Forfeits"
+        }
+      },
+      "covers": {
+        "gazette": {
+          "headlines": [
+            "Frozen Window",
+            "Eggplant Season",
+            "Scorching Summer",
+            "Bloody Autumn"
+          ],
+          "lines": [
+            "Who's peaking before the cup",
+            "What the coaches say"
+          ]
+        },
+        "cup": {
+          "headlines": [
+            "Frozen Cup",
+            "Eggplant Cup",
+            "Summer Cup",
+            "Bloody Cup"
+          ],
+          "lines": [
+            "Every cup match",
+            "Who fell, who went through"
+          ]
+        }
+      },
+      "dockTicket": {
+        "label": "Boat ticket",
+        "from": "Leskovac",
+        "to": "Island retreat"
+      }
     },
     "offseason": {
       "months": [
@@ -655,13 +888,21 @@
         "roundOf16": "Round of 16",
         "free": "Free",
         "egoSlot": "Ego: {training}",
-        "slumpSlot": "No drive: {action}"
+        "slumpSlot": "No drive: {action}",
+        "infoTitle": "Calendar",
+        "info": {
+          "layoutTitle": "How to read it",
+          "rows": "A year has four editions. Each row is three months and the cup that closes them.",
+          "months": "Each month is one action: training, media, security, sabotage, rest or a fast. The blue frame is the month that's up next.",
+          "cups": "A played cup shows how far you got.",
+          "marksTitle": "Calendar marks",
+          "election": "Elections. The town votes after the {season} cup every {every} years, the first time in year {first}.",
+          "island": "Island weekend. You spent that edition on the island, and it didn't cost you a month.",
+          "pricesTitle": "Seasonal prices"
+        }
       },
       "newsButton": "League news",
       "cupButton": "Head to the cup",
-      "lastPaper": "Latest paper",
-      "electionButton": "Election night",
-      "rivalButton": "Rival pick",
       "glizacija": {
         "title": "Glizzflation",
         "vsStart": "vs. the start",
@@ -683,13 +924,42 @@
           "notPrices": "Doesn't touch: media pay, donations and prize money.",
           "rating": "A price hike costs the ruling party {hikeMin} to {hikeMax} rating, a price drop earns it {dropMin} to {dropMax}. With no government, there is no one to blame.",
           "now": "Today: prices x{scale} ({pct})",
-          "nowFlat": "Today: everything at the starting price"
+          "nowFlat": "Today: everything at the starting price",
+          "bet": "The Exchange opens after the first election and takes one position per off-season, on the next news: up pays {up}x, down {down}x, no change {flat}x. A position can be closed while the window is open."
         },
         "start": "start",
         "yearTick": "Yr {year}"
       },
+      "glizzflationBet": {
+        "title": "Exchange",
+        "up": "Up",
+        "flat": "No change",
+        "down": "Down",
+        "stakeLabel": "Stake",
+        "place": "Stake {stake}",
+        "replace": "Change position",
+        "cancel": "Close position",
+        "ticket": "Your position",
+        "callUp": "Up",
+        "callDown": "Down",
+        "callFlat": "No change",
+        "callStake": "{call} for {stake}",
+        "multiplier": "{x}x",
+        "wins": "A hit pays {amount}",
+        "noFunds": "Not enough glizars",
+        "minStake": "A position needs at least {min} glizars",
+        "closed": "The Exchange only trades in the off-season",
+        "locked": "The Exchange opens after the first election",
+        "last": "Last position",
+        "lastStory": "News: {actual}",
+        "storyUp": "up {pct}%",
+        "storyDown": "down {pct}%",
+        "storyFlat": "no change",
+        "others": "Other positions",
+        "othersNone": "Nobody has staked yet",
+        "otherNoTicket": "no position"
+      },
       "seasonPrices": {
-        "infoTitle": "Seasonal prices",
         "intro": "Every edition changes the price of something.",
         "categories": {
           "training": "Training",
@@ -730,7 +1000,7 @@
         "appetite": "How much gets eaten in a match: best around the middle. Under 20 is stuffed and may forfeit, over 80 is starving. Matches, rest and fasting move it.",
         "ambition": "The will to compete. Under 15 there's a risk of forfeiting without a fight, and at the start of the off-season your character pays for the cheapest security crew alone or, if broke, fasts.",
         "ego": "Over 75 the ego takes over and spends the first off-season slot on its own. Under 15 it's stage fright: extra cholesterol and a forfeit risk. Rest pulls it toward {target}, a security crew and sabotage push it up.",
-        "fame": "Required for sponsor offers (50+) and part of your points in the standings. Media, wins and a high cup finish raise it, a poor finish drops it. Every rest costs {drop}, because the papers forget you fast.",
+        "fame": "Required for sponsor offers ({gate}+ until year {year}) and part of your points in the standings. Media, wins and a high cup finish raise it, a poor finish drops it. Every rest costs {drop}, because the papers forget you fast.",
         "skillsTitle": "Skills",
         "skillsIntro": "A skill levels up after 3 trainings, up to level 3. Repeating the same training without rest risks losing a level."
       }
@@ -761,7 +1031,6 @@
       }
     },
     "investments": {
-      "title": "Permanent investments",
       "current": "Now: {effect}",
       "next": "Next level: {effect}",
       "names": {
@@ -774,7 +1043,7 @@
         "security": "Guards at the door around the clock. They work even in a season when you skip the security crew.",
         "spa": "Straight to the spa after every cup: steam, mud and a long soak.",
         "assistant": "Runs training sessions while you're away. Costs no month and no risk of overtraining.",
-        "scout": "Hangs around the taverns, listens in and reports it all back to you. You get a look at other people's business."
+        "scout": "Hangs around the cafes, listens in and reports it all back to you. You get a look at other people's business."
       },
       "effects": {
         "security": "stops {pct}% of sabotage",
@@ -874,7 +1143,7 @@
           "Due to a backlog at the Federation's investigations department, only urgent cases will be looked into this season. (Sabotage costs {pct}% less this season.)"
         ],
         "reversedBodies": [
-          "It's winter and the guards are sitting around in taverns with nothing to do. Security costs {pct}% less than usual this season.",
+          "It's winter and the guards are sitting around in cafes with nothing to do. Security costs {pct}% less than usual this season.",
           "The gyms are packed and the trainers get to pick their clients. All training is {pct}% pricier this season.",
           "It's summer, everyone is at the seaside and nobody reads the paper. Media pays {pct}% less this season.",
           "The Federation's investigations department has new hires and is checking every report this season. (Sabotage costs {pct}% more this season.)"
@@ -887,10 +1156,10 @@
       "donation": {
         "subject": "{sponsor}: Campaign Call",
         "bodies": {
-          "zidari": "Dear friend, the Masons are running for the Leskovac Assembly and we are counting on you. Our platform is simple: a wall around every street that votes for us, and peace and quiet behind it. Every glizar you put into the campaign is one more brick, and the boss personally remembers everyone who built with us. Join in, so that after the election we all sit on the right side of the wall.",
-          "ostrvo": "Esteemed guest, this time The Island is running in the election. We promise nothing, only discretion for those who back us and for the accounts they keep with us. Your campaign contribution passes through no ledger at all, and your name goes on the list of friends of the house.",
-          "korporacija": "This is a call for voluntary support of the Black Dwarf Corporation electoral list. Our platform: order in housing, order in debts, order in the Assembly. You choose the amount, we keep the records. A reminder that your relatives live in our apartments, and we will gladly inform them that you supported the stability of the city. Thanking you in advance.",
-          "stranka": "Friend in freedom, Pčinja is voting and your face is already on the poster. The People's List is running for a free Leskovac. There is no freedom without a campaign, and no campaign without glizars. Whatever you give, state media will read out tomorrow as proof that you are on the right side. Back us and be part of the victory."
+          "blue": "Dear friend, the Blue Party is running for the Leskovac Assembly and we are counting on you. Our platform is simple: a guard on every street that votes for us, and peace and quiet behind him. Every glizar you put into the campaign is one more patrol, and the chairman personally remembers everyone who stood with us. Join in, so that after the election we all sit on the right side of the gate.",
+          "green": "Esteemed guest, this time the Green Party is running in the election. We promise nothing, only discretion for those who back us and for the accounts they keep with us. Your campaign contribution passes through no ledger at all, and your name goes on the guest list of our island retreat.",
+          "yellow": "This is a call for voluntary support of the Yellow Party electoral list. Our platform: order in the books, order in debts, order in the Assembly. You choose the amount, we keep the records. A reminder that your relatives keep their savings in our bank, and we will gladly inform them that you supported the stability of the city. Thanking you in advance.",
+          "red": "Friend in freedom, Pčinja is voting and your face is already on the poster. The Red Party is running for a free Leskovac. There is no freedom without a campaign, and no campaign without glizars. Whatever you give, state media will read out tomorrow as proof that you are on the right side. Back us and be part of the victory."
         },
         "later": "Not now",
         "give": "Donate {amount}",
@@ -912,39 +1181,61 @@
           "partner": "We are in the government as a junior partner. Nothing is taken away, nothing is added, and the biggest party knows you are their ally. Mind you, nobody can touch them, and they can touch you. The campaign paid off. Next time we aim for first place.",
           "opposition": "Not this time. Your party sits in opposition for the next two years: your sponsor's perk is weaker, the table gives you +5 points for your sponsor, and the Federation takes ten glizars a season as a solidarity contribution. The government sees you as an opponent.",
           "none": "The city voted and you were not on anyone's list. The new government owes you nothing and protects you from no one. Try to sign with somebody before the next election."
-        }
+        },
+        "premier": "The prime minister is {name}.",
+        "premierYou": "One more thing: you're the prime minister. Until the next election, everything that works in Leskovac is your doing, and everything that doesn't is the fault of whoever came before you."
+      },
+      "law": {
+        "subjects": {
+          "pass-passed": "Assembly passes: {law}",
+          "pass-failed": "Assembly rejects: {law}",
+          "repeal-passed": "Assembly repeals: {law}",
+          "repeal-failed": "Still in force: {law}",
+          "constitution-passed": "Assembly adopts a new constitution",
+          "constitution-failed": "The constitutional change failed"
+        },
+        "bodies": {
+          "pass-passed": "The vote is over, {yes} for and {no} against. The law applies from the next off-season, until some government repeals it.",
+          "pass-failed": "The bill fell, {yes} for and {no} against. The {party} puts it back in the drawer.",
+          "repeal-passed": "The law has been repealed, {yes} for and {no} against. The {party} can propose it again.",
+          "repeal-failed": "The repeal fell, {yes} for and {no} against. The law stays in force.",
+          "constitution-passed": "The vote is over, {yes} for and {no} against. No more elections, the town is run by the {party} alone.",
+          "constitution-failed": "The vote is over, {yes} for and {no} against. The constitution stays as it is, and the {party} loses {penalty} rating for good."
+        },
+        "billSubject": "City Hall: Your bill under the law",
+        "billBody": "Under the laws in force, this off-season's charges are as follows. Everything has already been deducted or paid out."
       },
       "favor": {
         "subject": "{sponsor}: Much Obliged",
         "bodies": {
-          "zidari": "We built together, and now we hold the gate of the arena. As our donor, you are owed {favors} a year: give us a name before a match and that person does not get through the gate. The boss never forgets family.",
-          "ostrvo": "Your contribution is neatly hidden, and The Island pays its debts. Every year you get {favors} on the boat for whoever you like: give us a name before a match and that person is urgently summoned to The Island to explain an account balance. Discreet as always.",
-          "korporacija": "Your support has been recorded and the government is ours. As a donor you are entitled to {favors} a year, before a match of your choosing.",
-          "stranka": "Freedom has won and you were part of it. The Leskovac registry is in our hands, and as a donor you are owed {favors} a year: tell us before a match who to strike off, and that person vanishes from that cup."
+          "blue": "We stood together, and now we hold the gate of the arena. As our donor, you are owed {favors} a year: give us a name before a match and that person does not get through the gate. The chairman never forgets family.",
+          "green": "Your contribution is neatly hidden, and the Green Party pays its debts. Every year you get {favors} on the boat for whoever you like: give us a name before a match and that person is urgently summoned to the island to explain an account balance. Discreet as always.",
+          "yellow": "Your support has been recorded and the government is ours. As a donor you are entitled to {favors} a year, before a match of your choosing.",
+          "red": "Freedom has won and you were part of it. The Leskovac registry is in our hands, and as a donor you are owed {favors} a year: tell us before a match who to strike off, and that person vanishes from that cup."
         },
         "counts": {
-          "zidari": [
+          "blue": [
             "one favor",
             "two favors",
             "three favors",
             "four favors",
             "five favors"
           ],
-          "ostrvo": [
+          "green": [
             "one seat",
             "two seats",
             "three seats",
             "four seats",
             "five seats"
           ],
-          "korporacija": [
+          "yellow": [
             "one bailiff visit",
             "two bailiff visits",
             "three bailiff visits",
             "four bailiff visits",
             "five bailiff visits"
           ],
-          "stranka": [
+          "red": [
             "one name",
             "two names",
             "three names",
@@ -954,20 +1245,44 @@
         }
       },
       "tax": {
-        "subject": "Corporation: City Stability Contribution",
+        "subject": "Yellow Party: City Stability Contribution",
         "body": {
-          "one": "The Black Dwarf Corporation government is introducing a city stability contribution, mandatory for everyone not in government. The bill for this off-season comes to {amount} glizar, deducted from your account. Appeals are not permitted. Gratitude is.",
-          "few": "The Black Dwarf Corporation government is introducing a city stability contribution, mandatory for everyone not in government. The bill for this off-season comes to {amount} glizars, deducted from your account. Appeals are not permitted. Gratitude is.",
-          "other": "The Black Dwarf Corporation government is introducing a city stability contribution, mandatory for everyone not in government. The bill for this off-season comes to {amount} glizars, deducted from your account. Appeals are not permitted. Gratitude is."
+          "one": "The Yellow Party government is introducing a city stability contribution, mandatory for everyone not in government. The bill for this off-season comes to {amount} glizar, deducted from your account. Appeals are not permitted. Gratitude is.",
+          "few": "The Yellow Party government is introducing a city stability contribution, mandatory for everyone not in government. The bill for this off-season comes to {amount} glizars, deducted from your account. Appeals are not permitted. Gratitude is.",
+          "other": "The Yellow Party government is introducing a city stability contribution, mandatory for everyone not in government. The bill for this off-season comes to {amount} glizars, deducted from your account. Appeals are not permitted. Gratitude is."
         }
       },
+      "glizzyBet": {
+        "subjectWon": "Glizzy Exchange: Position settled",
+        "subjectLost": "Glizzy Exchange: Position lost",
+        "bodyWon": "Your position: {call}. {actual}. Your stake of {stake} glizars returns {payout} glizars, {multiplier}x.",
+        "bodyLost": "Your position: {call}. {actual}. Your stake of {stake} glizars is gone.",
+        "callUp": "the glizzy goes up",
+        "callDown": "the glizzy goes down",
+        "callFlat": "no change",
+        "actualUp": "The glizzy went up {pct}%",
+        "actualDown": "The glizzy went down {pct}%",
+        "actualFlat": "The glizzy didn't budge"
+      },
+      "glizzyMarketUnlocked": {
+        "subject": "Leskovac Exchange: Your account is open",
+        "body": "With the first government in place, the price of a glizzy is now publicly quoted and the Leskovac Exchange opens for trading. As a licensed coach you get an account and the right to one position per off-season: up, down or no change. You can close the position at no cost while the window is open, and the settlement arrives with the first issue of The Glizzy Gazette."
+      },
       "taxRefund": {
-        "subject": "Corporation: Loyalty Reward",
+        "subject": "Yellow Party: Loyalty Reward",
         "body": {
-          "one": "The Black Dwarf Corporation government rewards its own: as our client you are exempt from the city stability contribution, and the difference of {amount} glizar is refunded to you. Your relatives in our apartments send their regards and thank you for your choice.",
-          "few": "The Black Dwarf Corporation government rewards its own: as our client you are exempt from the city stability contribution, and the difference of {amount} glizars is refunded to you. Your relatives in our apartments send their regards and thank you for your choice.",
-          "other": "The Black Dwarf Corporation government rewards its own: as our client you are exempt from the city stability contribution, and the difference of {amount} glizars is refunded to you. Your relatives in our apartments send their regards and thank you for your choice."
+          "one": "The Yellow Party government rewards its own: as our client you are exempt from the city stability contribution, and the difference of {amount} glizar is refunded to you. Your relatives with savings in our bank send their regards and thank you for your choice.",
+          "few": "The Yellow Party government rewards its own: as our client you are exempt from the city stability contribution, and the difference of {amount} glizars is refunded to you. Your relatives with savings in our bank send their regards and thank you for your choice.",
+          "other": "The Yellow Party government rewards its own: as our client you are exempt from the city stability contribution, and the difference of {amount} glizars is refunded to you. Your relatives with savings in our bank send their regards and thank you for your choice."
         }
+      },
+      "yellowInterest": {
+        "subject": "Yellow Party: Interest statement",
+        "body": "Your debt to the Yellow Party's bank stands at {debt} glizars. Interest for this off-season comes to {amount} glizars and has been added to the debt. Thank you for your trust."
+      },
+      "yellowWarning": {
+        "subject": "Yellow Party: A personal note",
+        "body": "You've been in the red with us for three years now. You pay your interest on time, and we appreciate that. Still, our people keep an eye on every client, so we know which way you walk home, at what time, and that you don't look left and right when you cross the street. Be careful. Traffic in Leskovac keeps getting heavier, and our vehicles keep getting bigger. You have one more year."
       }
     },
     "podium": {
@@ -1006,7 +1321,6 @@
     },
     "dossier": {
       "title": "Opponent file",
-      "openHint": "Click a name in the table to open their file.",
       "place": "{place} place",
       "unknown": "?",
       "noScout": "Without an informant, all you know is what the table says.",
@@ -1015,7 +1329,6 @@
       "contracts": "Permanent investments",
       "noContracts": "Hasn't invested in anything.",
       "money": "Cash",
-      "sponsor": "Sponsor",
       "noSponsor": "No sponsor",
       "rival": "Rival",
       "self": "Your character",
@@ -1077,7 +1390,15 @@
         "few": "{points}/{goal} points · Now in {place} place",
         "other": "{points}/{goal} points · Now in {place} place"
       },
-      "pointsHint": "Titles, wins, fame and a sponsor earn points."
+      "bracketGuide": {
+        "button": "How the cup bracket is built",
+        "title": "Cup bracket",
+        "seeding": "Everyone in the league plays the cup, all 16. When the cup starts, your place in the standings becomes your seed: first plays sixteenth, second plays fifteenth, and so on.",
+        "halves": "First and second sit in different halves and can only meet in the final. First and fourth only in the semifinal, first and eighth as early as the quarterfinal.",
+        "today": "If the cup started today",
+        "half": "Half {n}",
+        "quarter": "Quarter {n}"
+      }
     },
     "rival": {
       "title": "New Year, New Rival",
@@ -1116,8 +1437,13 @@
       "subLost": "{player} finished in {place} place.",
       "viewReport": "View report"
     },
+    "constitution": {
+      "title": "ONE-PARTY RULE",
+      "body": "The {party} changed the constitution and took over Leskovac.",
+      "won": "The whole list wins, and you with it.",
+      "subLost": "{player} finished in {place} place, out of power."
+    },
     "report": {
-      "kicker": "Campaign report",
       "won": "You're going in the history books.",
       "youLine": "{name} finished in {place} place, titles: {titles}, record {w}-{l}.",
       "chartTitle": "Campaign timeline",
@@ -1125,13 +1451,11 @@
         "place": "Table position",
         "points": "Points"
       },
-      "pickHint": "Pick up to {max} characters for the chart.",
       "yearShort": "Yr {year}",
       "noCharts": "Not enough data for a chart",
       "legend": {
         "goal": "crown"
       },
-      "hoverHint": "Hover over a line or tap it to see whose it is.",
       "hoverPlace": "{name}: best {best} place, worst {worst}, finished {last}.",
       "hoverPoints": "{name}: {last} points at the end, biggest jump in a single cup +{gain}.",
       "you": "you",
@@ -1141,7 +1465,7 @@
         "record": "Record",
         "sponsor": "Sponsor"
       },
-      "awardsTitle": "Who Was What",
+      "awardsTitle": "Who's Who",
       "awards": {
         "titles": "Most titles",
         "streak": "Longest title streak",
@@ -1189,15 +1513,25 @@
         "betsHit": "Bets",
         "betsNet": "Bookie"
       },
-      "tableHint": "Vs. you: their wins, then yours.",
       "newCareer": "New career",
       "issue": "Special Edition · Year {year}",
       "headline": "{name} Is the Glizzy Overlord",
+      "constitutionHeadline": "{party} takes over Leskovac",
+      "constitutionWon": "The whole list wins, and you with it.",
+      "constitutionLine": "{name} finished in {place} place, out of power.",
+      "constitutionTiles": {
+        "laws": "Laws",
+        "seats": "Seats",
+        "winners": "Winners",
+        "year": "Year"
+      },
       "yourColumn": "Your character",
       "championsTitle": "Champions by cup",
       "governmentsTitle": "Governments",
       "yearsInPower": "Years in power",
       "yearsValue": "{years} yr",
+      "yearRange": "Yrs {from}-{to}",
+      "earlierPrimeMinisters": "Earlier prime ministers",
       "priceTitle": "Glizzflation",
       "download": {
         "fileName": "glizzy-report-{year}",
@@ -1212,30 +1546,30 @@
       "title": "Sponsor",
       "none": "No sponsor",
       "names": {
-        "zidari": "Masons' Guild",
-        "ostrvo": "The Island",
-        "korporacija": "Black Dwarf Corporation",
-        "stranka": "The People's List"
+        "blue": "Blue Party",
+        "green": "Green Party",
+        "yellow": "Yellow Party",
+        "red": "Red Party"
       },
       "pitches": {
-        "zidari": "Your results are as solid as our concrete, and we hear you carry the guild in your heart and put up walls even where nobody asked. People like that build with us: 70 glizars a season, and our boys guard your door day and night.",
-        "ostrvo": "From The Island we follow your results and, discreetly, your bank account. We like you: 80 glizars a season, no taxes and no questions, a boat all to yourself once a year, and any little jobs you order come at a discount. Whatever we agree on stays on The Island.",
-        "korporacija": "Your performance has passed our checks, congratulations. Incidentally, so have your relatives who live in our apartments: for now, they live in peace. 60 glizars a season plus 40 per cup win. We warmly recommend signing.",
-        "stranka": "The results are there, and the Party also values your love of freedom, and Pčinja is the symbol of freedom. 60 glizars a season from the party coffers, and state media always has a slot for you, at double the rate."
+        "blue": "Your results are as solid as a locked door, and we hear you like things in order and check the lock twice before bed. People like that stand with us: 70 glizars a season, and our boys in blue guard your door day and night.",
+        "green": "From our island retreat we follow your results and, discreetly, your bank account. We like you: 80 glizars a season, no taxes and no questions, a boat all to yourself once a year, and any little jobs you order come at a discount. Whatever we agree on stays on the island.",
+        "yellow": "Your performance has passed our checks, congratulations. Incidentally, so have the accounts your relatives keep at our bank: for now, they are in good standing. 60 glizars a season plus 40 per cup win, and when you need it, a loan of up to 300 glizars at 10% interest per off-season. We warmly recommend signing.",
+        "red": "The results are there, and the Red Party also values your love of freedom, and Pčinja is the symbol of freedom. 60 glizars a season from the party coffers, and state media always has a slot for you, at double the rate."
       },
       "perks": {
-        "zidari": "Permanent security crew: blocks 60% of sabotage.",
-        "ostrvo": "An island weekend once a year that doesn't use up a month. Sabotage 25% cheaper, no fine for a miss. While The Island is in government, evidence against you never reaches an indictment.",
-        "korporacija": "+40 glizars for every cup win.",
-        "stranka": "Media pays double, as many times as you like."
+        "blue": "Permanent security crew: blocks 60% of sabotage. Paid security goes up to 95%.",
+        "green": "An island weekend once a year that doesn't use up a month. Sabotage 25% cheaper, no fine for a miss. While the Green Party is in government, evidence against you never reaches an indictment.",
+        "yellow": "+40 glizars for every cup win. A loan of up to 300 glizars, 10% interest per off-season.",
+        "red": "Media pays double, as many times as you like."
       },
       "offerSubject": "Offer: {sponsor}",
       "offerWildcardSubject": "Surprise offer: {sponsor}",
       "wildcardPitches": {
-        "zidari": "Our people heard you telling friends how much you love the smell of fresh mortar, and that you'd put up a wall the moment you spot an empty lot. The boss wept in the middle of the building site. Love like that is not forgotten around here: the contract is ready, and one day we'll wall you in too.",
-        "ostrvo": "Stories have reached The Island about your, shall we say, very creative tax returns, and about your tab at the bookie. Not to worry, nobody judges here. Here everything gets tidily hidden. People with your style are always welcome: sign, and your debts become our shared secret.",
-        "korporacija": "A review of our tenant registry shows that several of your relatives live in our apartments. Think of them while you read this offer. If you sign, we will harass them by standard procedure. If you do not, we add extra shifts, and you can read about the other consequences in the paper.",
-        "stranka": "The Party values a love of freedom, and you freely chose not to show up anywhere for years. That is a stance. Pčinja is freedom, and freedom is you: a spot on the poster is waiting, offer enclosed."
+        "blue": "Our people heard you telling friends that you lock the door three times and still go back to check it. The chairman wept in the middle of the guard post. Love of order like that is not forgotten around here: the contract is ready, and one day we'll lock you in too.",
+        "green": "Stories have reached our island about your, shall we say, very creative tax returns, and about your tab at the bookie. Not to worry, nobody judges here. Here everything gets tidily hidden. People with your style are always welcome: sign, and your debts become our shared secret.",
+        "yellow": "A review of our bank records shows that several of your relatives owe us money. Think of them while you read this offer. If you sign, we will chase them by standard procedure. If you do not, we add extra shifts, and you can read about the other consequences in the paper.",
+        "red": "The Red Party values a love of freedom, and you freely chose not to show up anywhere for years. That is a stance. Pčinja is freedom, and freedom is you: a spot on the poster is waiting, offer enclosed."
       },
       "accept": "Sign the contract",
       "decline": "Decline",
@@ -1244,43 +1578,43 @@
         "few": "Sponsor payment: +{amount} glizars.",
         "other": "Sponsor payment: +{amount} glizars."
       },
-      "fameGate": "Offers need fame 50+",
+      "fameGate": "Offers need fame {gate}+",
       "infoTitle": "How sponsors work",
       "info": {
-        "intro": "A sponsor pays a fee at the end of every season and brings +10 points on the table, +10 fame on signing, and its own perk. Offers come by mail at fame 50+: in year one, a 30% chance if you reach a cup final, and from year two, 50% every off-season while you're in the table's top 5.",
+        "intro": "A sponsor pays a fee at the end of every season and brings +10 points on the table, +10 fame on signing, and its own perk. Offers come by mail, until year {year} only at fame {gate}+. In year one the chance is 30% if you reach a cup final, and from year two, 50% every off-season while you're in the table's top 5.",
         "sponsors": {
-          "zidari": "70 glizars a season. Permanent security crew: a 60% chance that sabotage against you gets stopped.",
-          "ostrvo": "80 glizars a season. Once a year, an island weekend that doesn't use up a month: cholesterol to zero, appetite and ambition to the max. Sabotage 25% cheaper, and a botched job brings no fine and no hit to the party. While The Island sits in government, planted evidence against you never reaches an indictment.",
-          "korporacija": "60 glizars a season plus 40 for every cup win.",
-          "stranka": "60 glizars a season. State media: appearances pay double, and the once-a-season limit is gone."
+          "blue": "70 glizars a season. Permanent security crew: a 60% chance that sabotage against you gets stopped. Paid security goes up to 95% for them, 85% for everyone else.",
+          "green": "80 glizars a season. Once a year, an island weekend that doesn't use up a month: cholesterol to zero, appetite and ambition to the max. Sabotage 25% cheaper, and a botched job brings no fine and no hit to the party. While the Green Party sits in government, planted evidence against you never reaches an indictment.",
+          "yellow": "60 glizars a season plus 40 for every cup win. A loan of up to 300 glizars at the bank counter (leading party 500, opposition 200), 10% interest per off-season.",
+          "red": "60 glizars a season. State media: appearances pay double, and the once-a-season limit is gone."
         }
       },
       "shortNames": {
-        "zidari": "Masons",
-        "ostrvo": "The Island",
-        "korporacija": "Corporation",
-        "stranka": "Party"
+        "blue": "Blue",
+        "green": "Green",
+        "yellow": "Yellow",
+        "red": "Red"
       }
     },
     "news": {
-      "signing": "OFFICIAL: {name} signs with {sponsor}!",
+      "signing": "OFFICIAL: {name} signs with the {sponsor}!",
       "poison-glizimaker": "The cook who fed {name} since childhood took a bribe and spiked the batch. A night over a bucket followed.",
-      "poison-kafana": "{name} cashed in an ALL YOU CAN EAT voucher at the Corner Tavern and ended up on a drip. The voucher was fake.",
+      "poison-kafana": "{name} cashed in an ALL YOU CAN EAT voucher at the Corner Grill and ended up on a drip. The voucher was fake.",
       "witch-curse": "A witch walked three laps around the house of {name} and spilled something on the doorstep. The nose is gone.",
       "nutrition-bribed": "The nutritionist working for {name} took a bribe and rewrote the meal plan: greasy, fried, after midnight.",
       "fans-rumor": "Ugly rumors are going around about {name}. Bro is fuming.",
       "catfish-date": "SCANDAL: {name} went on a date with a fake profile set up by a rival. The whole town has seen the video.",
-      "catfish-zeka": "{name} went to the Blue Cabin for a free round and met the forest beast. It ate the glizzies and the sneakers.",
+      "catfish-beast": "{name} went to the Blue Cabin for a free round and met the forest beast. It ate the glizzies and the sneakers.",
       "catfish-demons": "Demons besieged the house of {name} all night. The neighbors brought salt. Nobody knows who sent them.",
       "police-tax": "RAID: the Pčinja tax inspector has a tip about undeclared income in the locker room of {name}. No ruling yet.",
       "police-stash": "INVESTIGATION: a tip claims {name} keeps a garage full of unregistered glizzies. {name} calls it winter stock.",
-      "police-island": "LEAK: police seized a ledger from The Island. Next to a sum nobody ever declared sits the name {name}.",
+      "police-island": "LEAK: police seized a ledger from the island retreat. Next to a sum nobody ever declared sits the name {name}.",
       "police-smuggling": "SMUGGLING: inspectors suspect {name} of running cooking oil across the border. The tip came in last night.",
       "sabotageBlocked": "The security crew guarding {name} stood like a brick wall and stopped an incident this off-season.",
       "media-interview": "{name} gave the interview of the week and half the town already knows it by heart.",
       "media-scandal": "A fresh scandal for {name}.",
-      "korp-vendetta": "REVENGE: one week after a rejected offer, a detailed tip came in against {name}. The judge has not ruled yet.",
-      "korp-vendetta-failed": "The plot to plant evidence on {name} fell apart overnight. Black Dwarf's only comment: the rent is still due.",
+      "yellow-vendetta": "REVENGE: one week after a rejected offer, a detailed tip came in against {name}. The judge has not ruled yet.",
+      "yellow-vendetta-failed": "The plot to plant evidence on {name} fell apart overnight. The Yellow Party's only comment: the interest is still running.",
       "sabotageCaught": "{name} was caught attempting sabotage! The league is collecting a fine of {fine} glizars.",
       "sabotageHushed": "{name} was caught at sabotage, but the evidence vanished overnight. Officially it never existed. No fine.",
       "sabotageCaughtHard": "{name} was caught at sabotage for the SECOND time in short order! The fine: {fine} glizars.",
@@ -1336,7 +1670,7 @@
       "factStomachBest": "{name} has the best-trained stomach in the league: level {value}. The cooks are scared.",
       "factSnifferBest": "{name} has the best nose in the league: level {value}. Can smell a glizzy through a wall.",
       "factNutritionBest": "{name} has the most disciplined diet in the league: level {value}.",
-      "factFansBest": "{name} is the most media-trained in the league: level {value}. The cameras follow all the way to the tavern.",
+      "factFansBest": "{name} is the most media-trained in the league: level {value}. The cameras follow all the way to the cafe.",
       "comeback": "{name} is back after a long break, with a coach who has zero references. Return to form, or new charity case?",
       "comeback-mp": "{name} is back after a long break, coached by {coach}, zero references. Return to form, or new charity case?",
       "commentator-back": "The broadcast is back! The Federation found money for a microphone, and an old voice returns behind it.",
@@ -1352,24 +1686,34 @@
       "invest-spa-up": "Spa package for {name} goes to level {level}. Now with mud from a faraway sea. The cholesterol is melting.",
       "invest-assistant": "{name} hired an assistant coach, who runs training alone while the head coach is off gambling.",
       "invest-assistant-up": "The staff around {name} grows to level {level}. Nobody knows who is training who, but the numbers go up.",
-      "invest-scout": "{name} found a guy who sits in the right taverns, listens to league people and reports back.",
-      "invest-scout-up": "The informant network of {name} grows to level {level}. People in the gyms and behind every bar.",
+      "invest-scout": "{name} found a guy who sits in the right cafes, listens to league people and reports back.",
+      "invest-scout-up": "The informant network of {name} grows to level {level}. People in the gyms and behind every counter.",
       "election-year": "Election year. Four parties are going to the voters: {parties}. Votes get counted after the Bloody Cup.",
       "election-year-again": "Another election year in Leskovac.",
       "election-poll": "The early poll before the last cup ahead of the election. Projected seats in the Leskovac Assembly.",
       "election-result": "The votes are counted. The government of Leskovac: {parties}, with {seats} of 100 seats.",
-      "election-result-alone": "The votes are counted. {parties} rules Leskovac alone with {seats} of 100 seats. No partners needed, they say.",
+      "election-result-alone": "The votes are counted. The {parties} rules Leskovac alone with {seats} of 100 seats. No partners needed, they say.",
+      "election-coalition": "The {leader} won the most seats but no majority, so its coaches voted on a partner. With {votes} of {total} votes, the government is: {parties}, holding {seats} of 100 seats. The coalition deal gets signed on Monday at the Greasy Spoon Café.",
+      "law-passed": "The Leskovac Assembly passed a bill from the {party}: {law}. The vote was {yes} for, {no} against. It applies from the next off-season.",
+      "law-passed-conflict": "The Leskovac Assembly passed a bill from the {party}: {law}. The vote was {yes} for, {no} against. The same vote repealed {repealed}, because the two laws can't stand together.",
+      "law-failed": "A bill from the {party} fell in the Assembly: {law}. The vote was {yes} for, {no} against. It goes back in the drawer until the next chance.",
+      "law-repealed": "The Assembly repealed a law: {law}. The vote was {yes} for, {no} against. The {leader} says order has been restored in town.",
+      "law-repeal-failed": "The repeal attempt failed: {law} stays in force. The vote was {yes} for, {no} against.",
+      "constitution-passed": "The Leskovac Assembly adopted a new constitution. No more elections, the town is run by the {party} alone. The vote was {yes} for, {no} against.",
+      "constitution-failed": "The constitutional change fell in the Assembly, {yes} for and {no} against. The {party} still governs alone, but loses {penalty} rating for good.",
+      "law-lottery": "The state lottery has been drawn: {name} takes the whole pot, {pot} glizars. Everyone else keeps their tickets for next year.",
       "glizi-price-up": "Glizzflation won't quit: a glizzy costs {pct}% more than last off-season. Nothing in town ever gets cheaper.",
       "glizi-price-down": "Glizzflation dips: Pčinja sent two truckloads by mistake and a glizzy costs {pct}% less than last off-season.",
       "cup-removed": "Never even sat down: {name} was led away before the match, no explanation given.",
-      "removal-zidari": "Gate Security held {name} at the arena entrance. The match goes down as a forfeit.",
-      "removal-ostrvo": "{name} vanished five minutes before the match. Last seen on a boat to The Island, possibly not by choice.",
-      "removal-korporacija": "Bailiffs at the door: {name} was removed from the chair over unpaid rent.",
-      "removal-stranka": "According to the new census, {name} does not exist and never has, anywhere in Leskovac. Neither has the match."
+      "removal-blue": "Gate Security held {name} at the arena entrance. The match goes down as a forfeit.",
+      "removal-green": "{name} vanished five minutes before the match. Last seen on a boat to the island, possibly not by choice.",
+      "removal-yellow": "Bailiffs at the door: {name} was removed from the chair over an unpaid loan.",
+      "yellow-debt-warning": "The Yellow Party's bank announced that {name} is in a third year of late loan payments. The statement says the bank values its long-standing clients, always sends its reminders on time, and has bought several new cars this year.",
+      "yellow-run-over": "{name} was hit by a car last night in the parking lot outside the gym. The driver didn't stop, and witnesses say a black car with no plates had circled the block twice beforehand. {name} is alive but starts from zero: everything learned in training is forgotten, and every permanent contract was torn up the same day. The Yellow Party's bank reports that the debt has been settled in full.",
+      "removal-red": "According to the new census, {name} does not exist and never has, anywhere in Leskovac. Neither has the match."
     },
     "sabotage": {
       "action": "Sabotage",
-      "target": "Target",
       "fund": "Funding",
       "fundHint": "This is the chance the job goes through at all, without the league catching it and calling it off. Pay extra to raise it. After that it still has to get past the target's security crew, if the target has one.",
       "stepNote": {
@@ -1426,19 +1770,21 @@
         "real": "Total",
         "hint": "Total chance: the job first has to get past the league, then past the target's security crew too. A +? means the target may have guards you can't see."
       },
-      "guardZidari": "Masons {pct}%",
+      "guardBlue": "Blue {pct}%",
       "guardStanding": "escort {pct}%",
       "guardUnknown": "security ?",
       "guardMore": "+?",
       "realUpTo": "up to {pct}%",
       "judgeLine": "If it goes through, the judge confirms the warrant: {pct}%",
       "fineLine": "If it misses: a {fine} glizar fine and minus 1 party rating, for good.",
-      "fineHushed": "If it misses, the case goes into The Island's archive. No fine.",
-      "egoLine": "Your character's ego +{ego}.",
+      "fineHushed": "If it misses, the case goes into the Green Party's archive. No fine.",
+      "fineLifted": "If it misses: no fine and no points lost.",
+      "fineAmnesty": "If it misses: a {fine} glizar fine.",
+      "lawChip": "{law} {value}",
+      "egoLine": "Ego +{ego}",
       "booked": "booked: {n}",
       "plotted": "already ordered",
-      "repeatChip": "{n} job this off-season {pct}",
-      "repeatHint": "Jobs don't use up the month. Each one after the first in the same off-season costs 50% more than the one before."
+      "repeatChip": "{n} job this off-season {pct}"
     },
     "guard": {
       "title": "How many guards to hire?",
@@ -1475,7 +1821,7 @@
         "nutrition-bribed": "BRIBE",
         "fans-rumor": "RUMORS",
         "catfish-date": "SCANDAL",
-        "catfish-zeka": "LURED",
+        "catfish-beast": "LURED",
         "catfish-demons": "DEMONS",
         "police-tax": "RAID",
         "police-stash": "INVESTIGATION",
@@ -1484,8 +1830,8 @@
         "sabotageBlocked": "SECURITY",
         "media-interview": "INTERVIEW",
         "media-scandal": "OUTBURST",
-        "korp-vendetta": "REVENGE",
-        "korp-vendetta-failed": "REVENGE",
+        "yellow-vendetta": "REVENGE",
+        "yellow-vendetta-failed": "REVENGE",
         "sabotageCaught": "CAUGHT",
         "sabotageHushed": "CASE CLOSED",
         "sabotageCaughtHard": "FINED",
@@ -1548,14 +1894,27 @@
         "election-poll": "POLL",
         "election-result": "NEW GOVERNMENT",
         "election-result-alone": "NEW GOVERNMENT",
+        "election-coalition": "COALITION VOTED IN",
+        "election-premier": "PRIME MINISTER {name}",
+        "law-passed": "NEW LAW",
+        "law-passed-conflict": "NEW LAW",
+        "law-failed": "LAW FAILS",
+        "law-repealed": "LAW REPEALED",
+        "law-repeal-failed": "LAW STAYS",
+        "constitution-passed": "NEW CONSTITUTION",
+        "constitution-failed": "CONSTITUTION STAYS",
+        "law-lottery": "LOTTERY",
         "glizi-price-up": "PRICES UP",
         "glizi-price-down": "PRICES DOWN",
         "cup-removed": "REMOVED",
-        "removal-zidari": "LOCKED OUT",
-        "removal-ostrvo": "SHIPPED OUT",
-        "removal-korporacija": "BAILIFFS",
-        "removal-stranka": "DEREGISTERED"
-      }
+        "removal-blue": "LOCKED OUT",
+        "removal-green": "SHIPPED OUT",
+        "removal-yellow": "BAILIFFS",
+        "yellow-debt-warning": "FINAL NOTICE",
+        "yellow-run-over": "HIT BY A CAR",
+        "removal-red": "DEREGISTERED"
+      },
+      "recapTitle": "The Glizzy Cup"
     },
     "election": {
       "live": "Live",
@@ -1565,14 +1924,32 @@
         "poll": "Post-final poll",
         "winner": "Most votes",
         "seats": "Seat count",
-        "government": "Government"
+        "government": "Government",
+        "premier": "New prime minister",
+        "premierYou": "You're the prime minister"
       },
       "commentary": {
         "poll": "The votes are counted, numbers are coming in from every bloc.",
-        "winner": "{party} takes the most votes.",
+        "winner": "The {party} takes the most votes.",
         "seats": "One hundred seats are being split...",
-        "alone": "{party} has a majority and governs alone.",
-        "coalition": "No majority. The government is formed by {parties}."
+        "alone": "The {party} has a majority and governs alone.",
+        "coalition": "No majority. A coalition government: {parties}.",
+        "premier": "The prime minister's mandate goes to {name}.",
+        "premierYou": "The prime minister's mandate goes to {name}. Leskovac is yours."
+      },
+      "coalition": {
+        "kicker": "Coalition vote",
+        "stamp": "Voted in",
+        "vote": "The {party} has no majority. The coaches on its list pick a partner.",
+        "waiting": "Voting is under way.",
+        "counting": "The list's coaches are casting their ballots.",
+        "formed": "Government formed: {parties}",
+        "auto": "Time's up",
+        "skip": "Skip",
+        "ballotTitle": "Coalition vote",
+        "ballotLead": "{party} · {seats} seats",
+        "weight": "Vote ×{weight}",
+        "cast": "Vote"
       },
       "yourParty": {
         "leader": "Your party leads the government",
@@ -1582,9 +1959,173 @@
       },
       "continue": "Continue"
     },
+    "premier": {
+      "colors": {
+        "yellow": {
+          "nom": "the yellows",
+          "gen": "the yellows",
+          "dat": "the yellows",
+          "acc": "the yellows"
+        },
+        "blue": {
+          "nom": "the blues",
+          "gen": "the blues",
+          "dat": "the blues",
+          "acc": "the blues"
+        },
+        "red": {
+          "nom": "the reds",
+          "gen": "the reds",
+          "dat": "the reds",
+          "acc": "the reds"
+        },
+        "green": {
+          "nom": "the greens",
+          "gen": "the greens",
+          "dat": "the greens",
+          "acc": "the greens"
+        }
+      },
+      "quotes": {
+        "cutscene": {
+          "blame-yellow-3": "Bring the yellows back, openly, at least they know something. Sure, they're criminals, corrupt and thieves.",
+          "no-money": "There's no money, or if you prefer, I won't give you the money.",
+          "worst-government": "Absolutely the worst government in the history of Serbia.",
+          "laugh-at-me": "Go ahead and laugh at me, you always laughed at me.",
+          "lazy-and-useless": "Because you are slackers and because you can't do anything.",
+          "live-for-numbers": "Well, you understand that I live for these numbers, that I live for Serbia to save a dinar or two.",
+          "dont-worry-im-here": "Don't worry, I'm here."
+        },
+        "news": {
+          "previous": [
+            "When we arrived the till was empty, and {nom} had even carried off the grill from the city kitchen. I'm not blaming anyone, but people deserve to know.",
+            "Under {dat}, Leskovac ate reheated glizzies trucked in from the next town over. With us it eats fresh, homemade, Leskovac glizzies.",
+            "I'm telling you, {nom} ran this town like a cafe nobody goes to. We're opening a glizzy factory, three grill houses and an airport. A small one, but an airport.",
+            "I haven't slept since election night. I've been working. While {nom} slept, I was counting glizzies in the warehouses, and there weren't any. There weren't any!",
+            "Everybody asks where the money went. Ask {acc}! I found a till with nothing in it but one bread roll, and a stale one at that."
+          ],
+          "rival": [
+            "Once again {nom} were going from cafe to cafe saying we'd fall. Well, we didn't fall. We will never let Leskovac be run on cafe talk.",
+            "I don't know what {nom} want. We're building a road to Pčinja, and they'd like to go back to the days when the grill was lit on credit.",
+            "Every day {nom} attack me, they attack my family, they even attack my glizzy. Let them. I'll keep working twenty hours a day.",
+            "This is a win for everyone who loves a glizzy, even the ones who voted for {acc}. I'm their prime minister too, even if they won't admit it.",
+            "We have a plan, {nom} only have hate. A thousand new jobs, a new hall for the cup and an investor from abroad whose name I can't say just yet."
+          ],
+          "first": [
+            "We found a town with no plan and no glizzies. Those before us kept everything in a Federation drawer, and the drawer was locked.",
+            "For years the Federation handed out money in cafes. I'm telling you, those days are over. From today the money gets handed out in grill houses.",
+            "I won't blame those who came before us. I won't. But I'm not the one who left the till empty and the cup without a sponsor.",
+            "People, I'll work day and night. I won't even have time for a glizzy, and you know how much I love a glizzy. All for Leskovac.",
+            "The investors are already calling. One called from Upper Glizzton, one from Lower Skewerby, one called all the way from overseas. The ones before us didn't even have a phone."
+          ]
+        }
+      },
+      "news": {
+        "line": "The prime minister's mandate goes to {premier}.",
+        "quote": "The new prime minister's first address ran for two hours. Highlights: “{quote}”"
+      }
+    },
+    "laws": {
+      "names": {
+        "holiday": "Public Holiday",
+        "lottery": "State Lottery",
+        "training-subsidy": "Training Subsidy",
+        "wealth-tax": "Wealth Tax",
+        "credit-law": "Credit Act",
+        "curfew": "Curfew",
+        "fencing": "Fenced Grounds",
+        "public-order": "Public Order Act",
+        "tourist-tax": "Tourist Tax",
+        "amnesty": "Amnesty"
+      },
+      "effects": {
+        "holiday": "Every coach gets -{stress} cholesterol at the start of each off-season.",
+        "lottery": "Everyone pays {amount} glizars per season. At the end of the year one coach, drawn at random, takes the whole pot.",
+        "training-subsidy": "Training is {pct}% cheaper for everyone.",
+        "wealth-tax": "Anyone holding over {threshold} glizars pays {pct}% per season.",
+        "credit-law": "Every coach can borrow {amount} glizars more at the bank counter, at the same interest.",
+        "curfew": "Every underworld job has a {pct}% lower chance.",
+        "fencing": "Government coaches get +{pct}% permanent security.",
+        "public-order": "Underworld jobs cost ×{scale} for everyone.",
+        "tourist-tax": "The opposition pays {amount} glizars per season, split among the government coaches.",
+        "amnesty": "League penalties no longer cost the party votes."
+      },
+      "areas": {
+        "order": "Public order"
+      },
+      "area": "Area: {area}",
+      "inForceTitle": "Laws in force",
+      "none": "No laws in force.",
+      "info": {
+        "title": "How laws work",
+        "when": "Once per term, after the {season} cup in the year between elections, the prime minister puts one proposal on the agenda: a new law, or repealing a law in force.",
+        "pass": "Only government coaches vote. A law passes with {share}% of all votes, and in a coalition it also needs {partner}% of the partner's votes.",
+        "stays": "A law stands until some government repeals it. At most {max} laws can be in force, and a new law in the same area replaces the old one.",
+        "constitution": "From year {year} on, a list holding at least {seats} seats in the Assembly can propose changing the constitution. The change passes with {share}% of the government's votes, and then every coach on that list wins.",
+        "weightTitle": "Vote weight",
+        "ai": "AI",
+        "human": "Player",
+        "leader": "Leading party",
+        "partner": "Partner"
+      },
+      "scopes": {
+        "everyone": "All coaches",
+        "government": "Government",
+        "transfer": "Opposition → Government",
+        "constitution": "One-party rule"
+      },
+      "panel": {
+        "slots": "{n}/{max}",
+        "year": "Year {year}"
+      },
+      "ballot": {
+        "title": "Assembly vote",
+        "pass": "Bill",
+        "repeal": "Repeal",
+        "constitution": "Constitutional change",
+        "constitutionName": "One-List Constitution",
+        "constitutionEffect": "Elections are abolished and Leskovac is run by the {party} alone. All its coaches win the campaign.",
+        "picking": "{name} is picking a proposal.",
+        "propose": "Put on the agenda",
+        "conflict": "Repeals",
+        "since": "In force since year {year}",
+        "yourVote": "Your vote",
+        "yes": "FOR",
+        "no": "AGAINST",
+        "weight": "Vote ×{weight}",
+        "waiting": "Voting is under way.",
+        "tally": "FOR {yes} : {no} AGAINST",
+        "government": "Government",
+        "threshold": "{share}%"
+      },
+      "vote": {
+        "live": "Live",
+        "title": "Leskovac Assembly",
+        "subtitle": "Vote",
+        "counting": "The members are voting.",
+        "stamps": {
+          "passed": "Passed",
+          "failed": "Rejected",
+          "repealed": "Repealed"
+        },
+        "verdicts": {
+          "pass-passed": "The Assembly passes: {law}",
+          "pass-failed": "The Assembly rejects: {law}",
+          "repeal-passed": "The Assembly repeals: {law}",
+          "repeal-failed": "Still in force: {law}",
+          "constitution-passed": "The Assembly adopts a new constitution",
+          "constitution-failed": "The constitution stays as it is"
+        },
+        "skip": "Skip",
+        "continue": "Continue"
+      },
+      "letter": {
+        "total": "Total"
+      }
+    },
     "parliament": {
       "title": "Assembly of Leskovac",
-      "button": "Assembly",
+      "primeMinister": "Prime Minister",
       "governmentLine": "Government: {seats} / {total} seats",
       "noGovernment": "The city has not voted yet",
       "noClients": "no characters",
@@ -1605,11 +2146,12 @@
       "calendarMark": "ELECTION",
       "tabs": {
         "chamber": "Assembly",
-        "popularity": "Popularity"
+        "popularity": "Popularity",
+        "laws": "Laws"
       },
       "popularity": {
         "title": "Poll: if the vote were today",
-        "intro": "A projection of the election if it were held today. Every signed character earns the list {top} minus their place in the standings, plus fame divided by {divisor}. Campaign money, scandals and the government's rating go on top.",
+        "intro": "A projection of the election if it were held today. Every signed character earns the list {weight} times ({top} minus their place in the standings), plus fame divided by {divisor}. Campaign money, scandals and the government's rating go on top.",
         "players": "Competitors",
         "party": "Party",
         "ratingHint": "The party's own points: base, campaign, scandals and the price of a glizzy. Added to the competitors' points to make votes.",
@@ -1648,7 +2190,6 @@
           "few": "seats",
           "other": "seats"
         },
-        "legendSeats": "current seats",
         "rating": "Rating {value}",
         "ratingBase": "base {base}",
         "noChange": "no change",
@@ -1658,33 +2199,33 @@
           "campaign": "campaign",
           "affairs": "scandals",
           "convictions": "caught",
-          "glizi": "glizzy price"
+          "glizi": "glizzy price",
+          "constitution": "attempted constitutional change"
         }
       },
       "effects": {
-        "title": "In power: {leader}",
         "own": "In power",
         "outside": "Out of government",
-        "generalLeader": "Leading party: stronger sponsor perk, standings +{table}, +{pay} glizars per season.",
+        "generalLeader": "Leading party: stronger sponsor perk, standings +{table}, +{pay} glizars per season, picks the bill.",
         "generalOpposition": "Opposition: weaker sponsor perk, standings +{table}, {pay} per season.",
-        "generalPartner": "Partner: business as usual.",
+        "generalPartner": "Partner: business as usual, but no law passes without its votes.",
         "infoTitle": "What power buys",
-        "infoIntro": "Whoever leads the government rewards its own clients and bills everyone outside it, including coaches with no party. A government partner feels neither. A term lasts two years.",
+        "infoIntro": "Whoever leads the government rewards its own clients and bills everyone outside it, including coaches with no party. When nobody has a majority, the coaches of the strongest list pick a partner. A term lasts two years, and the laws a government passes outlive it.",
         "inPower": "in power",
         "leader": {
-          "zidari": {
+          "blue": {
             "own": "Security crew blocks +{bonus}% of attacks, up to {cap}%.",
             "outside": "Security crew costs {tax}% more."
           },
-          "ostrvo": {
+          "green": {
             "own": "Island weekend every off-season instead of once a year.",
             "outside": "Sabotage costs {tax}% more."
           },
-          "korporacija": {
+          "yellow": {
             "own": "A {refund} glizar refund every off-season.",
             "outside": "City stability contribution: {tax} glizars per off-season."
           },
-          "stranka": {
+          "red": {
             "own": "+{fame} fame per media appearance, Media Training {discount}% cheaper.",
             "outside": "Media pays {pay}%, brings {fame}% of the fame and has one slot fewer. Coaches with a single slot get no media at all."
           }
@@ -1700,15 +2241,14 @@
       "noTargets": "Nobody in this round is within reach.",
       "cancel": "Not now",
       "reasons": {
-        "zidari": "Can't get past the gate",
-        "ostrvo": "Urgently summoned to The Island",
-        "korporacija": "Bailiffs at the door",
-        "stranka": "Struck from the register"
+        "blue": "Can't get past the gate",
+        "green": "Urgently summoned to the island",
+        "yellow": "Bailiffs at the door",
+        "red": "Struck from the register"
       },
       "toast": "The party delivered",
       "opponentTag": "your opponent",
       "chosenLine": "{name} before the match: {reason}.",
-      "nobodyLine": "Circle one name.",
       "confirm": "Remove: {name}",
       "confirmEmpty": "Remove"
     }
@@ -1723,7 +2263,6 @@
       "unlockedOn": "Unlocked {date}",
       "open": "Open achievements"
     },
-    "chip": "Achievements {unlocked}/{total}",
     "toast": "Achievement unlocked",
     "items": {
       "career-first-title": {
@@ -1736,7 +2275,7 @@
       },
       "career-overlord": {
         "title": "Glizzy Overlord",
-        "description": "Your character was first to reach 300 points."
+        "description": "Your character was first to reach the crown."
       },
       "career-underdog": {
         "title": "From the Bottom Half",
@@ -1753,6 +2292,18 @@
       "career-leader": {
         "title": "Ruling Party",
         "description": "Your sponsor leads the government after the election."
+      },
+      "career-constitution": {
+        "title": "New Constitution",
+        "description": "Your party voted in a new constitution."
+      },
+      "career-prime-minister": {
+        "title": "Prime Minister",
+        "description": "Your character became prime minister."
+      },
+      "career-law-passed": {
+        "title": "Voted In",
+        "description": "A law passed while your party was in government."
       },
       "career-favor": {
         "title": "Party Favor",
@@ -1774,6 +2325,10 @@
         "title": "Big Money",
         "description": "A thousand glizars in the bank."
       },
+      "career-glizzy-call": {
+        "title": "A Nose for Glizzflation",
+        "description": "You called Glizzflation right on the Exchange and cashed in."
+      },
       "career-maxed": {
         "title": "Fully Trained",
         "description": "One training pushed to the max."
@@ -1792,7 +2347,7 @@
       },
       "career-island": {
         "title": "Island Weekend",
-        "description": "First trip to The Island."
+        "description": "First trip to the island."
       },
       "career-meltdown": {
         "title": "Cracked",
@@ -1801,7 +2356,46 @@
       "career-decade": {
         "title": "Ten Years",
         "description": "Ten years at the table with the same character."
+      },
+      "career-cat": {
+        "title": "Meow",
+        "description": "You poked the black cat ten times."
+      },
+      "career-dog": {
+        "title": "Who's a Good Dog?",
+        "description": "You poked the stray dog ten times."
       }
+    }
+  },
+  "rooms": {
+    "timer": {
+      "left": "{time} left"
+    },
+    "done": {
+      "toggle": "Done",
+      "undo": "Not done yet"
+    },
+    "seat": {
+      "offline": "away"
+    },
+    "countdown": {
+      "presets": {
+        "60": "1 min",
+        "180": "3 min",
+        "300": "5 min",
+        "null": "None"
+      }
+    },
+    "rejoin": {
+      "title": "Your rejoin link",
+      "copy": "Copy link",
+      "copied": "Copied"
+    },
+    "close": {
+      "button": "Close room",
+      "yes": "Yes, close it",
+      "no": "Never mind",
+      "closed": "The host closed the room."
     }
   },
   "careerMp": {
@@ -1844,35 +2438,24 @@
       "coaches": "Coaches ({count}/{max})",
       "host": "host",
       "leave": "Leave room",
-      "shareTitle": "Invites",
-      "shareHint": "Send them the code or the link. An active game lives for 30 days at most.",
       "chooseCharacter": "Pick a character",
       "changeCharacter": "Change character",
       "noCharacter": "still picking",
       "starting": "League starting...",
       "sending": "Sending...",
-      "presets": {
-        "null": "None",
-        "60": "1 min",
-        "180": "3 min",
-        "300": "5 min"
-      },
       "masthead": "THE GLIZZY GAZETTE",
       "formTitle": "League sign-up",
       "createStamp": "Open room",
       "joinStamp": "Join room",
       "rulesTitle": "Settings",
-      "rulesHint": "How long each phase may take: off-season, newspaper, bracket, bets and season end.",
-      "rulesLater": "The host picks the settings.",
       "sheetTitle": "Coach list",
-      "roomNumber": "Room number",
+      "roomNumber": "Room code",
       "empty": "empty seat",
       "you": "you",
       "countdown": "Time limit per phase"
     },
     "coachBar": {
       "done": "Done {done} of {total}",
-      "offline": "away",
       "doneToggle": "Done",
       "undoDone": "Not done",
       "ready": "Ready",
@@ -1881,9 +2464,6 @@
       "doneNames": "Done: {names}",
       "waitingNames": "Waiting on: {names}",
       "nobody": "nobody"
-    },
-    "timer": {
-      "left": "{time} left"
     },
     "skip": {
       "clip": "Skip to result ({votes} of {total})",
@@ -1894,7 +2474,6 @@
       "title": "Pre-match",
       "pass": "Skip the bet",
       "passed": "No bet",
-      "waiting": "The match starts when everyone has decided or time runs out.",
       "nobody": "Nobody yet",
       "roundMatch": "{round}, match {index} of {total}",
       "ownWarning": "You are betting AGAINST your own character. If they find out, their cholesterol goes through the roof.",
@@ -1942,12 +2521,6 @@
       "coachesCount": "Coaches",
       "seasonsCount": "Seasons"
     },
-    "rejoin": {
-      "title": "Your rejoin link",
-      "hint": "Open it on another device to carry on as the same coach.",
-      "copy": "Copy link",
-      "copied": "Copied"
-    },
     "errors": {
       "generic": "Something broke. Try again.",
       "stale": "The room has moved on. Refreshing.",
@@ -1981,7 +2554,7 @@
       "bad-training": "No such training.",
       "maxed": "This is already at the top level.",
       "media-spent": "Media is used up for this off-season.",
-      "no-island": "The Island is not available right now.",
+      "no-island": "The island is not available right now.",
       "guarded": "The security crew is already hired.",
       "locked": "This unlocks after the first cup.",
       "no-sponsor": "You need a sponsor for this.",
@@ -1992,7 +2565,9 @@
       "has-sponsor": "You already have a sponsor.",
       "no-offer": "That offer is no longer valid.",
       "no-parliament": "The city has not voted yet.",
-      "bad-amount": "That amount will not fly.",
+      "bad-amount": "Invalid amount.",
+      "bad-vote": "Invalid vote.",
+      "not-a-voter": "You don't have a vote in this ballot.",
       "bad-party": "No such party.",
       "bad-rival": "That rival is not on the list.",
       "no-match": "No such match.",
@@ -2002,7 +2577,12 @@
       "final": "No favors in the final.",
       "no-favors": "You are out of favors this year.",
       "favor-pending": "One favor is already waiting for its match.",
-      "withdrawn": "You have already withdrawn from the cup."
+      "withdrawn": "You have already withdrawn from the cup.",
+      "bad-bet": "That bet is not on the board.",
+      "bad-option": "That option is not on the ballot.",
+      "not-the-picker": "It is not your turn to pick.",
+      "bad-character-name": "That name can't be signed up.",
+      "character-name-taken": "Someone in the league already has that name."
     },
     "window": {
       "introTitle": "Off-season opens"
@@ -2036,55 +2616,56 @@
       "full": "Full"
     },
     "close": {
-      "button": "Close room",
       "confirm": "The room shuts down for every coach and cannot be brought back. Sure?",
-      "yes": "Yes, close it",
-      "no": "Never mind",
-      "closed": "The host closed the room.",
       "hint": "Shuts the room down for every coach, right away and for good."
     },
     "room": {
-      "title": "Room {code}",
-      "hint": "Room code and rejoin link. The host can also close the room from here."
+      "title": "Room {code}"
     }
   },
   "roster": {
-    "names": {
-      "vuka": "The Wolf",
-      "dax": "Daniel",
-      "kosta": "Mr Bones",
-      "cone": "The Egg Man",
-      "dusan": "Count Dusk",
-      "nikola": "Fat Cat",
-      "jovan": "Jovan",
-      "bane": "Bane",
-      "tax-inspector": "The Taxman",
-      "steva": "Lou Owes",
-      "dzamila": "Jamila",
-      "zeka": "Rabbit",
-      "halvard": "Halvard",
-      "stojan": "Mr Grease",
-      "tihomir": "Old Tihomir",
-      "miki": "Miki"
-    },
-    "epithets": {
-      "vuka": "Lone Hunter",
-      "dax": "Island Barman",
-      "kosta": "The Skeleton",
-      "cone": "Hard-Boiled",
-      "dusan": "The Vampire",
-      "nikola": "The Capitalist",
-      "jovan": "The Nobleman",
-      "bane": "The Mason",
-      "tax-inspector": "The Inspector",
-      "steva": "The Debtor",
-      "dzamila": "The Fortune Teller",
-      "zeka": "Forest Beast",
-      "halvard": "Ice Merchant",
-      "stojan": "Oil Dealer",
-      "tihomir": "Southern Wanderer",
-      "miki": "The Physicist"
-    }
+    "epithets": [
+      "The Night Watchman",
+      "The Retired Plumber",
+      "Grill Master",
+      "The Bus Driver",
+      "The Accountant",
+      "The Postman",
+      "The Weatherman",
+      "Chess Hustler",
+      "Pigeon Keeper",
+      "The Locksmith",
+      "Kiosk Philosopher",
+      "The Night Baker",
+      "The Lifeguard",
+      "Bench Poet",
+      "The Tailor",
+      "Market Haggler",
+      "The Parking Attendant",
+      "The Barber",
+      "The Sleepwalker",
+      "Crossword King",
+      "The Mechanic",
+      "Pepper Farmer",
+      "The Doorman",
+      "The Former Champion",
+      "The Eternal Rookie",
+      "The Gossip",
+      "The Lucky Loser",
+      "The Bottomless Stomach",
+      "The Dreamer",
+      "The Grump",
+      "Sock Collector",
+      "The Stuntman",
+      "The Chimney Sweep",
+      "The Fisherman",
+      "The Hat Maker",
+      "Bingo Champion",
+      "The Inventor",
+      "The Tour Guide",
+      "The Juggler",
+      "The Sausage Whisperer"
+    ]
   },
   "hub": {
     "siteName": "Glizzy Manager",
@@ -2128,30 +2709,6 @@
     }
   },
   "commentary": {
-    "nameForms": {
-      "jovan": {
-        "short": "Jovan"
-      },
-      "bane": {
-        "short": "Bane"
-      },
-      "tax-inspector": {
-        "short": "The Taxman"
-      },
-      "halvard": {
-        "short": "Halvard"
-      },
-      "stojan": {
-        "short": "Mr Grease"
-      },
-      "tihomir": {
-        "short": "Tihomir"
-      },
-      "miki": {
-        "short": "Miki",
-        "ttsFull": "Miki"
-      }
-    },
     "lines": {
       "intro-rivalry-1": {
         "text": "This is not just a match, folks. {a} and {b} have unfinished business.",
@@ -2547,42 +3104,99 @@
       "weather-patlidzan-4": {
         "text": "The first real sun of the year warms the table. The eggplants are shining. We'll see who else does."
       },
-      "election-stranka-1": {
-        "text": "A new government, folks: the People's List. Freedom has won, they say, so step one is freeing the voter roll of everyone who voted wrong."
+      "election-red-1": {
+        "text": "A new government, folks: the Red Party. Freedom has won, they say, so step one is freeing the voter roll of everyone who voted wrong."
       },
-      "election-stranka-2": {
-        "text": "The Assembly belongs to the People's List. State media already report that everything is excellent, and we, to be safe, will say the same."
+      "election-red-2": {
+        "text": "The Assembly belongs to the Red Party. State media already report that everything is excellent, and we, to be safe, will say the same."
       },
-      "election-stranka-3": {
-        "text": "The People's List runs Leskovac. All of Leskovac is one step closer to freedom, they say. And freedom, of course, means state media has one channel as of tomorrow."
+      "election-red-3": {
+        "text": "The Red Party runs Leskovac. All of Leskovac is one step closer to freedom, they say. And freedom, of course, means state media has one channel as of tomorrow."
       },
-      "election-zidari-1": {
-        "text": "The Masons' Guild has formed the government. First measure: a wall around the Assembly and new houses for all the loyalists."
+      "election-blue-1": {
+        "text": "The Blue Party has formed the government. First measure: a guard on the Assembly door and new blue uniforms for all the loyalists."
       },
-      "election-zidari-2": {
-        "text": "The Masons are the new boss in town, folks. Overnight, a security crew costs more for anyone who voted wrong."
+      "election-blue-2": {
+        "text": "The Blues are the new boss in town, folks. Overnight, a security crew costs more for anyone who voted wrong."
       },
-      "election-zidari-3": {
-        "text": "The Masons run Leskovac. The boss says the town will be walled in on all sides by winter."
+      "election-blue-3": {
+        "text": "The Blue Party runs Leskovac. The chairman says every door in town will have a guard by winter."
       },
-      "election-korporacija-1": {
-        "text": "The Black Dwarf Corporation leads the government. First change to the law: a town stability contribution, and a new fee for anyone who doesn't vote Black Dwarf."
+      "election-yellow-1": {
+        "text": "The Yellow Party leads the government. First change to the law: a town stability contribution, and a new fee for anyone who doesn't vote yellow."
       },
-      "election-korporacija-2": {
-        "text": "The Corporation is in power, folks. Black Dwarf promises Leskovac will be the most stable town in the region, once the freeloaders are evicted."
+      "election-yellow-2": {
+        "text": "The Yellows are in power, folks. They promise Leskovac will be the most stable town in the region, once the freeloaders are evicted."
       },
-      "election-korporacija-3": {
-        "text": "Black Dwarf runs Leskovac. The bailiffs got new uniforms, and the town got new fees."
+      "election-yellow-3": {
+        "text": "The Yellow Party runs Leskovac. The bailiffs got new uniforms, and the town got new fees."
       },
-      "election-ostrvo-1": {
-        "text": "The Island has taken the government, folks. As of this morning the town budget sits in an account nobody is allowed to mention."
+      "election-green-1": {
+        "text": "The Green Party has taken the government, folks. As of this morning the town budget sits in an account nobody is allowed to mention."
       },
-      "election-ostrvo-2": {
-        "text": "The new government arrives by dinghy. The Island runs Leskovac, which, we're now told, was always a seaside town."
+      "election-green-2": {
+        "text": "The new government arrives by dinghy. The Green Party runs Leskovac, which, we're now told, was always a seaside town."
       },
-      "election-ostrvo-3": {
-        "text": "The Island is in power. Taxes are abolished, and discretion is the town's new policy."
+      "election-green-3": {
+        "text": "The Green Party is in power. Taxes are abolished, and discretion is the town's new policy."
       }
+    }
+  },
+  "creatures": {
+    "species": {
+      "glizzy": "glizzy",
+      "paprika": "pepper",
+      "plum": "plum",
+      "eggplant": "eggplant",
+      "watermelon": "watermelon",
+      "egg": "egg on a plate",
+      "burger": "burger",
+      "ham": "ham",
+      "bean": "bean stew",
+      "onion": "onion",
+      "jar": "jar",
+      "pepperGrinder": "pepper grinder",
+      "loaf": "bread loaf",
+      "teapot": "teapot",
+      "barrel": "barrel",
+      "rabbit": "rabbit",
+      "fly": "fly",
+      "dog": "stray dog",
+      "cat": "cat",
+      "pig": "piglet",
+      "ram": "ram",
+      "rooster": "rooster",
+      "duck": "duck",
+      "horse": "horse",
+      "tower": "tower",
+      "mountain": "mountain",
+      "stone": "glizite",
+      "fog": "fog",
+      "stove": "wood stove",
+      "box": "box",
+      "sock": "sock",
+      "hat": "hat",
+      "slipper": "slipper",
+      "drum": "drum",
+      "folder": "folder",
+      "lantern": "lantern",
+      "bell": "bell",
+      "sack": "sack",
+      "car": "small car",
+      "poster": "wanted poster",
+      "trophy": "trophy",
+      "throne": "glizzy throne"
+    },
+    "signs": {
+      "ajvar": "AJVAR",
+      "jam": "JAM",
+      "pickles": "PICKLES",
+      "oil": "OIL",
+      "fragile": "FRAGILE",
+      "tax": "TAX",
+      "flour": "FLOUR",
+      "plate": "LE 1383",
+      "wanted": "WANTED"
     }
   }
 }

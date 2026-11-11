@@ -1,12 +1,26 @@
 import { useState } from 'react';
 import ChanceStepper from '@/components/games/career/ChanceStepper';
+import InfoTip from '@/components/games/career/InfoTip';
 import DialogActions from '@/components/games/career/DialogActions';
 import PortraitHead from '@/components/games/PortraitHead';
 import SabotageMethodRow from '@/components/games/career/SabotageMethodRow';
 import SabotageTargetGrid from '@/components/games/career/SabotageTargetGrid';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
 import { PLOTTING_EGO_GAIN } from '@/data/games/careerEconomy';
+import {
+  CURFEW_CHANCE_DROP,
+  PUBLIC_ORDER_SCALE,
+  type LawId,
+} from '@/data/games/careerLaws';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
+import { shieldedFromIndictment } from '@/lib/utils/careerElections';
+import {
+  lawActive,
+  lawName,
+  punishmentsCostVotes,
+  sabotageLawChance,
+} from '@/lib/utils/careerLaws';
 import type { SabotageTier, SavedCareer } from '@/lib/utils/careerSave';
 import {
   indictmentChance,
@@ -19,8 +33,9 @@ import {
   sabotageTotalCost,
   visibleGuardBlock,
 } from '@/lib/utils/careerSabotage';
-import { isOstrvoClient } from '@/lib/utils/careerSponsors';
+import { isGreenClient } from '@/lib/utils/careerSponsors';
 import { scoutReveal } from '@/lib/utils/careerScouting';
+import { PAPER_PAINT, STREET_TRAY } from '@/lib/utils/careerFrameClasses';
 import { fmt, ordinal, plural, signedPct } from '@/lib/utils/format';
 
 const SAB = GAMES_UI.career.sabotage;
@@ -31,10 +46,13 @@ const TIERS = [1, 2, 3] as const;
 
 type Step = 'target' | 'method' | 'stake';
 const STEPS: Step[] = ['target', 'method', 'stake'];
+const SUMMARY_LABEL =
+  'font-sign text-[12px] font-semibold uppercase leading-tight tracking-[0.03em] text-slate-300';
 
-// Three decisions in a row, one screen each: who, how, and how much. The
-// strip at the top keeps every answer in view and takes you back to change
-// it; the footer keeps the price and the pay button in reach the whole time
+// A job dossier in a manila folder, three decisions, one sheet each: who, how,
+// and how much. The folder tabs keep every answer in view and take you back to
+// change it; the sheet keeps one size between them, and the footer keeps the
+// price and the pay button in reach the whole time
 export default function SabotageDialog({
   career,
   characters,
@@ -71,10 +89,34 @@ export default function SabotageDialog({
   const guard = target ? visibleGuardBlock(career, target, revealDetail) : null;
   const block = guard?.known ?? 0;
   const guardUnknown = guard?.unknown ?? false;
-  const chance = tier ? sabotageChance(tier, boostSteps) : 0;
+  // The laws on the books move the odds for everyone, exactly as the job is
+  // rolled
+  const parliament = career.parliament;
+  const targetState = target ? career.characters[target] : undefined;
+  const rawChance = tier ? sabotageChance(tier, boostSteps) : 0;
+  const chance = sabotageLawChance(rawChance, parliament);
   const realChance = Math.round(chance * (1 - block) * 100);
   const cost = tier ? sabotageTotalCost(tier, boostSteps, priceScale) : 0;
   const plotter = career.characters[career.playerSlug];
+  const judgePct =
+    targetState && shieldedFromIndictment(targetState, parliament)
+      ? 0
+      : Math.round(indictmentChance(3, rawChance) * 100);
+  const lawChips: { law: LawId; value: string; good: boolean }[] = [
+    ...(lawActive(parliament, 'public-order')
+      ? [{ law: 'public-order' as const, value: `×${PUBLIC_ORDER_SCALE}`, good: false }]
+      : []),
+    ...(lawActive(parliament, 'curfew')
+      ? [
+          {
+            law: 'curfew' as const,
+            value: signedPct(-Math.round(CURFEW_CHANCE_DROP * 100)),
+            good: false,
+          },
+        ]
+      : []),
+  ];
+  const hushed = isGreenClient(plotter);
   const repeatPct = Math.round((sabotageRepeatScale(plotsBooked) - 1) * 100);
   const affordable = career.balance >= cost;
   const ready = Boolean(target && tier);
@@ -112,38 +154,43 @@ export default function SabotageDialog({
 
   return (
     <div className="flex w-full flex-col gap-3 text-left">
-      <div className="grid grid-cols-3 gap-1.5">
-        {STEPS.map((s, i) => {
-          const active = step === s;
-          const value = stepValue(s);
-          const enabled = Boolean(stepEnabled(s));
-          return (
-            <button
-              key={s}
-              disabled={!enabled}
-              onClick={() => setStep(s)}
-              aria-current={active ? 'step' : undefined}
-              className={`flex min-w-0 flex-col gap-0.5 rounded-xl border px-2.5 py-1.5 text-left transition disabled:opacity-40 ${
-                active
-                  ? 'border-red-400/70 bg-red-500/10'
-                  : 'border-sky-200/10 bg-slate-950/40 enabled:hover:border-sky-200/30'
-              }`}
-            >
-              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
-                {i + 1}. {stepLabel(s)}
-              </span>
-              <span
-                className={`truncate text-[11px] font-semibold ${
-                  value ? 'text-white' : 'text-slate-600'
+      <div className="flex min-w-0 flex-col">
+        <div
+          className={`relative z-10 flex items-end gap-1 px-1 ${PAPER_PAINT}`}
+        >
+          {STEPS.map((s, i) => {
+            const active = step === s;
+            const value = stepValue(s);
+            const enabled = Boolean(stepEnabled(s));
+            return (
+              <button
+                key={s}
+                disabled={!enabled}
+                onClick={() => setStep(s)}
+                aria-current={active ? 'step' : undefined}
+                className={`flex min-h-11 min-w-0 flex-1 flex-col justify-center gap-0.5 rounded-t-[5px] px-2 py-1 text-left transition focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#1e3a8a] disabled:cursor-not-allowed motion-reduce:transition-none ${
+                  active
+                    ? '-mb-px bg-[#f7efdc] pb-1.5 pt-1.5'
+                    : value
+                      ? 'bg-[#dcc99c] enabled:hover:bg-[#e8d8b2]'
+                      : 'bg-[#c4b189] enabled:hover:bg-[#d4c29d]'
                 }`}
               >
-                {value ?? SAB.steps.empty}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
+                <span className="font-sign text-[13px] font-bold uppercase leading-none tracking-[0.06em] text-slate-100">
+                  {i + 1}. {stepLabel(s)}
+                </span>
+                <span
+                  className={`truncate text-[11px] leading-tight ${
+                    value ? 'font-serif font-bold text-slate-100' : 'text-slate-300'
+                  }`}
+                >
+                  {value ?? SAB.steps.empty}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <PaperSheet className="h-[min(calc(80vh/var(--game-zoom,1)_-_16rem),29rem)] overflow-y-auto sm:h-[min(calc(80vh/var(--game-zoom,1)_-_13rem),29rem)] overflow-x-hidden p-3 sm:p-4 phone-landscape:h-auto phone-landscape:overflow-visible">
       {step === 'target' && (
         <div className="flex flex-col gap-2">
           <SabotageTargetGrid
@@ -156,19 +203,33 @@ export default function SabotageDialog({
       )}
 
       {step === 'method' && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col">
           {TIERS.map((t) => (
             <SabotageMethodRow
               key={t}
               tier={t}
               price={sabotageCost(t, priceScale)}
-              baseChance={sabotageChance(t, 0)}
+              baseChance={sabotageLawChance(sabotageChance(t, 0), parliament)}
               selected={tier === t}
               onSelect={() => pickTier(t)}
             />
           ))}
-          {(seasonPct !== 0 || gliziPct !== 0 || repeatPct !== 0) && (
-            <p className="flex flex-wrap gap-x-2 text-[10px] font-semibold">
+          {(seasonPct !== 0 ||
+            gliziPct !== 0 ||
+            repeatPct !== 0 ||
+            lawChips.length > 0) && (
+            <p className="flex flex-wrap gap-x-3 pt-3 font-sign text-[14px] font-semibold tabular-nums">
+              {lawChips.map((chip) => (
+                <span
+                  key={chip.law}
+                  className={chip.good ? 'text-emerald-300' : 'text-red-300'}
+                >
+                  {fmt(SAB.lawChip, {
+                    law: lawName(chip.law),
+                    value: chip.value,
+                  })}
+                </span>
+              ))}
               {repeatPct !== 0 && (
                 <span className="text-red-300">
                   {fmt(SAB.repeatChip, {
@@ -193,14 +254,11 @@ export default function SabotageDialog({
               )}
             </p>
           )}
-          <p className="text-[10px] leading-relaxed text-slate-400">
-            {SAB.repeatHint}
-          </p>
         </div>
       )}
 
       {step === 'stake' && tier && (
-        <div className="flex flex-col gap-2.5">
+        <div className="flex min-h-full flex-col justify-center gap-2.5">
           <ChanceStepper
             label={SAB.fund}
             caption={SAB.chanceLabel}
@@ -211,86 +269,77 @@ export default function SabotageDialog({
             pct={Math.round(chance * 100)}
             steps={sabotageMaxBoostSteps(tier) + 1}
             filled={boostSteps + 1}
-            tone="red"
             onLess={() => setBoostSteps((s) => Math.max(0, s - 1))}
             onMore={() =>
               setBoostSteps((s) => Math.min(sabotageMaxBoostSteps(tier), s + 1))
             }
           />
-          <div className="grid grid-cols-3 gap-1.5 rounded-xl border border-sky-200/10 bg-slate-950/40 p-2.5 text-center">
-            <span className="flex flex-col">
-              <span className="font-mono text-lg font-black text-red-300">
+          <div className="grid grid-cols-3 divide-x divide-dashed divide-slate-500 border-y-[3px] border-double border-[#1c1408]/70 py-2 text-center">
+            <span className="flex flex-col items-center gap-1 px-1">
+              <span className="font-sign text-[26px] font-bold leading-none tabular-nums text-red-300">
                 {Math.round(chance * 100)}%
               </span>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
-                {SAB.summary.job}
-              </span>
+              <span className={SUMMARY_LABEL}>{SAB.summary.job}</span>
             </span>
-            <span className="flex flex-col">
+            <span className="flex flex-col items-center gap-1 px-1">
               <span
-                className={`font-mono text-lg font-black ${
-                  block > 0 ? 'text-amber-300' : 'text-slate-500'
+                className={`font-sign text-[26px] font-bold leading-none tabular-nums ${
+                  block > 0 ? 'text-amber-300' : 'text-slate-400'
                 }`}
               >
                 {Math.round(block * 100)}%
                 {guardUnknown && (
-                  <span className="ml-0.5 text-sm text-slate-500">
+                  <span className="ml-0.5 text-[18px] text-slate-400">
                     {SAB.guardMore}
                   </span>
                 )}
               </span>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
-                {SAB.summary.guard}
-              </span>
+              <span className={SUMMARY_LABEL}>{SAB.summary.guard}</span>
             </span>
-            <span className="flex flex-col">
-              <span className="font-mono text-lg font-black text-white">
+            <span className="flex flex-col items-center gap-1 px-1">
+              <span className="font-sign text-[26px] font-bold leading-none tabular-nums text-slate-100">
                 {guardUnknown
                   ? fmt(SAB.realUpTo, { pct: realChance })
                   : `${realChance}%`}
               </span>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
+              <span className={`flex items-center justify-center gap-1.5 ${SUMMARY_LABEL}`}>
                 {SAB.summary.real}
+                <InfoTip text={SAB.summary.hint} />
               </span>
             </span>
           </div>
-          <p className="text-[10px] leading-relaxed text-slate-400">
-            {SAB.summary.hint}
-          </p>
           {tier === 3 && (
-            <p className="text-[10px] leading-relaxed text-sky-200">
-              {fmt(SAB.judgeLine, {
-                pct: Math.round(indictmentChance(3, chance) * 100),
-              })}
+            <p className="text-[12px] leading-snug text-sky-200">
+              {fmt(SAB.judgeLine, { pct: judgePct })}
             </p>
           )}
           <p
-            className={`text-[10px] leading-relaxed ${
-              isOstrvoClient(plotter) ? 'text-emerald-300' : 'text-red-200'
+            className={`text-[12px] leading-snug ${
+              hushed ? 'text-emerald-300' : 'text-red-200'
             }`}
           >
-            {isOstrvoClient(plotter)
+            {isGreenClient(plotter)
               ? SAB.fineHushed
-              : fmt(SAB.fineLine, {
-                  fine: sabotageFine(plotter),
-                })}
-          </p>
-          <p className="text-[10px] leading-relaxed text-slate-400">
-            {fmt(SAB.egoLine, { ego: PLOTTING_EGO_GAIN })}
+              : hushed
+                ? SAB.fineLifted
+                : fmt(
+                    punishmentsCostVotes(parliament)
+                      ? SAB.fineLine
+                      : SAB.fineAmnesty,
+                    { fine: sabotageFine(plotter) },
+                  )}
           </p>
         </div>
       )}
 
+        </PaperSheet>
+      </div>
+
       <DialogActions
         left={
           ready ? (
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-slate-300">
-              <span className="font-mono font-bold text-white">
-                {guardUnknown
-                  ? fmt(SAB.realUpTo, { pct: realChance })
-                  : `${realChance}%`}
-              </span>
-              {SAB.summary.real.toLowerCase()}
+            <span className={`px-2 py-1.5 font-sign text-[14px] font-semibold tabular-nums text-[#f0dca8] ${STREET_TRAY}`}>
+              {fmt(SAB.egoLine, { ego: PLOTTING_EGO_GAIN })}
             </span>
           ) : undefined
         }

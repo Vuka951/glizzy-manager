@@ -102,7 +102,38 @@ export type CutsceneClipId =
   | 'drum-roll'
   | 'cymbal-crash'
   | 'fanfare'
-  | 'seat-tick';
+  | 'seat-tick'
+  | 'bed-hq-empty'
+  | 'bed-rally'
+  | 'bed-ceremony'
+  | 'music-violin-sad-1'
+  | 'music-violin-sad-2'
+  | 'music-brass-1'
+  | 'music-brass-2'
+  | 'music-brass-3'
+  | 'music-cafe-1'
+  | 'music-cafe-2'
+  | 'music-ceremony-1'
+  | 'music-ceremony-2'
+  | 'sob-1'
+  | 'sob-2'
+  | 'sob-3'
+  | 'sob-4'
+  | 'sob-5'
+  | 'fridge-open'
+  | 'fridge-close'
+  | 'bus-brakes'
+  | 'bus-brakes-2'
+  | 'tv-click-1'
+  | 'tv-click-2'
+  | 'wrapper-crinkle'
+  | 'handshake-clasp'
+  | 'chair-creak'
+  | 'flag-rustle'
+  | 'flag-rustle-2'
+  | 'kiss-smack'
+  | 'stamp-seal'
+  | 'soda-pop';
 
 // The site's existing one-shots, reused where the scene mirrors a match beat
 export type ExistingSfx =
@@ -130,11 +161,20 @@ export const electionNightSounds = {
   barWhoosh: 0.8,
   seatTick: 0.7,
   seatsPerTick: 5,
+  // The coalition count at the ballot box: the slip held up, the slip through
+  // the slot, a human's thick stack landing, and the stamp on the winner
+  ballotFlutter: 0.45,
+  ballotSlide: 0.8,
+  ballotStack: 0.4,
+  stamp: 1,
 };
 
 export type CutsceneCue = {
   at: number;
   clip?: CutsceneClipId;
+  // One of these at random instead of a fixed clip, so a scene that airs
+  // every election does not sound the same twice
+  pick?: CutsceneClipId[];
   sfx?: ExistingSfx;
   volume?: number;
   only?: ActionSceneOutcome[];
@@ -449,7 +489,7 @@ export const SABOTAGE_HIT_SOUNDTRACKS: Record<
       { at: 4200, clip: 'sting-fail', volume: 0.7, chance: FAIL_STING_CHANCE },
     ],
   },
-  'hit-catfish-zeka': {
+  'hit-catfish-beast': {
     bed: 'bed-forest-night',
     bedMs: 5800,
     cues: [

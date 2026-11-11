@@ -1,7 +1,7 @@
 import type { CupMatch } from '@/lib/utils/tournamentSim';
 
 // Standard seeded pairing: 1 and 2 can only meet in the final
-const SEED_PAIRS = [
+export const SEED_PAIRS = [
   [0, 15],
   [7, 8],
   [3, 12],
@@ -12,9 +12,8 @@ const SEED_PAIRS = [
   [5, 10],
 ];
 
-// The table seeds the bracket as it stands: the whole league goes straight
-// from the paper to the round of sixteen
-export function seededRounds(seeds: string[]): CupMatch[][] {
+// The whole table goes into the bracket, `seeds` top first
+export function seededRounds(seeds: readonly string[]): CupMatch[][] {
   const rounds: CupMatch[][] = [];
   for (let size = SEED_PAIRS.length; size >= 1; size = Math.floor(size / 2)) {
     rounds.push(

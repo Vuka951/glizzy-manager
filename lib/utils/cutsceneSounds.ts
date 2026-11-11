@@ -34,20 +34,41 @@ const BED_FADE_MS = 700;
 const BED_BASE_VOLUME = 0.5;
 const HIT_BASE_VOLUME = 0.5;
 
+// The sfx files were later levelled to one loudness, which moved each pool
+// by this many dB on average. The scenes were mixed by ear against the old
+// files, so every reused one-shot is trimmed back to where it sat
+const LEVELLED_DB: Partial<Record<ExistingSfx, number>> = {
+  chomp: -6.2,
+  puke: -1.8,
+  cheer: -5.1,
+  boo: -4.2,
+  shutter: 3.4,
+  place: 3.2,
+  'lift-hat': 1.1,
+  'lift-sock': 2.1,
+  'lift-box': 2.1,
+  trophy: -2,
+};
+
+function asMixed(sfx: ExistingSfx, base: number): number {
+  return base * 10 ** (-(LEVELLED_DB[sfx] ?? 0) / 20);
+}
+
 // The cue's volume scales the one-shots the quote scenes reuse; the rest
 // keep their own level
 const EXISTING: Record<ExistingSfx, (volume?: number) => void> = {
-  chomp: (volume = 1) => playChompSound(0.5 * volume),
-  puke: playPukeSound,
-  cheer: () => playCheerSound(0.8),
-  boo: () => playBooSound(0.8),
-  shutter: (volume = 1) => playShutterSound(0.25 * volume),
-  paper: playPaperSound,
-  place: playPlaceSound,
-  'lift-hat': () => playLiftSound('hat'),
-  'lift-sock': () => playLiftSound('sock'),
-  'lift-box': () => playLiftSound('box'),
-  trophy: playTrophySound,
+  chomp: (volume = 1) => playChompSound(asMixed('chomp', 0.5 * volume)),
+  puke: () => playPukeSound(asMixed('puke', 0.5)),
+  cheer: () => playCheerSound(asMixed('cheer', 0.8)),
+  boo: () => playBooSound(asMixed('boo', 0.8)),
+  shutter: (volume = 1) =>
+    playShutterSound(asMixed('shutter', 0.25 * volume)),
+  paper: () => playPaperSound(),
+  place: () => playPlaceSound(asMixed('place', 0.45)),
+  'lift-hat': () => playLiftSound('hat', asMixed('lift-hat', 0.45)),
+  'lift-sock': () => playLiftSound('sock', asMixed('lift-sock', 0.45)),
+  'lift-box': () => playLiftSound('box', asMixed('lift-box', 0.45)),
+  trophy: () => playTrophySound(asMixed('trophy', 0.6)),
 };
 
 type Soundtrack = Omit<CutsceneSoundtrack, 'bed'> & { bed: QuoteBedId };
@@ -68,7 +89,10 @@ function playCue(cue: CutsceneCue): void {
     EXISTING[cue.sfx](cue.volume);
     return;
   }
-  if (cue.clip) playCutsceneClip(cue.clip, cue.volume);
+  const clip = cue.pick
+    ? cue.pick[Math.floor(Math.random() * cue.pick.length)]
+    : cue.clip;
+  if (clip) playCutsceneClip(clip, cue.volume);
 }
 
 // One bank clip at the level of a scene cue; the caller keeps the element

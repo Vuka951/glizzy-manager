@@ -3,8 +3,8 @@ import { setLocale } from './setLocale.mjs';
 const puppeteer = (await import(process.env.PUPPETEER_CORE ?? 'puppeteer-core')).default;
 const B = 'http://localhost:3000/api/career-mp';
 const post = (url, body) => fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }).then((r) => r.json());
-const host = await post(`${B}/rooms`, { coachName: 'Host', slug: 'nikola' });
-const guest = await post(`${B}/rooms/${host.code}/join`, { coachName: 'Guest', slug: 'vuka' });
+const host = await post(`${B}/rooms`, { coachName: 'Host' });
+const guest = await post(`${B}/rooms/${host.code}/join`, { coachName: 'Guest' });
 const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true });
 const page = await browser.newPage();
 // The buttons are found by their English text

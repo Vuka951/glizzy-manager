@@ -7,7 +7,8 @@ mkdirSync(OUT, { recursive: true });
 const B = 'http://localhost:3000/api/career-mp';
 const post = (url, body, token) => fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', ...(token ? { 'x-coach-token': token } : {}) }, body: JSON.stringify(body) }).then((r) => r.json());
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-const host = await post(`${B}/rooms`, { coachName: 'Host', slug: 'nikola' });
+const host = await post(`${B}/rooms`, { coachName: 'Host' });
+await post(`${B}/rooms/${host.code}/actions`, { action: { type: 'pickCharacter', slug: host.view.roster[0].slug }, expectVersion: host.view.version }, host.token);
 const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true });
 const page = await browser.newPage();
 // The buttons are found by their English text

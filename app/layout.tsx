@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Roboto_Mono } from 'next/font/google';
+import { Barlow_Condensed, Inter, Roboto_Mono } from 'next/font/google';
 import AchievementToast from '@/components/games/AchievementToast';
 import Onboarding from '@/components/hub/Onboarding';
 import SettingsButton from '@/components/hub/SettingsButton';
@@ -21,6 +21,15 @@ const mono = Roboto_Mono({
   variable: '--font-app-mono',
   subsets: ['latin', 'latin-ext'],
   display: 'swap',
+});
+
+// The lettering on the career's enamel signs and brass plates
+const sign = Barlow_Condensed({
+  variable: '--font-app-sign',
+  subsets: ['latin', 'latin-ext'],
+  weight: ['600', '700', '800'],
+  display: 'swap',
+  preload: false,
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -52,13 +61,15 @@ export default async function RootLayout({
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${sans.variable} ${mono.variable}`}
+      className={`${sans.variable} ${mono.variable} ${sign.variable} has-[[data-pseudo-fullscreen]]:overflow-hidden min-[120rem]:has-[[data-screen-scale]]:text-[17px] min-[160rem]:has-[[data-screen-scale]]:text-[20px] min-[225rem]:has-[[data-screen-scale]]:text-[24px]`}
     >
       <body className="antialiased min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+        {/* A slow line can paint before the games' layout brings its dark-only
+            marker, so their paths hold one until the document is in */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{if(localStorage.getItem('theme')==='light'){document.documentElement.classList.add('light')}}catch(e){}",
+              "try{if(localStorage.getItem('theme')==='light'){document.documentElement.classList.add('light');if(/^\\/(manager|rivals|preview)(\\/|$)/.test(location.pathname)){var m=document.createElement('meta');m.setAttribute('data-dark-only','');document.head.appendChild(m);addEventListener('DOMContentLoaded',function(){m.remove()})}}}catch(e){}",
           }}
         />
         <ClientOnly>

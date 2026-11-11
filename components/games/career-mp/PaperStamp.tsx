@@ -14,7 +14,7 @@ export default function PaperStamp({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex rotate-[-3deg] items-center rounded-sm border-[3px] border-red-700 px-5 py-2 text-sm font-black uppercase tracking-[0.2em] text-red-700 shadow-[0_0_0_2px_rgba(185,28,28,0.15)] transition enabled:hover:rotate-0 enabled:hover:bg-red-700 enabled:hover:text-amber-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700 disabled:cursor-not-allowed disabled:opacity-35"
+      className="inline-flex min-h-11 rotate-[-3deg] items-center rounded-sm border-[3px] border-[#b91c1c] px-5 py-1.5 font-sign text-lg font-extrabold uppercase tracking-[0.14em] text-[#b91c1c] transition enabled:hover:rotate-0 enabled:hover:bg-[#b91c1c] enabled:hover:text-[#f1e8d3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-40 motion-reduce:transition-none"
     >
       {label}
     </button>

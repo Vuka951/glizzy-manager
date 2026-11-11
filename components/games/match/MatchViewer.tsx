@@ -1,13 +1,17 @@
+'use client';
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import CareerButton from '@/components/games/career/CareerButton';
+import { useCareerFrames } from '@/components/games/career/careerFrames';
 import DoubleChevronRightIcon from '@/components/icons/DoubleChevronRightIcon';
-import { studioAccents } from '@/lib/constants/studioThemes';
 import MatchEventOverlay from '@/components/games/match/MatchEventOverlay';
 import MatchExitScene from '@/components/games/match/MatchExitScene';
-import CommentaryCaption from '@/components/games/CommentaryCaption';
 import IntroHoldControls from '@/components/games/IntroHoldControls';
 import MatchIntroOverlay from '@/components/games/match/MatchIntroOverlay';
 import MatchMeterDelta from '@/components/games/match/MatchMeterDelta';
+import MatchScoreboard from '@/components/games/match/MatchScoreboard';
 import MatchStatsStrip from '@/components/games/match/MatchStatsStrip';
+import MatchTableFrame from '@/components/games/match/MatchTableFrame';
 import SpectateTable, {
   type SpectatePhase,
 } from '@/components/games/match/SpectateTable';
@@ -146,8 +150,8 @@ export default function MatchViewer({
   // A line under the score once the match is over, for the room's cursor
   resultNote?: React.ReactNode;
 }) {
+  const street = useCareerFrames() === 'street';
   const synced = startOffsetMs !== null;
-  const accent = studioAccents(theme);
   const winnerSlug = result.winner === 'a' ? a.slug : b.slug;
   const crowdBoost = isFinal ? FINAL_CROWD_BOOST : 1;
   // The crowd backs the viewer's pick, otherwise the bigger name, chosen
@@ -386,102 +390,173 @@ export default function MatchViewer({
     );
   })();
 
-  return (
-    <div
-      className={`flex w-full flex-col items-center gap-3 rounded-2xl border ${accent.panelBorder} bg-slate-900/40 p-4 sm:p-5 group-[:fullscreen]:mx-auto group-[:fullscreen]:max-w-xl`}
+  const footer = synced ? null : finished ? (
+    <CareerButton
+      tone="danger"
+      onClick={onDone}
+      className="inline-flex items-center gap-1.5"
     >
-      <span
-        className={`min-h-[1.25rem] rounded-full border px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest ${accent.chip}`}
-      >
-        {finished
-          ? GAMES_UI.cup.viewer.end
-          : (currentRoundLabel ?? GAMES_UI.cup.viewer.start)}
-      </span>
+      {GAMES_UI.cup.viewer.continue}
+    </CareerButton>
+  ) : (
+    <CareerButton
+      tone="quiet"
+      onClick={() => {
+        // A match that ends on a forfeit keeps its final interlude, so
+        // the medics, the police or the puke still get their moment
+        // before the exit scene; the timer then finishes the match
+        const lastFrame = frames[frames.length - 1];
+        if (lastFrame.kind === 'event' && frameIndex < frames.length - 1) {
+          playEventSound(lastFrame.event.kind);
+          setFrameIndex(frames.length - 1);
+          return;
+        }
+        playFinishSounds();
+        setFrameIndex(frames.length);
+      }}
+      className="group inline-flex items-center gap-1.5"
+    >
+      {GAMES_UI.cup.viewer.skip}
+      <DoubleChevronRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+    </CareerButton>
+  );
 
-      <div className="relative flex w-full justify-center">
-        <SpectateTable
-          top={a}
-          bottom={b}
-          topLives={livesA}
-          bottomLives={livesB}
-          topCap={capA}
-          bottomCap={capB}
-          topSponsor={sponsorA}
-          bottomSponsor={sponsorB}
-          topMood={finished ? null : liveA}
-          bottomMood={finished ? null : liveB}
-          topStats={
-            liveA && revealA ? (
-              <MatchStatsStrip ch={liveA} reveal={revealA} seat="top" />
-            ) : null
-          }
-          bottomStats={
-            liveB && revealB ? (
-              <MatchStatsStrip ch={liveB} reveal={revealB} seat="bottom" />
-            ) : null
-          }
-          topDelta={deltaFor('a')}
-          bottomDelta={deltaFor('b')}
-          topFame={moodA?.fame}
-          bottomFame={moodB?.fame}
-          spotVariants={spotVariants}
-          glizzyVariant={glizzyVariant}
-          phase={phase}
-          outcome={finished ? (result.winner === 'a' ? 'top' : 'bottom') : null}
-          exit={exitSide}
-          celebrate={!result.reason || loserHoldsPose}
-          sick={sickSide}
-          sniff={sniffSide}
-          sniffSpot={sniffSpot}
-          betSlug={betSlug}
-          theme={theme}
-          topCoach={coachA}
-          bottomCoach={coachB}
-          coachTokens={coachTokens}
-        />
-        {frame?.kind === 'event' && (
-          <MatchEventOverlay
-            kind={frame.event.kind}
-            party={result.removedBy ?? null}
-          />
-        )}
-        {tape &&
-          (tapeForced ||
-            (frame?.kind === 'intro' && (introHeld || introHolding))) && (
-            <MatchIntroOverlay
-              a={a}
-              b={b}
-              moodA={moodA}
-              moodB={moodB}
-              tape={tape}
-              onClose={tapeForced ? onTapeClose : undefined}
-              footer={
-                !tapeForced ? (
-                  <IntroHoldControls
-                    onContinue={(auto) => {
-                      setIntroHeld(false);
-                      // The countdown lets the commentator finish; a click
-                      // cuts him off
-                      if (!auto) cutIntro();
-                    }}
-                  />
-                ) : undefined
-              }
-            />
+  return (
+    <MatchTableFrame
+      theme={theme}
+      label={
+        finished
+          ? GAMES_UI.cup.viewer.end
+          : (currentRoundLabel ?? GAMES_UI.cup.viewer.start)
+      }
+      footer={
+        <>
+          {commentary && (
+            // The commentator's line keeps a slot of its own under the table
+            // so it never lands on the controls, and pins to the bottom of
+            // the screen when the slot is scrolled out of view
+            <div
+              aria-live="polite"
+              className="pointer-events-none sticky bottom-4 z-40 flex min-h-9 w-full items-center justify-center"
+            >
+              {commentaryCaption && (
+                <p
+                  className={
+                    street
+                      ? 'max-w-lg rounded-[3px] bg-[#140d07] px-4 py-1.5 text-center font-sign text-[15px] font-semibold leading-snug tracking-[0.02em] text-[#fdf0c8] shadow-[0_0_0_2px_#a8782a,0_4px_0_2px_rgb(0_0_0/0.5)] animate-[bubblein_0.25s_ease-out]'
+                      : 'max-w-lg rounded-md bg-slate-950/80 px-4 py-1.5 text-center text-sm font-semibold italic leading-snug text-white shadow-lg [text-shadow:0_1px_2px_rgba(0,0,0,0.9)] animate-[bubblein_0.25s_ease-out]'
+                  }
+                >
+                  {commentaryCaption}
+                </p>
+              )}
+            </div>
           )}
-        {showExitScene && result.reason && (
-          <MatchExitScene
-            reason={result.reason}
-            loser={result.winner === 'a' ? b : a}
-            side={loserSide}
-            party={result.removedBy ?? null}
-            walkOff={!loserHoldsPose}
+          {footer}
+        </>
+      }
+    >
+      <SpectateTable
+        top={a}
+        bottom={b}
+        topLives={livesA}
+        bottomLives={livesB}
+        topCap={capA}
+        bottomCap={capB}
+        topSponsor={sponsorA}
+        bottomSponsor={sponsorB}
+        topMood={finished ? null : liveA}
+        bottomMood={finished ? null : liveB}
+        topStats={
+          liveA && revealA ? (
+            <MatchStatsStrip ch={liveA} reveal={revealA} seat="top" />
+          ) : null
+        }
+        bottomStats={
+          liveB && revealB ? (
+            <MatchStatsStrip ch={liveB} reveal={revealB} seat="bottom" />
+          ) : null
+        }
+        topDelta={deltaFor('a')}
+        bottomDelta={deltaFor('b')}
+        topFame={moodA?.fame}
+        bottomFame={moodB?.fame}
+        spotVariants={spotVariants}
+        glizzyVariant={glizzyVariant}
+        phase={phase}
+        outcome={finished ? (result.winner === 'a' ? 'top' : 'bottom') : null}
+        exit={exitSide}
+        celebrate={!result.reason || loserHoldsPose}
+        sick={sickSide}
+        sniff={sniffSide}
+        sniffSpot={sniffSpot}
+        betSlug={betSlug}
+        theme={theme}
+        topCoach={coachA}
+        bottomCoach={coachB}
+        coachTokens={coachTokens}
+      />
+      {frame?.kind === 'event' && (
+        <MatchEventOverlay
+          kind={frame.event.kind}
+          party={result.removedBy ?? null}
+        />
+      )}
+      {tape &&
+        (tapeForced ||
+          (frame?.kind === 'intro' && (introHeld || introHolding))) && (
+          <MatchIntroOverlay
+            a={a}
+            b={b}
+            moodA={moodA}
+            moodB={moodB}
+            tape={tape}
+            onClose={tapeForced ? onTapeClose : undefined}
+            footer={
+              !tapeForced ? (
+                <IntroHoldControls
+                  onContinue={(auto) => {
+                    setIntroHeld(false);
+                    // The countdown lets the commentator finish; a click
+                    // cuts him off
+                    if (!auto) cutIntro();
+                  }}
+                />
+              ) : undefined
+            }
           />
         )}
-        {finished && (
-          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
-            <div className="flex flex-col items-center gap-1 rounded-2xl border border-sky-200/20 bg-slate-950/90 px-7 py-4 shadow-2xl backdrop-blur-sm animate-[bubblein_0.35s_ease-out]">
-              <p className="text-2xl font-bold">
+      {showExitScene && result.reason && (
+        <MatchExitScene
+          reason={result.reason}
+          loser={result.winner === 'a' ? b : a}
+          side={loserSide}
+          party={result.removedBy ?? null}
+          walkOff={!loserHoldsPose}
+        />
+      )}
+      {finished && (
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+          {street ? (
+            <MatchScoreboard
+              livesA={result.livesA}
+              livesB={result.livesB}
+              winner={result.winner}
+              verdict={fmt(GAMES_UI.cup.viewer.winner, {
+                name: result.winner === 'a' ? a.name : b.name,
+              })}
+              reason={
+                result.reason
+                  ? (GAMES_UI.cup.viewer.reasons as Record<string, string>)[
+                      result.reason
+                    ]
+                  : undefined
+              }
+              note={resultNote}
+            />
+          ) : (
+            <div className="flex flex-col items-center gap-1 rounded-2xl border border-sky-200/20 bg-slate-950/90 px-7 py-4 shadow-[0_18px_40px_-10px_rgba(0,0,0,0.85)] backdrop-blur-sm animate-[bubblein_0.35s_ease-out]">
+              <p className="text-3xl font-black tabular-nums">
                 <span
                   className={
                     result.winner === 'a' ? 'text-green-400' : 'text-slate-400'
@@ -516,39 +591,9 @@ export default function MatchViewer({
                 </p>
               )}
             </div>
-          </div>
-        )}
-        <CommentaryCaption line={commentaryCaption} viewport />
-      </div>
-
-      {synced ? null : finished ? (
-        <button
-          onClick={onDone}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/40 bg-red-500/15 px-4 py-1.5 text-xs font-semibold text-red-200 transition hover:border-red-500/60 hover:bg-red-500/25 hover:text-white"
-        >
-          {GAMES_UI.cup.viewer.continue}
-        </button>
-      ) : (
-        <button
-          onClick={() => {
-            // A match that ends on a forfeit keeps its final interlude, so
-            // the medics, the police or the puke still get their moment
-            // before the exit scene; the timer then finishes the match
-            const lastFrame = frames[frames.length - 1];
-            if (lastFrame.kind === 'event' && frameIndex < frames.length - 1) {
-              playEventSound(lastFrame.event.kind);
-              setFrameIndex(frames.length - 1);
-              return;
-            }
-            playFinishSounds();
-            setFrameIndex(frames.length);
-          }}
-          className="group inline-flex items-center gap-1.5 rounded-xl border border-sky-200/20 bg-slate-800/60 px-4 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-sky-200/45 hover:bg-slate-800 hover:text-white"
-        >
-          {GAMES_UI.cup.viewer.skip}
-          <DoubleChevronRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-        </button>
+          )}
+        </div>
       )}
-    </div>
+    </MatchTableFrame>
   );
 }

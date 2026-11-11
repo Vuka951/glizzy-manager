@@ -1,6 +1,8 @@
 import {
   HOUSE_OFFER_CHANCE,
-  HOUSE_SPONSORS,
+  PARTY_CAP_MIN,
+  PARTY_CAP_SHARE,
+  PARTY_CROWD_FACTOR,
   SPONSOR_DEFS,
   SPONSOR_FAME_GATE,
   SPONSOR_FAME_GATE_UNTIL_YEAR,
@@ -9,12 +11,16 @@ import {
   SPONSOR_IDS,
   SPONSOR_TOP_SEED_OFFER_CHANCE,
   SPONSOR_WILDCARD_CHANCE,
-  sponsorInterest,
+  SPONSOR_WILDCARD_CHANCE_AFTER_ELECTION,
+  SPONSOR_WILDCARD_CHANCE_LATE,
+  SPONSOR_WILDCARD_LATE_YEAR,
 } from '@/data/games/careerSponsors';
-import { OSTRVO_SABOTAGE_DISCOUNT } from '@/data/games/careerEconomy';
+import { houseSponsor, sponsorInterest } from '@/lib/utils/characterTraits';
+import { GREEN_SABOTAGE_DISCOUNT } from '@/data/games/careerEconomy';
 import {
-  KORPORACIJA_WIN_PAY_LEADER,
-  KORPORACIJA_WIN_PAY_OPPOSITION,
+  ELECTION_FIRST_YEAR,
+  YELLOW_WIN_PAY_LEADER,
+  YELLOW_WIN_PAY_OPPOSITION,
 } from '@/data/games/careerElections';
 import { seasonPayAdjust } from '@/lib/utils/careerElections';
 import type {
@@ -45,14 +51,65 @@ export type SponsorOfferContext = {
 
 // Who is on the phone, once the phone is ringing. A house character hears
 // from his house at the house share; every other call is split by the lore
-// weights, so somebody always calls and Steva never hears from Korporacija
-export function rollSponsorFor(slug: string): SponsorId | null {
-  const house = HOUSE_SPONSORS[slug];
-  if (house && Math.random() < house.share) return house.sponsor;
+// weights, so somebody always calls and a list a character refuses never does
+export function rollSponsorFor(
+  slug: string,
+  crowd?: PartyCrowd,
+): SponsorId | null {
+  const house = houseSponsor(slug);
+  if (
+    house &&
+    crowdWeight(house.sponsor, crowd) > 0 &&
+    Math.random() < house.share
+  ) {
+    return house.sponsor;
+  }
   const pool = SPONSOR_IDS.filter((id) => id !== house?.sponsor);
-  const total = pool.reduce((sum, id) => sum + sponsorInterest(slug, id), 0);
+  const pull = (id: SponsorId) =>
+    sponsorInterest(slug, id) * crowdWeight(id, crowd);
+  const total = pool.reduce((sum, id) => sum + pull(id), 0);
   if (total <= 0) return null;
-  return weightedPick(pool, (id) => sponsorInterest(slug, id));
+  return weightedPick(pool, pull);
+}
+
+// Who sits on which list right now, for the AI's calls only; humans sign
+// with whoever rings
+export type PartyCrowd = {
+  members: Record<SponsorId, number>;
+  tableSize: number;
+};
+
+export function partyCrowd(
+  characters: Record<string, CharacterCareerState>,
+): PartyCrowd {
+  const members = Object.fromEntries(
+    SPONSOR_IDS.map((id) => [id, 0]),
+  ) as Record<SponsorId, number>;
+  const all = Object.values(characters);
+  all.forEach((ch) => {
+    if (ch.sponsor) members[ch.sponsor.sponsorId] += 1;
+  });
+  return { members, tableSize: all.length };
+}
+
+function partyCap(tableSize: number): number {
+  return Math.max(PARTY_CAP_MIN, Math.ceil(tableSize * PARTY_CAP_SHARE));
+}
+
+function crowdWeight(id: SponsorId, crowd: PartyCrowd | undefined): number {
+  if (!crowd) return 1;
+  if (crowd.members[id] >= partyCap(crowd.tableSize)) return 0;
+  const fewest = Math.min(...SPONSOR_IDS.map((p) => crowd.members[p]));
+  return PARTY_CROWD_FACTOR ** (crowd.members[id] - fewest);
+}
+
+// The first count closes year ELECTION_FIRST_YEAR, so every year after it
+// already has a parliament
+function wildcardChance(year: number): number {
+  if (year >= SPONSOR_WILDCARD_LATE_YEAR) return SPONSOR_WILDCARD_CHANCE_LATE;
+  return year > ELECTION_FIRST_YEAR
+    ? SPONSOR_WILDCARD_CHANCE_AFTER_ELECTION
+    : SPONSOR_WILDCARD_CHANCE;
 }
 
 export function fameGateApplies(year: number): boolean {
@@ -77,28 +134,33 @@ export function rollSponsorOffers(
   slug: string,
   ch: CharacterCareerState,
   ctx: SponsorOfferContext,
+  crowd?: PartyCrowd,
 ): SponsorOffer[] {
   if (ch.sponsor) return [];
   const offers = new Map<SponsorId, boolean>();
-  if (Math.random() < SPONSOR_WILDCARD_CHANCE) {
-    const id = rollSponsorFor(slug);
+  if (Math.random() < wildcardChance(ctx.year)) {
+    const id = rollSponsorFor(slug, crowd);
     if (id) offers.set(id, true);
   }
-  const house = HOUSE_SPONSORS[slug];
-  if (house && Math.random() < HOUSE_OFFER_CHANCE) {
+  const house = houseSponsor(slug);
+  if (
+    house &&
+    crowdWeight(house.sponsor, crowd) > 0 &&
+    Math.random() < HOUSE_OFFER_CHANCE
+  ) {
     offers.set(house.sponsor, false);
   }
   const earned = earnedOfferChance(ctx);
   const famous = !fameGateApplies(ctx.year) || ch.fame >= SPONSOR_FAME_GATE;
   if (earned > 0 && famous && Math.random() < earned) {
-    const id = rollSponsorFor(slug);
+    const id = rollSponsorFor(slug, crowd);
     if (id) offers.set(id, false);
   }
   return [...offers].map(([sponsorId, wildcard]) => ({ sponsorId, wildcard }));
 }
 
 // Season pay by seat: the leading party's clients draw the budget line, the
-// opposition pays the solidarity levy, and the Korporacija's per-win money
+// opposition pays the solidarity levy, and the Yellow Party's per-win money
 // follows the same ladder
 export function sponsorPayout(
   contract: SponsorContract,
@@ -107,23 +169,23 @@ export function sponsorPayout(
 ): number {
   const def = SPONSOR_DEFS[contract.sponsorId];
   const perWin =
-    contract.sponsorId === 'korporacija'
+    contract.sponsorId === 'yellow'
       ? status === 'leader'
-        ? KORPORACIJA_WIN_PAY_LEADER
+        ? YELLOW_WIN_PAY_LEADER
         : status === 'opposition'
-          ? KORPORACIJA_WIN_PAY_OPPOSITION
+          ? YELLOW_WIN_PAY_OPPOSITION
           : def.perWinPay
       : def.perWinPay;
   return def.seasonPay + seasonPayAdjust(status) + perWin * matchWins;
 }
 
-export function isOstrvoClient(ch: CharacterCareerState): boolean {
-  return ch.sponsor?.sponsorId === 'ostrvo';
+export function isGreenClient(ch: CharacterCareerState): boolean {
+  return ch.sponsor?.sponsorId === 'green';
 }
 
 // What the island's clients pay for a job relative to the street price
-export function ostrvoSabotageScale(ch: CharacterCareerState): number {
-  return isOstrvoClient(ch) ? 1 - OSTRVO_SABOTAGE_DISCOUNT : 1;
+export function greenSabotageScale(ch: CharacterCareerState): number {
+  return isGreenClient(ch) ? 1 - GREEN_SABOTAGE_DISCOUNT : 1;
 }
 
 // How many cup matches a final placing must have taken, read back off the

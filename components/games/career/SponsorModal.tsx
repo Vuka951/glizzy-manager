@@ -3,12 +3,15 @@ import SponsorEmblem from '@/components/games/career/SponsorEmblem';
 import { SPONSOR_THEMES } from '@/lib/constants/sponsorThemes';
 import type { SponsorId } from '@/lib/utils/careerSave';
 
-// Every panel the player opens while under contract wears the sponsor's
-// colors, so the deal is felt in the menus and not only read off the badge
+// Every board the player opens while under contract carries the sponsor's
+// emblem on its sign and its colours along the seam, so the deal is felt in
+// the menus and not only read off the badge
 export default function SponsorModal({
   sponsorId,
   title,
   wide = false,
+  board = false,
+  flush = false,
   titleExtra,
   headerExtra,
   onClose,
@@ -17,8 +20,10 @@ export default function SponsorModal({
   sponsorId: SponsorId | null;
   title: string;
   wide?: boolean;
+  board?: boolean | 'tall';
   titleExtra?: React.ReactNode;
   headerExtra?: React.ReactNode;
+  flush?: boolean;
   onClose: () => void;
   children: React.ReactNode;
 }) {
@@ -27,19 +32,12 @@ export default function SponsorModal({
     <GameModal
       title={title}
       wide={wide}
+      board={board}
       titleExtra={titleExtra}
       headerExtra={headerExtra}
       onClose={onClose}
-      accent={
-        theme
-          ? {
-              frame: theme.modalFrame,
-              title: theme.modalTitle,
-              wash: theme.modalWash,
-              stripe: theme.modalStripe,
-            }
-          : undefined
-      }
+      stripe={theme?.modalStripe}
+      flush={flush}
       badge={
         sponsorId ? (
           <SponsorEmblem sponsorId={sponsorId} className="h-4 w-4" />

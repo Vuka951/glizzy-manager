@@ -1,5 +1,10 @@
 import { useState } from 'react';
+import CareerButton from '@/components/games/career/CareerButton';
+import LawLetterAttachment from '@/components/games/career/LawLetterAttachment';
 import SponsorEmblem from '@/components/games/career/SponsorEmblem';
+import TownPostCounter from '@/components/games/career/town/TownPostCounter';
+import TownPostEnvelope from '@/components/games/career/town/TownPostEnvelope';
+import TownPostLetter from '@/components/games/career/town/TownPostLetter';
 import {
   DONATION_SCALE,
   FAVOR_TIERS,
@@ -7,9 +12,21 @@ import {
   PARTY_SEAT_ORDER,
 } from '@/data/games/careerElections';
 import { outsiderOfferChance } from '@/lib/utils/careerElections';
+import { CONSTITUTION_FAIL_RATING_PENALTY } from '@/data/games/careerLaws';
+import { isLawId, lawName } from '@/lib/utils/careerLaws';
+import {
+  glizzyBetMultiplier,
+  isGlizzyCall,
+} from '@/lib/utils/careerGlizzflationBets';
+import { byMailImportance, mailSender } from '@/lib/utils/careerMail';
+import { isSponsorId } from '@/lib/utils/careerSponsors';
 import type { MailItem, SponsorId } from '@/lib/utils/careerSave';
 import { GAMES_UI } from '@/data/games/locale';
-import { seasonName, sponsorName } from '@/lib/utils/localeNames';
+import {
+  characterName,
+  seasonName,
+  sponsorName,
+} from '@/lib/utils/localeNames';
 import { fillMessage } from '@/lib/utils/messageText';
 import { fmt, plural } from '@/lib/utils/format';
 import { playLetterSound } from '@/lib/utils/gameSounds';
@@ -55,6 +72,49 @@ function mailStrings(item: MailItem): { subject: string; body: string } {
       subject: MAIL.underworldUnlocked.subject,
       body: MAIL.underworldUnlocked.body,
     };
+  }
+  if (item.templateKey === 'glizzy-market-unlocked') {
+    return {
+      subject: MAIL.glizzyMarketUnlocked.subject,
+      body: MAIL.glizzyMarketUnlocked.body,
+    };
+  }
+  if (item.templateKey === 'glizzy-bet') {
+    const callId = isGlizzyCall(item.params.call) ? item.params.call : 'flat';
+    const actualPct = Number(item.params.actualPct);
+    const payout = Number(item.params.payout);
+    const stake = Number(item.params.stake);
+    const call =
+      callId === 'up'
+        ? MAIL.glizzyBet.callUp
+        : callId === 'down'
+          ? MAIL.glizzyBet.callDown
+          : MAIL.glizzyBet.callFlat;
+    const actual =
+      actualPct === 0
+        ? MAIL.glizzyBet.actualFlat
+        : fmt(
+            actualPct > 0 ? MAIL.glizzyBet.actualUp : MAIL.glizzyBet.actualDown,
+            { pct: Math.abs(actualPct) },
+          );
+    return payout > 0
+      ? {
+          subject: MAIL.glizzyBet.subjectWon,
+          body: fmt(MAIL.glizzyBet.bodyWon, {
+            call,
+            actual,
+            stake,
+            payout,
+            multiplier:
+              stake > 0
+                ? Math.round((payout / stake) * 10) / 10
+                : glizzyBetMultiplier(callId, actualPct),
+          }),
+        }
+      : {
+          subject: MAIL.glizzyBet.subjectLost,
+          body: fmt(MAIL.glizzyBet.bodyLost, { call, actual, stake }),
+        };
   }
   if (item.templateKey === 'season-prices') {
     return {
@@ -108,13 +168,54 @@ function mailStrings(item: MailItem): { subject: string; body: string } {
         (MAIL.donation.bodies as Record<string, string>)[item.sponsorId] ?? '',
     };
   }
+  if (item.templateKey === 'law-bill') {
+    return { subject: MAIL.law.billSubject, body: MAIL.law.billBody };
+  }
+  if (item.kind === 'law' && item.params.action === 'constitution') {
+    const key = `constitution-${item.params.outcome}`;
+    const params = {
+      party: item.sponsorId ? sponsorName(item.sponsorId) : '',
+      yes: item.params.yes ?? 0,
+      no: item.params.no ?? 0,
+      penalty: CONSTITUTION_FAIL_RATING_PENALTY,
+    };
+    return {
+      subject: (MAIL.law.subjects as Record<string, string>)[key] ?? '',
+      body: fmt((MAIL.law.bodies as Record<string, string>)[key] ?? '', params),
+    };
+  }
+  if (item.kind === 'law' && isLawId(item.params.law)) {
+    const law = item.params.law;
+    const key = `${item.params.action}-${item.params.outcome}`;
+    const params = {
+      law: lawName(law),
+      party: sponsorName(String(item.params.party ?? '')),
+      yes: item.params.yes ?? 0,
+      no: item.params.no ?? 0,
+    };
+    return {
+      subject: fmt(
+        (MAIL.law.subjects as Record<string, string>)[key] ?? '',
+        params,
+      ),
+      body: fmt((MAIL.law.bodies as Record<string, string>)[key] ?? '', params),
+    };
+  }
   if (item.kind === 'election') {
+    const body =
+      (MAIL.election.bodies as Record<string, string>)[
+        String(item.params.status)
+      ] ?? '';
+    const premier = item.params.premierYou
+      ? MAIL.election.premierYou
+      : item.params.premier
+        ? fmt(MAIL.election.premier, {
+            name: characterName(String(item.params.premier)),
+          })
+        : '';
     return {
       subject: MAIL.election.subject,
-      body:
-        (MAIL.election.bodies as Record<string, string>)[
-          String(item.params.status)
-        ] ?? '',
+      body: premier ? `${body} ${premier}` : body,
     };
   }
   if (item.kind === 'favor' && item.sponsorId) {
@@ -130,6 +231,15 @@ function mailStrings(item: MailItem): { subject: string; body: string } {
         { favors: counts[Math.min(count, counts.length) - 1] ?? '' },
       ),
     };
+  }
+  if (item.templateKey === 'yellow-interest') {
+    return {
+      subject: MAIL.yellowInterest.subject,
+      body: fillMessage(MAIL.yellowInterest.body, item.params, item.refs),
+    };
+  }
+  if (item.templateKey === 'yellow-warning') {
+    return { subject: MAIL.yellowWarning.subject, body: MAIL.yellowWarning.body };
   }
   if (item.kind === 'tax') {
     return { subject: MAIL.tax.subject, body: fillMessage(MAIL.tax.body, item.params, item.refs) };
@@ -169,47 +279,13 @@ function mailStrings(item: MailItem): { subject: string; body: string } {
   return { subject: item.templateKey, body: '' };
 }
 
-function Envelope({ opening }: { opening: boolean }) {
-  return (
-    <span className="relative block h-14 w-20 shrink-0 [perspective:220px]">
-      <span
-        className={`absolute inset-x-2 bottom-1 z-10 h-8 rounded-sm border border-slate-300 bg-white transition-transform duration-500 ease-out delay-[300ms] ${
-          opening ? '-translate-y-5 rotate-2' : ''
-        }`}
-      >
-        <span className="mx-1.5 mt-1.5 block h-0.5 bg-slate-300" />
-        <span className="mx-1.5 mt-1 block h-0.5 bg-slate-300" />
-        <span className="mx-1.5 mt-1 block h-0.5 w-2/3 bg-slate-300" />
-      </span>
-      <span className="absolute inset-x-0 bottom-0 z-20 h-10 rounded-md border border-amber-300/70 bg-amber-100" />
-      <span
-        className={`absolute inset-x-0 top-4 h-6 origin-top transition-transform duration-[400ms] ease-out ${
-          opening ? 'z-0 [transform:rotateX(-172deg)]' : 'z-30'
-        }`}
-      >
-        <svg
-          viewBox="0 0 80 26"
-          className="block h-6 w-full"
-          aria-hidden="true"
-        >
-          <path
-            d="M1 1 40 24 79 1z"
-            className="fill-amber-200 stroke-amber-400"
-            strokeWidth="1"
-          />
-        </svg>
-      </span>
-      <span
-        className={`absolute top-8 left-1/2 z-40 h-3.5 w-3.5 -translate-x-1/2 rounded-full bg-red-700 transition-all duration-200 ease-in ${
-          opening ? 'scale-0 opacity-0' : 'scale-100 opacity-100'
-        }`}
-      />
-    </span>
-  );
-}
+const GREEN_KEY =
+  'min-h-11 rounded-[4px] bg-[#166534] px-3.5 font-sign text-[15px] font-bold uppercase tracking-[0.06em] tabular-nums text-[#f0fdf4] shadow-[0_2px_0_#052e16] transition enabled:hover:bg-[#15803d] enabled:active:translate-y-px disabled:cursor-not-allowed disabled:opacity-35';
+const INK_KEY =
+  'min-h-11 rounded-[4px] bg-[#1c1917] px-3.5 font-sign text-[15px] font-bold uppercase tracking-[0.06em] text-[#fbf6e6] shadow-[0_2px_0_#000000] transition hover:bg-[#44403c] active:translate-y-px';
 
-// Letters arrive sealed; opening one plays the envelope animation and lays
-// the contents out on paper
+// Letters arrive sealed on the post office counter; opening one plays the
+// envelope animation and lays the contents out on paper
 export default function CareerMailbox({
   mail,
   canAcceptSponsor,
@@ -236,7 +312,7 @@ export default function CareerMailbox({
   const [campaignParty, setCampaignParty] = useState<
     Record<string, SponsorId>
   >({});
-  const unread = mail.filter((m) => !m.read);
+  const unread = byMailImportance(mail.filter((m) => !m.read));
 
   const openLetter = (id: string) => {
     if (openState[id]) return;
@@ -246,20 +322,24 @@ export default function CareerMailbox({
   };
 
   return (
-    <div className="flex w-full flex-col gap-2.5">
+    <TownPostCounter
+      waiting={unread.length > 0}
+      toolbar={
+        unread.length > 1 && (
+          <CareerButton tone="quiet" className="min-h-11" onClick={onMarkAllRead}>
+            {MAIL.clearAll}
+          </CareerButton>
+        )
+      }
+    >
       {unread.length === 0 && (
-        <p className="text-center text-[11px] text-slate-500">{MAIL.empty}</p>
-      )}
-      {unread.length > 1 && (
-        <button
-          onClick={onMarkAllRead}
-          className="self-end rounded-sm bg-slate-800 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-amber-50 transition hover:bg-slate-700"
-        >
-          {MAIL.clearAll}
-        </button>
+        <p className="mx-auto w-fit -rotate-1 rounded-[1px] bg-[#f1e8d3] px-4 py-2.5 text-center font-serif text-[13px] text-[#3a2f1e] shadow-[0_3px_0_rgb(0_0_0/0.35)]">
+          {MAIL.empty}
+        </p>
       )}
       {unread.map((item) => {
         const { subject, body } = mailStrings(item);
+        const sender = mailSender(item);
         const isOffer = item.kind === 'sponsor-offer' && item.sponsorId;
         const isDonation = item.kind === 'donation' && item.sponsorId;
         const isCampaign = item.kind === 'campaign';
@@ -269,53 +349,111 @@ export default function CareerMailbox({
           isOffer ||
           isDonation ||
           item.kind === 'favor' ||
-          item.templateKey === 'campaign-declined';
+          item.templateKey === 'campaign-declined' ||
+          item.templateKey.startsWith('yellow-');
+        const isLaw = item.kind === 'law';
+        const lawParty = String(item.params.party ?? '');
+        const emblem: SponsorId | null =
+          showsEmblem && item.sponsorId
+            ? (item.sponsorId as SponsorId)
+            : item.kind === 'tax' || item.kind === 'tax-refund'
+              ? 'yellow'
+              : isLaw && isLawId(item.params.law) && isSponsorId(lawParty)
+                ? lawParty
+                : isLaw &&
+                    item.params.action === 'constitution' &&
+                    item.sponsorId
+                  ? (item.sponsorId as SponsorId)
+                  : null;
+        const seal = emblem ? (
+          <SponsorEmblem sponsorId={emblem} className="h-[78%] w-[78%]" />
+        ) : null;
         const state = openState[item.id];
         if (state !== 'open') {
           return (
-            <button
+            <TownPostEnvelope
               key={item.id}
-              onClick={() => openLetter(item.id)}
-              title={GAMES_UI.career.actions.openLetter}
-              className="flex items-center gap-3 rounded-xl border border-amber-400/20 bg-slate-800/40 p-2.5 text-left transition hover:border-amber-400/50 hover:bg-slate-800/70"
-            >
-              <Envelope opening={state === 'opening'} />
-              <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-1.5 text-[11px] font-bold text-amber-200">
-                  {showsEmblem && item.sponsorId && (
-                    <SponsorEmblem
-                      sponsorId={item.sponsorId as SponsorId}
-                      className="h-3.5 w-3.5"
-                    />
-                  )}
-                  <span className="truncate">{subject}</span>
-                </span>
-                <span className="mt-0.5 block text-[10px] text-slate-500">
-                  {GAMES_UI.career.actions.openLetter}
-                </span>
-              </span>
-            </button>
+              subject={subject}
+              sender={sender}
+              seal={seal}
+              season={item.season}
+              year={item.year}
+              label={GAMES_UI.career.actions.openLetter}
+              opening={state === 'opening'}
+              onOpen={() => openLetter(item.id)}
+            />
           );
         }
         return (
-          <div
+          <TownPostLetter
             key={item.id}
-            className="rotate-[-0.5deg] rounded-sm bg-amber-50 p-3.5 text-left text-slate-800 shadow-lg animate-[bubblein_0.35s_ease-out]"
+            subject={subject}
+            sender={sender}
+            seal={seal}
+            season={item.season}
+            year={item.year}
+            actions={
+              <>
+                {isCampaign &&
+                  donationOpen &&
+                  OUTSIDER_DONATION_STEPS.map((amount) => (
+                    <button
+                      key={amount}
+                      disabled={amount > balance || !pickedParty}
+                      onClick={() =>
+                        pickedParty && onDonate(item.id, amount, pickedParty)
+                      }
+                      className={GREEN_KEY}
+                    >
+                      {fmt(MAIL.campaign.give, {
+                        amount,
+                        pct: Math.round(outsiderOfferChance(amount) * 100),
+                      })}
+                    </button>
+                  ))}
+                {isDonation &&
+                  donationOpen &&
+                  DONATION_SCALE.map((amount) => (
+                    <button
+                      key={amount}
+                      disabled={amount > balance}
+                      onClick={() => onDonate(item.id, amount)}
+                      className={GREEN_KEY}
+                    >
+                      {fmt(MAIL.donation.give, { amount })}
+                    </button>
+                  ))}
+                {isOffer && canAcceptSponsor && (
+                  <button
+                    onClick={() =>
+                      onAcceptSponsor(item.id, item.sponsorId as SponsorId)
+                    }
+                    className={GREEN_KEY}
+                  >
+                    {SPONSORS.accept}
+                  </button>
+                )}
+                <button
+                  onClick={() => onMarkRead(item.id)}
+                  className={!isOffer && item.amount ? GREEN_KEY : INK_KEY}
+                >
+                  {isOffer
+                    ? SPONSORS.decline
+                    : isDonation && donationOpen
+                      ? MAIL.donation.later
+                      : item.amount
+                        ? plural(MAIL.take, item.amount, { amount: item.amount })
+                        : MAIL.markRead}
+                </button>
+              </>
+            }
           >
-            <p className="flex items-center gap-1.5 border-b border-slate-900/15 pb-1.5 text-[11px] font-black uppercase tracking-wider">
-              {showsEmblem && item.sponsorId && (
-                <SponsorEmblem
-                  sponsorId={item.sponsorId as SponsorId}
-                  className="h-4 w-4"
-                />
-              )}
-              {subject}
-            </p>
-            <p className="mt-2 text-[11px] italic leading-relaxed text-slate-600">
+            <p className="mt-2.5 font-serif text-[13px] leading-relaxed text-[#292524]">
               {body}
             </p>
+            {isLaw && <LawLetterAttachment item={item} />}
             {isDonation && donationOpen && (
-              <p className="mt-2 text-[10px] font-semibold leading-relaxed text-slate-700">
+              <p className="mt-2 text-[11px] font-semibold leading-relaxed text-[#44403c]">
                 {fmt(MAIL.donation.favorTerms, {
                   min: FAVOR_TIERS[0],
                   top: FAVOR_TIERS[FAVOR_TIERS.length - 1],
@@ -330,78 +468,21 @@ export default function CareerMailbox({
                     onClick={() =>
                       setCampaignParty((s) => ({ ...s, [item.id]: id }))
                     }
-                    className={`flex items-center gap-1.5 rounded-sm border px-2 py-1 text-[9px] font-black uppercase tracking-widest transition ${
+                    className={`flex min-h-11 items-center gap-1.5 rounded-[4px] border-2 px-2.5 font-sign text-[14px] font-bold uppercase tracking-[0.05em] transition ${
                       pickedParty === id
-                        ? 'border-emerald-700 bg-emerald-700 text-emerald-50'
-                        : 'border-slate-900/20 bg-transparent text-slate-700 hover:border-slate-900/50'
+                        ? 'border-[#166534] bg-[#166534] text-[#f0fdf4]'
+                        : 'border-[#1c1917]/25 text-[#44403c] hover:border-[#1c1917]/60'
                     }`}
                   >
-                    <SponsorEmblem sponsorId={id} className="h-3.5 w-3.5" />
+                    <SponsorEmblem sponsorId={id} className="h-4 w-4" />
                     {sponsorName(id)}
                   </button>
                 ))}
               </div>
             )}
-            <div className="mt-2.5 flex flex-wrap justify-end gap-2">
-              {isCampaign &&
-                donationOpen &&
-                OUTSIDER_DONATION_STEPS.map((amount) => (
-                  <button
-                    key={amount}
-                    disabled={amount > balance || !pickedParty}
-                    onClick={() =>
-                      pickedParty && onDonate(item.id, amount, pickedParty)
-                    }
-                    className="rounded-sm bg-emerald-700 px-2.5 py-1 font-mono text-[10px] font-black text-emerald-50 transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-emerald-700"
-                  >
-                    {fmt(MAIL.campaign.give, {
-                      amount,
-                      pct: Math.round(outsiderOfferChance(amount) * 100),
-                    })}
-                  </button>
-                ))}
-              {isDonation &&
-                donationOpen &&
-                DONATION_SCALE.map((amount) => (
-                  <button
-                    key={amount}
-                    disabled={amount > balance}
-                    onClick={() => onDonate(item.id, amount)}
-                    className="rounded-sm bg-emerald-700 px-2.5 py-1 font-mono text-[10px] font-black text-emerald-50 transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-emerald-700"
-                  >
-                    {fmt(MAIL.donation.give, { amount })}
-                  </button>
-                ))}
-              {isOffer && canAcceptSponsor && (
-                <button
-                  onClick={() =>
-                    onAcceptSponsor(item.id, item.sponsorId as SponsorId)
-                  }
-                  className="rounded-sm bg-emerald-700 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-50 transition hover:bg-emerald-600"
-                >
-                  {SPONSORS.accept}
-                </button>
-              )}
-              <button
-                onClick={() => onMarkRead(item.id)}
-                className={`rounded-sm px-3 py-1 text-[10px] font-black uppercase tracking-widest transition ${
-                  !isOffer && item.amount
-                    ? 'bg-emerald-700 text-emerald-50 hover:bg-emerald-600'
-                    : 'bg-slate-800 text-amber-50 hover:bg-slate-700'
-                }`}
-              >
-                {isOffer
-                  ? SPONSORS.decline
-                  : isDonation && donationOpen
-                    ? MAIL.donation.later
-                    : item.amount
-                      ? plural(MAIL.take, item.amount, { amount: item.amount })
-                      : MAIL.markRead}
-              </button>
-            </div>
-          </div>
+          </TownPostLetter>
         );
       })}
-    </div>
+    </TownPostCounter>
   );
 }

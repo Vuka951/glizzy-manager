@@ -1,6 +1,9 @@
 import { useSyncExternalStore } from 'react';
 import Icon from '@/components/icons/Icon';
 import ToggleSwitch from '@/components/games/ToggleSwitch';
+import { useCareerFrames } from '@/components/games/career/careerFrames';
+import SwitchboardPanel from '@/components/games/career/switchboard/SwitchboardPanel';
+import SwitchboardRow from '@/components/games/career/switchboard/SwitchboardRow';
 import { GAMES_UI } from '@/data/games/locale';
 import type { IconName } from '@/lib/constants/icons';
 import {
@@ -28,11 +31,28 @@ export default function BroadcastSettingsPanel({
 }: {
   toggles: BroadcastToggle[];
 }) {
+  const street = useCareerFrames() === 'street';
   const settings = useSyncExternalStore(
     subscribeGameSettings,
     readGameSettings,
     readServerGameSettings,
   );
+
+  if (street) {
+    return (
+      <SwitchboardPanel>
+        {toggles.map((toggle) => (
+          <SwitchboardRow
+            key={toggle}
+            label={B[toggle]}
+            glyph={<Icon name={TOGGLE_ICONS[toggle]} className="h-4 w-4" />}
+            on={settings[toggle]}
+            onSwitch={() => writeGameSettings({ [toggle]: !settings[toggle] })}
+          />
+        ))}
+      </SwitchboardPanel>
+    );
+  }
 
   return (
     <ul className="w-full divide-y divide-sky-200/10 overflow-hidden rounded-2xl border border-sky-200/10 bg-slate-800/40 text-left">

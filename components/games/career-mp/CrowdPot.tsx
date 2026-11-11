@@ -104,7 +104,7 @@ export default function CrowdPot({ amount }: { amount: number }) {
           />
         )}
       </svg>
-      <span className="rounded-full bg-slate-950/70 px-1.5 font-mono text-[9px] font-bold leading-4 text-amber-300">
+      <span className="rounded-[2px] bg-[#1f140b] px-1.5 font-sign text-[12px] font-bold leading-4 tabular-nums text-[#fcd34d] shadow-[0_1px_0_rgb(255_255_255/0.12)]">
         {amount}
       </span>
     </span>

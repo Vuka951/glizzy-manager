@@ -74,7 +74,7 @@ export type SabotageHitSceneId =
   | 'hit-bribe'
   | 'hit-rumor'
   | 'hit-catfish-date'
-  | 'hit-catfish-zeka'
+  | 'hit-catfish-beast'
   | 'hit-catfish-demons'
   | 'hit-raid-tax'
   | 'hit-raid-stash'
@@ -89,13 +89,13 @@ export const SABOTAGE_HIT_SCENE_BY_NEWS: Record<string, SabotageHitSceneId> = {
   'nutrition-bribed': 'hit-bribe',
   'fans-rumor': 'hit-rumor',
   'catfish-date': 'hit-catfish-date',
-  'catfish-zeka': 'hit-catfish-zeka',
+  'catfish-beast': 'hit-catfish-beast',
   'catfish-demons': 'hit-catfish-demons',
   'police-tax': 'hit-raid-tax',
   'police-stash': 'hit-raid-stash',
   'police-island': 'hit-raid-island',
   'police-smuggling': 'hit-raid-smuggling',
-  'korp-vendetta': 'hit-raid-tax',
+  'yellow-vendetta': 'hit-raid-tax',
   sabotageBlocked: 'hit-blocked',
 };
 

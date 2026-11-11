@@ -3,13 +3,16 @@
 import { useState } from 'react';
 import ElectionNightCutscene from '@/components/games/career/ElectionNightCutscene';
 import ElectionPollBars from '@/components/games/career/ElectionPollBars';
+import ChoiceButton from '@/components/preview/ChoiceButton';
+import ElectionScenesPreview from '@/components/preview/ElectionScenesPreview';
+import { previewRoster } from '@/components/preview/previewRoster';
 import ParliamentChamber from '@/components/games/career/ParliamentChamber';
 import SponsorEmblem from '@/components/games/career/SponsorEmblem';
-import ChoiceButton from '@/components/preview/ChoiceButton';
 import { PARTY_SEAT_ORDER } from '@/data/games/careerElections';
 import { SPONSOR_IDS } from '@/data/games/careerSponsors';
 import { GAMES_UI } from '@/data/games/locale';
 import { electionResult, governmentSeats } from '@/lib/utils/careerElections';
+import type { PremierBlame, PremierSpeech } from '@/lib/utils/careerPremier';
 import type { SponsorId } from '@/lib/utils/careerSave';
 
 const SPONSOR_NAMES = GAMES_UI.career.sponsors.names as Record<
@@ -20,22 +23,29 @@ const SPONSOR_NAMES = GAMES_UI.career.sponsors.names as Record<
 // Sample vote shares that land on each shape of government
 const PRESETS: { label: string; votes: Record<SponsorId, number> }[] = [
   {
-    label: 'Party + Masons',
-    votes: { stranka: 35, korporacija: 26, zidari: 25, ostrvo: 14 },
+    label: 'Red + Blue',
+    votes: { red: 35, yellow: 26, blue: 25, green: 14 },
   },
   {
-    label: 'Corporation alone',
-    votes: { korporacija: 54, zidari: 20, stranka: 16, ostrvo: 10 },
+    label: 'Yellow alone',
+    votes: { yellow: 54, blue: 20, red: 16, green: 10 },
   },
   {
-    label: 'Masons + Corporation',
-    votes: { zidari: 38, korporacija: 22, ostrvo: 21, stranka: 19 },
+    label: 'Blue + Yellow',
+    votes: { blue: 38, yellow: 22, green: 21, red: 19 },
   },
   {
     label: 'Three-way',
-    votes: { ostrvo: 30, korporacija: 28, zidari: 24, stranka: 18 },
+    votes: { green: 30, yellow: 28, blue: 24, red: 18 },
   },
 ];
+
+const BLAME_CHOICES: { id: PremierBlame; label: string }[] = [
+  { id: 'first', label: 'First election, blames the Alliance' },
+  { id: 'previous', label: 'Blames the previous government' },
+  { id: 'rival', label: 'Re-elected, blames the opposition' },
+];
+const LINE_CHOICES = [0, 1, 2, 3, 4, 5];
 
 const PLAYER_CHOICES: { id: SponsorId | null; label: string }[] = [
   { id: null, label: 'No sponsor' },
@@ -45,14 +55,36 @@ const PLAYER_CHOICES: { id: SponsorId | null; label: string }[] = [
 // Everything the election adds to the career, on a click: the broadcast,
 // the chamber and the poll bars, over a few sample results
 export default function ElectionPreviewLab() {
+  const characters = previewRoster();
+  const player = characters[0].slug;
+  const otherPremier = characters[1].slug;
   const [preset, setPreset] = useState(0);
   const [playerSponsor, setPlayerSponsor] = useState<SponsorId | null>(
-    'stranka'
+    'red'
   );
   const [playing, setPlaying] = useState(0);
-  const [first, setFirst] = useState(true);
   const [barsKey, setBarsKey] = useState(0);
+  const [premierYou, setPremierYou] = useState(false);
+  const [blame, setBlame] = useState<PremierBlame>('previous');
+  const [line, setLine] = useState(0);
   const result = electionResult(PRESETS[preset].votes);
+  const characterBySlug = new Map(characters.map((c) => [c.slug, c]));
+  const leader = result.government[0];
+  const beaten = [...PARTY_SEAT_ORDER]
+    .filter((id) => !result.government.includes(id))
+    .sort((a, b) => result.seats[b] - result.seats[a]);
+  const premier: PremierSpeech = {
+    slug: premierYou ? player : otherPremier,
+    party: leader,
+    blame,
+    target:
+      blame === 'first'
+        ? null
+        : blame === 'previous'
+          ? (PARTY_SEAT_ORDER.find((id) => id !== leader) ?? null)
+          : (beaten[0] ?? null),
+    seed: line,
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -86,12 +118,34 @@ export default function ElectionPreviewLab() {
           ))}
         </div>
         <div className="flex flex-wrap gap-2">
-          <ChoiceButton active={first} onClick={() => setFirst(true)}>
-            First election
+          <ChoiceButton active={!premierYou} onClick={() => setPremierYou(false)}>
+            Premier: another coach
           </ChoiceButton>
-          <ChoiceButton active={!first} onClick={() => setFirst(false)}>
-            Regular election
+          <ChoiceButton active={premierYou} onClick={() => setPremierYou(true)}>
+            Premier: you
           </ChoiceButton>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {BLAME_CHOICES.map((choice) => (
+            <ChoiceButton
+              key={choice.id}
+              active={blame === choice.id}
+              onClick={() => setBlame(choice.id)}
+            >
+              {choice.label}
+            </ChoiceButton>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {LINE_CHOICES.map((index) => (
+            <ChoiceButton
+              key={index}
+              active={line === index}
+              onClick={() => setLine(index)}
+            >
+              Line {index + 1}
+            </ChoiceButton>
+          ))}
         </div>
         <button
           onClick={() => setPlaying((k) => k + 1)}
@@ -167,16 +221,21 @@ export default function ElectionPreviewLab() {
           </div>
           <ElectionPollBars key={barsKey} votes={result.votes} />
           <span className="text-[11px] text-slate-400">
-            The winner is marked in the broadcast, here there are only the bars.
+            The winner is marked in the broadcast, these are just the bars.
           </span>
         </section>
       </div>
+
+      <ElectionScenesPreview result={result} />
 
       {playing > 0 && (
         <ElectionNightCutscene
           key={playing}
           result={result}
+          premier={premier}
           playerSponsor={playerSponsor}
+          playerSlug={player}
+          characterBySlug={characterBySlug}
           onClose={() => setPlaying(0)}
         />
       )}

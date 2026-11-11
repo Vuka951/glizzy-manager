@@ -1,16 +1,17 @@
 import type { SponsorId } from '@/lib/utils/careerSave';
 import {
-  DEFAULT_AI_PROFILE,
-  DUEL_AI_PROFILES,
   HIDING_SPOTS,
   STARTING_LIVES,
   type DuelAiProfile,
   type HidingSpotId,
 } from '@/data/games/glizzyDuel';
+import { duelAiProfile } from '@/lib/utils/characterTraits';
 import { weightedPick } from '@/lib/utils/weightedPick';
 
 export type { HidingSpotId } from '@/data/games/glizzyDuel';
 
+// Every character of the league plays the cup, so this is also how long
+// every league is
 export const CUP_BRACKET_SIZE = 16;
 
 const MAX_TIEBREAK_ROUNDS = 8;
@@ -148,7 +149,7 @@ export function cupBetKey(round: number, index: number): string {
 }
 
 export function profileFor(slug: string): DuelAiProfile {
-  return DUEL_AI_PROFILES[slug] ?? DEFAULT_AI_PROFILE;
+  return duelAiProfile(slug);
 }
 
 type SideState = {

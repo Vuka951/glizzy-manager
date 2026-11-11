@@ -158,18 +158,18 @@ type Livery = 'own' | 'police' | SponsorId;
 const LIVERY_BODY: Record<Livery, string> = {
   own: 'from-red-600 to-red-800',
   police: 'from-slate-100 to-slate-300',
-  zidari: 'from-stone-400 to-stone-600',
-  ostrvo: 'from-emerald-500 to-emerald-700',
-  korporacija: 'from-zinc-800 to-zinc-950',
-  stranka: 'from-rose-800 to-rose-950',
+  blue: 'from-blue-600 to-blue-800',
+  green: 'from-emerald-500 to-emerald-700',
+  yellow: 'from-zinc-800 to-zinc-950',
+  red: 'from-red-700 to-red-800',
 };
 
 const LIVERY_STRIPE: Partial<Record<Livery, string>> = {
   police: 'bg-blue-800',
-  zidari: 'bg-orange-800 text-stone-50',
-  ostrvo: 'bg-amber-200 text-emerald-900',
-  korporacija: 'bg-yellow-300 text-zinc-950',
-  stranka: 'bg-amber-300 text-rose-950',
+  blue: 'bg-slate-50 text-blue-800',
+  green: 'bg-amber-200 text-emerald-900',
+  yellow: 'bg-yellow-300 text-zinc-950',
+  red: 'bg-red-50 text-red-800',
 };
 
 const SPONSOR_NAMES = GAMES_UI.career.sponsors.names as Record<

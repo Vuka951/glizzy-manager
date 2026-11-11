@@ -9,19 +9,19 @@ import HeartbreakIcon from '@/components/icons/HeartbreakIcon';
 import type { SabotageHitSceneProps } from '@/lib/constants/careerScenes';
 import type { SceneAnimationSpec } from '@/lib/constants/sceneAnimations';
 
-export type CatfishVariant = 'date' | 'zeka' | 'demons';
+export type CatfishVariant = 'date' | 'beast' | 'demons';
 
 const DATE_SEAT_MS = 500;
 const DATE_FLASH_MS = 2300;
 const DATE_REVEAL_MS = 2500;
 const DATE_BREAK_MS = 2900;
-const ZEKA_WALK_MS = 400;
-const ZEKA_EYES_MS = 1600;
-const ZEKA_LUNGE_MS = 2600;
-const ZEKA_CLAW_MS = 2900;
-const ZEKA_TOSS_MS = 3000;
-const ZEKA_PAINT_MS = 3200;
-const ZEKA_EYES_OUT_MS = 3900;
+const BEAST_WALK_MS = 400;
+const BEAST_EYES_MS = 1600;
+const BEAST_LUNGE_MS = 2600;
+const BEAST_CLAW_MS = 2900;
+const BEAST_TOSS_MS = 3000;
+const BEAST_PAINT_MS = 3200;
+const BEAST_EYES_OUT_MS = 3900;
 const DEMON_IN_MS = 300;
 const DEMON_SALT_MS = 2400;
 const DEMON_CHAIN_MS = 2600;
@@ -91,7 +91,7 @@ const CUSTOM: Record<string, SceneAnimationSpec> = {
       { transform: 'translateX(0)', opacity: 1 },
     ],
     options: {
-      duration: ZEKA_EYES_MS - ZEKA_WALK_MS,
+      duration: BEAST_EYES_MS - BEAST_WALK_MS,
       easing: 'ease-in-out',
       fill: 'both',
     },
@@ -106,7 +106,7 @@ const CUSTOM: Record<string, SceneAnimationSpec> = {
       { transform: 'scaleY(0.1)', opacity: 0, offset: 1 },
     ],
     options: {
-      duration: ZEKA_EYES_OUT_MS - ZEKA_EYES_MS,
+      duration: BEAST_EYES_OUT_MS - BEAST_EYES_MS,
       easing: 'ease-out',
       fill: 'both',
     },
@@ -125,7 +125,7 @@ const CUSTOM: Record<string, SceneAnimationSpec> = {
       { transform: 'translateX(40px) scale(0.8)', opacity: 0, offset: 1 },
     ],
     options: {
-      duration: ZEKA_EYES_OUT_MS - ZEKA_LUNGE_MS,
+      duration: BEAST_EYES_OUT_MS - BEAST_LUNGE_MS,
       easing: 'ease-in-out',
       fill: 'both',
     },
@@ -264,24 +264,21 @@ const SPLATS = [
   { cls: 'right-[12%] bottom-[10%] h-[32%] w-[32%] text-pink-500', delay: 720 },
 ];
 
+// The fling keyframes read each dot's flight from --fx and --fy
 const SPLATTER_DOTS = [
-  { cls: 'left-1/2 top-0 bg-red-500', fx: '-34px', fy: '-30px', delay: 0 },
-  { cls: 'right-0 top-1/3 bg-sky-400', fx: '36px', fy: '-18px', delay: 180 },
-  {
-    cls: 'left-1/3 bottom-0 bg-yellow-300',
-    fx: '-30px',
-    fy: '28px',
-    delay: 360,
-  },
-  { cls: 'left-0 top-1/2 bg-emerald-400', fx: '-38px', fy: '6px', delay: 540 },
-  { cls: 'right-1/4 bottom-0 bg-pink-500', fx: '30px', fy: '30px', delay: 720 },
+  { cls: 'left-1/2 top-0 bg-red-500 [--fx:-34px] [--fy:-30px]', delay: 0 },
+  { cls: 'right-0 top-1/3 bg-sky-400 [--fx:36px] [--fy:-18px]', delay: 180 },
+  { cls: 'left-1/3 bottom-0 bg-yellow-300 [--fx:-30px] [--fy:28px]', delay: 360 },
+  { cls: 'left-0 top-1/2 bg-emerald-400 [--fx:-38px] [--fy:6px]', delay: 540 },
+  { cls: 'right-1/4 bottom-0 bg-pink-500 [--fx:30px] [--fy:30px]', delay: 720 },
 ];
 
-// Measured back from the door, which is the house's left edge at mid stage
+// Measured back from the door, which is the house's left edge at mid stage.
+// The creep keyframes read each one's distance from --creep
 const DEMONS = [
-  { cls: 'right-[70px]', creep: '54px', delay: 0, height: 'h-20 sm:h-24' },
-  { cls: 'right-[150px]', creep: '70px', delay: 220, height: 'h-16 sm:h-20' },
-  { cls: 'right-[224px]', creep: '90px', delay: 440, height: 'h-14 sm:h-16' },
+  { cls: 'right-[70px]', creep: '[--creep:54px]', delay: 0, height: 'h-20 sm:h-24' },
+  { cls: 'right-[150px]', creep: '[--creep:70px]', delay: 220, height: 'h-16 sm:h-20' },
+  { cls: 'right-[224px]', creep: '[--creep:90px]', delay: 440, height: 'h-14 sm:h-16' },
 ];
 
 function PaintSplat({
@@ -294,7 +291,7 @@ function PaintSplat({
   return (
     <span
       data-anim="splat"
-      data-anim-delay={ZEKA_PAINT_MS + delay}
+      data-anim-delay={BEAST_PAINT_MS + delay}
       className={`absolute opacity-0 ${className}`}
     >
       <svg
@@ -309,12 +306,12 @@ function PaintSplat({
       </svg>
       <span
         data-anim="drip"
-        data-anim-delay={ZEKA_PAINT_MS + delay + 200}
+        data-anim-delay={BEAST_PAINT_MS + delay + 200}
         className="absolute bottom-[-40%] left-[30%] h-[40%] w-[10%] origin-top rounded-full bg-current opacity-0"
       />
       <span
         data-anim="drip"
-        data-anim-delay={ZEKA_PAINT_MS + delay + 320}
+        data-anim-delay={BEAST_PAINT_MS + delay + 320}
         className="absolute bottom-[-55%] left-[58%] h-[55%] w-[8%] origin-top rounded-full bg-current opacity-0"
       />
     </span>
@@ -644,7 +641,7 @@ function DateSet({
   );
 }
 
-function ZekaSet({
+function ForestBeastSet({
   character,
 }: {
   character: SabotageHitSceneProps['character'];
@@ -683,19 +680,19 @@ function ZekaSet({
 
         <div
           data-anim="lunge"
-          data-anim-delay={ZEKA_LUNGE_MS}
+          data-anim-delay={BEAST_LUNGE_MS}
           className="absolute bottom-0 left-[150px] z-30 origin-bottom"
         >
           <span
             data-anim="body-show"
-            data-anim-delay={ZEKA_LUNGE_MS}
+            data-anim-delay={BEAST_LUNGE_MS}
             className="block opacity-0 drop-shadow-[0_0_18px_rgba(2,6,23,0.9)]"
           >
             <Beast />
           </span>
           <span
             data-anim="eyes-life"
-            data-anim-delay={ZEKA_EYES_MS}
+            data-anim-delay={BEAST_EYES_MS}
             className="absolute left-[38px] top-[34px] flex gap-4 opacity-0 sm:left-[44px] sm:top-[40px]"
           >
             <span className="h-4 w-4 rounded-full bg-amber-300 shadow-[0_0_14px_rgba(252,211,77,1)]" />
@@ -707,12 +704,12 @@ function ZekaSet({
       {/* the walk and everything that jumps him hang off one anchor */}
       <div
         data-anim="walk-in"
-        data-anim-delay={ZEKA_WALK_MS}
+        data-anim-delay={BEAST_WALK_MS}
         className="absolute bottom-[18%] left-[36%] z-20 h-[140px] w-[300px] opacity-0"
       >
         <div
           data-anim="toss"
-          data-anim-delay={ZEKA_TOSS_MS}
+          data-anim-delay={BEAST_TOSS_MS}
           className="absolute bottom-[8px] left-0"
         >
           <SceneActor
@@ -723,7 +720,7 @@ function ZekaSet({
           >
             <span
               data-anim="float-up"
-              data-anim-delay={ZEKA_WALK_MS + 200}
+              data-anim-delay={BEAST_WALK_MS + 200}
               data-anim-iterations={1}
               className="absolute -right-2 -top-3 text-pink-400 opacity-0"
             >
@@ -732,7 +729,7 @@ function ZekaSet({
             {/* the claws across the face */}
             <svg
               data-anim="swipe"
-              data-anim-delay={ZEKA_CLAW_MS}
+              data-anim-delay={BEAST_CLAW_MS}
               viewBox="0 0 40 40"
               className="absolute inset-[-10%] z-30 h-[120%] w-[120%] opacity-0"
               aria-hidden="true"
@@ -753,7 +750,7 @@ function ZekaSet({
             {/* pale under the paint */}
             <span
               data-anim="fade-in"
-              data-anim-delay={ZEKA_TOSS_MS + 300}
+              data-anim-delay={BEAST_TOSS_MS + 300}
               className="absolute inset-0 rounded-full bg-slate-200/50 opacity-0"
             />
             <span className="absolute inset-0 overflow-hidden rounded-full">
@@ -765,8 +762,7 @@ function ZekaSet({
               <span
                 key={d.cls}
                 data-anim="fling"
-                data-anim-delay={ZEKA_PAINT_MS + d.delay}
-                style={{ '--fx': d.fx, '--fy': d.fy } as React.CSSProperties}
+                data-anim-delay={BEAST_PAINT_MS + d.delay}
                 className={`absolute h-2 w-2 rounded-full opacity-0 ${d.cls}`}
               />
             ))}
@@ -819,8 +815,7 @@ function DemonsSet({
             <span
               data-anim="creep lunge-recoil"
               data-anim-delay={`${DEMON_IN_MS + d.delay} ${DEMON_LUNGE_MS + d.delay}`}
-              style={{ '--creep': d.creep } as React.CSSProperties}
-              className="block opacity-0 drop-shadow-[0_0_14px_rgba(239,68,68,0.45)]"
+              className={`block opacity-0 drop-shadow-[0_0_14px_rgba(239,68,68,0.45)] ${d.creep}`}
             >
               <Demon className={d.height} />
             </span>
@@ -898,7 +893,7 @@ export default function HitCatfishScene({
   return (
     <div ref={root}>
       {variant === 'date' && <DateSet character={character} />}
-      {variant === 'zeka' && <ZekaSet character={character} />}
+      {variant === 'beast' && <ForestBeastSet character={character} />}
       {variant === 'demons' && <DemonsSet character={character} />}
     </div>
   );

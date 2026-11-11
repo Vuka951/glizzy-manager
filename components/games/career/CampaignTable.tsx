@@ -5,13 +5,16 @@ import CrownIcon from '@/components/icons/CrownIcon';
 import PortraitHead from '@/components/games/PortraitHead';
 import { winRate } from '@/components/games/career/CampaignAwards';
 import PaperSection from '@/components/games/career/PaperSection';
+import PrimeMinisterTag from '@/components/games/career/PrimeMinisterTag';
 import SponsorEmblem from '@/components/games/career/SponsorEmblem';
-import CoachTag from '@/components/games/career-mp/CoachTag';
+import SeatTag from '@/components/games/rooms/SeatTag';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
 import type { CoachTagMap } from '@/lib/types/careerMp';
+import { primeMinister } from '@/lib/utils/careerLaws';
 import { h2hFor } from '@/lib/utils/careerMatch';
 import { careerPoints } from '@/lib/utils/careerPoints';
+import { NEWSPRINT_PAINT } from '@/lib/utils/careerNewsprint';
 import type { CharacterCareerState, SavedCareer } from '@/lib/utils/careerSave';
 
 const R = GAMES_UI.career.report;
@@ -55,14 +58,12 @@ function SortHeader({
     >
       <button
         onClick={() => onToggle(id)}
-        className={`inline-flex items-center gap-0.5 uppercase tracking-widest transition hover:text-red-800 ${
-          active
-            ? 'text-red-800 underline decoration-red-800/40 underline-offset-4'
-            : ''
+        className={`inline-flex items-center gap-0.5 uppercase tracking-[0.06em] transition hover:text-red-800 focus-visible:outline-2 focus-visible:outline-red-800 ${
+          active ? 'text-red-800' : ''
         }`}
       >
         {label}
-        <span className="w-2 text-[8px]">
+        <span className="w-2 text-[9px]">
           {active ? (sort.desc ? '▼' : '▲') : ''}
         </span>
       </button>
@@ -70,9 +71,10 @@ function SortHeader({
   );
 }
 
-// The whole league at the end, with the numbers the season table never had
-// room for, sortable by any column; the champion's row in gold, the
-// reader's in red, a shared room's coaches tagged
+// The whole league at the end as the federation's closing ledger, with the
+// numbers the season table never had room for, sortable by any column; the
+// champion's row in gold, the reader's under a highlighter, a shared room's
+// coaches tagged
 export default function CampaignTable({
   career,
   characterBySlug,
@@ -89,6 +91,7 @@ export default function CampaignTable({
   // A shared room: each coach's bets, shown as a column
   bets?: Record<string, { placed: number; won: number; net: number }>;
 }) {
+  const pmSlug = primeMinister(career);
   const [sort, setSort] = useState<Sort>(DEFAULT_SORT);
   const playerSlug = career.playerSlug;
   const st = (slug: string) => career.characters[slug];
@@ -125,13 +128,14 @@ export default function CampaignTable({
       current.key === key ? { key, desc: !current.desc } : { key, desc: true },
     );
   return (
+    <div className={`w-full ${NEWSPRINT_PAINT}`}>
     <PaperSection title={R.tableTitle} action="stats">
       <div className="w-full overflow-x-auto">
-        <table className="w-full min-w-[58rem] text-left text-[11px] text-slate-800">
+        <table className="w-full min-w-[58rem] text-left text-slate-800">
           <thead>
-            <tr className="border-b-2 border-slate-900 text-[9px] font-black uppercase tracking-widest text-slate-600">
-              <th className="pb-1.5 pl-2 pr-2">#</th>
-              <th className="pb-1.5 pr-2">{R.headers.character}</th>
+            <tr className="border-b-[3px] border-double border-slate-900/70 font-sign text-[13px] font-bold uppercase tracking-[0.06em] text-slate-700">
+              <th className="border-r-2 border-r-[#b91c1c]/50 pb-1.5 pl-2 pr-2">#</th>
+              <th className="pb-1.5 pl-2.5 pr-2">{R.headers.character}</th>
               <th className="pb-1.5 pr-2 text-center">{R.headers.sponsor}</th>
               <SortHeader
                 id="points"
@@ -214,19 +218,19 @@ export default function CampaignTable({
               return (
                 <tr
                   key={slug}
-                  className={`border-b border-dotted border-slate-900/30 ${
+                  className={`border-b border-[#7d93a8]/35 ${
                     isOverlord
-                      ? 'bg-amber-300/40 font-bold'
+                      ? 'bg-[#d6a84a]/50 font-bold'
                       : isPlayer
-                        ? 'bg-red-700/10 font-bold'
+                        ? 'bg-[#fde047]/55 font-bold'
                         : ''
                   }`}
                 >
-                  <td className="py-1.5 pl-2 pr-2 font-mono text-slate-500">
+                  <td className="border-r-2 border-r-[#b91c1c]/50 py-1.5 pl-2 pr-2 font-sign text-[15px] font-semibold tabular-nums text-slate-600">
                     {placeOf.get(slug)}
                   </td>
-                  <td className="py-1.5 pr-2">
-                    <span className="flex items-center gap-1.5">
+                  <td className="py-1.5 pl-2.5 pr-2">
+                    <span className="flex items-center gap-1.5 font-serif text-[13px]">
                       <PortraitHead
                         character={character}
                         className={`h-5 w-5 ${isOverlord ? 'ring-2 ring-amber-500' : ''}`}
@@ -234,7 +238,7 @@ export default function CampaignTable({
                       <span className="flex min-w-0 flex-col leading-tight">
                         <span className="truncate">{character.name}</span>
                         {ch.personality && (
-                          <span className="truncate text-[9px] font-normal italic text-slate-500">
+                          <span className="truncate text-[10px] font-normal italic text-slate-600">
                             {PERSONALITIES[ch.personality]?.name}
                           </span>
                         )}
@@ -242,15 +246,16 @@ export default function CampaignTable({
                       {isOverlord && (
                         <CrownIcon className="h-3.5 w-3.5 shrink-0 text-amber-600" />
                       )}
+                      {slug === pmSlug && <PrimeMinisterTag />}
                       {coach ? (
-                        <CoachTag
+                        <SeatTag
                           name={coach.name}
                           color={coach.color}
                           onPaper
                         />
                       ) : (
                         isPlayer && (
-                          <span className="shrink-0 rounded-sm bg-red-700 px-1 text-[8px] font-black uppercase tracking-widest text-amber-50">
+                          <span className="shrink-0 rounded-[2px] bg-red-700 px-1 font-sign text-[11px] font-bold uppercase tracking-[0.06em] text-amber-50">
                             {R.you}
                           </span>
                         )
@@ -269,10 +274,10 @@ export default function CampaignTable({
                       '-'
                     )}
                   </td>
-                  <td className="py-1.5 pr-2 text-center font-mono font-black">
+                  <td className="py-1.5 pr-2 text-center font-sign text-[16px] font-bold tabular-nums">
                     {careerPoints(ch)}
                   </td>
-                  <td className="py-1.5 pr-2 text-center font-mono">
+                  <td className="py-1.5 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums">
                     {ch.titles > 0 ? ch.titles : ''}
                     {ch.titleStreak >= 2 && (
                       <span className="ml-1 text-amber-700">
@@ -280,39 +285,39 @@ export default function CampaignTable({
                       </span>
                     )}
                   </td>
-                  <td className="py-1.5 pr-2 text-center font-mono">
+                  <td className="py-1.5 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums">
                     {ch.wins}-{ch.losses}
                   </td>
-                  <td className="py-1.5 pr-2 text-center font-mono text-slate-500">
+                  <td className="py-1.5 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums text-slate-600">
                     {played > 0 ? Math.round(winRate(ch) * 100) : ''}
                   </td>
-                  <td className="py-1.5 pr-2 text-center font-mono">
+                  <td className="py-1.5 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums">
                     {ch.eaten ?? 0}
                   </td>
-                  <td className="py-1.5 pr-2 text-center font-mono text-red-800">
+                  <td className="py-1.5 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums text-red-800">
                     {exits(ch) > 0 ? exits(ch) : ''}
                   </td>
-                  <td className="py-1.5 pr-2 text-center font-mono text-red-800">
+                  <td className="py-1.5 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums text-red-800">
                     {(ch.punishments ?? 0) > 0 ? ch.punishments : ''}
                   </td>
-                  <td className="py-1.5 pr-2 text-center font-mono">
+                  <td className="py-1.5 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums">
                     {Math.round(ch.fame)}
                   </td>
-                  <td className="py-1.5 pr-2 text-center font-mono">
+                  <td className="py-1.5 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums">
                     {moneyOf(slug)}
                   </td>
-                  <td className="py-1.5 pr-2 text-center font-mono">
+                  <td className="py-1.5 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums">
                     {record ? `${record[1]}-${record[0]}` : ''}
                   </td>
                   {bets && (
                     <>
-                      <td className="whitespace-nowrap py-1.5 pr-2 text-center font-mono">
+                      <td className="whitespace-nowrap py-1.5 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums">
                         {bets[slug]
                           ? `${bets[slug].won}/${bets[slug].placed}`
                           : ''}
                       </td>
                       <td
-                        className={`py-1.5 pr-2 text-center font-mono ${
+                        className={`py-1.5 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums ${
                           bets[slug] && bets[slug].net > 0
                             ? 'text-emerald-800'
                             : bets[slug] && bets[slug].net < 0
@@ -331,10 +336,8 @@ export default function CampaignTable({
             })}
           </tbody>
         </table>
-        <p className="mt-2 text-[9px] italic leading-relaxed text-slate-500">
-          {R.tableHint}
-        </p>
       </div>
     </PaperSection>
+    </div>
   );
 }

@@ -19,21 +19,8 @@ export type CommentaryCopy = {
   tts?: string;
 };
 
-export type NameForm = {
-  /** Spoken and displayed instead of the full name on even-numbered line variants. */
-  short?: string;
-  /** TTS-only expansion of the full name (abbreviations read out loud). */
-  ttsFull?: string;
-};
-
 export function commentaryCopy(id: CommentaryLineId): CommentaryCopy {
   return GAMES_UI.commentary.lines[id];
-}
-
-// Per-language name variants from commentary.nameForms: a language with no
-// short form for a character repeats the roster name there
-export function commentaryNameForm(slug: string): NameForm {
-  return (GAMES_UI.commentary.nameForms as Record<string, NameForm>)[slug] ?? {};
 }
 
 export type IntroAngle =
@@ -261,24 +248,24 @@ export const tournamentWeatherLines: CommentaryLine[][] = [
 // The morning after the count: the first cup of a new government opens with
 // a word on who runs the city now, in the booth's usual tone
 export const electionIntroLines: Record<SponsorId, CommentaryLine[]> = {
-  stranka: [
-    { id: 'election-stranka-1', register: 'calm' },
-    { id: 'election-stranka-2', register: 'calm' },
-    { id: 'election-stranka-3', register: 'calm' },
+  red: [
+    { id: 'election-red-1', register: 'calm' },
+    { id: 'election-red-2', register: 'calm' },
+    { id: 'election-red-3', register: 'calm' },
   ],
-  zidari: [
-    { id: 'election-zidari-1', register: 'calm' },
-    { id: 'election-zidari-2', register: 'calm' },
-    { id: 'election-zidari-3', register: 'calm' },
+  blue: [
+    { id: 'election-blue-1', register: 'calm' },
+    { id: 'election-blue-2', register: 'calm' },
+    { id: 'election-blue-3', register: 'calm' },
   ],
-  korporacija: [
-    { id: 'election-korporacija-1', register: 'calm' },
-    { id: 'election-korporacija-2', register: 'calm' },
-    { id: 'election-korporacija-3', register: 'calm' },
+  yellow: [
+    { id: 'election-yellow-1', register: 'calm' },
+    { id: 'election-yellow-2', register: 'calm' },
+    { id: 'election-yellow-3', register: 'calm' },
   ],
-  ostrvo: [
-    { id: 'election-ostrvo-1', register: 'calm' },
-    { id: 'election-ostrvo-2', register: 'calm' },
-    { id: 'election-ostrvo-3', register: 'calm' },
+  green: [
+    { id: 'election-green-1', register: 'calm' },
+    { id: 'election-green-2', register: 'calm' },
+    { id: 'election-green-3', register: 'calm' },
   ],
 };

@@ -1,4 +1,7 @@
+'use client';
+
 import { useEffect, useState } from 'react';
+import { useCareerFrames } from '@/components/games/career/careerFrames';
 import BubbleTail from '@/components/games/BubbleTail';
 import NoseIcon from '@/components/icons/NoseIcon';
 import { GAMES_UI } from '@/data/games/locale';
@@ -12,6 +15,7 @@ export default function SniffCue({
   tailSide: 'left' | 'right';
   className?: string;
 }) {
+  const street = useCareerFrames() === 'street';
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     const raf = requestAnimationFrame(() => setMounted(true));
@@ -25,7 +29,11 @@ export default function SniffCue({
       aria-label={GAMES_UI.cup.viewer.sniffLabel}
     >
       <span
-        className={`relative flex h-9 w-12 items-center justify-center rounded-full border border-lime-300/70 bg-lime-950/90 shadow-lg shadow-lime-400/20 backdrop-blur-sm transition-transform duration-500 motion-reduce:transition-none ${
+        className={`relative flex h-9 w-12 items-center justify-center rounded-full border transition-transform duration-500 motion-reduce:transition-none ${
+          street
+            ? 'border-lime-300 bg-lime-950 shadow-[0_2px_0_rgb(0_0_0/0.6)]'
+            : 'border-lime-300/70 bg-lime-950/90 shadow-lg shadow-lime-400/20 backdrop-blur-sm'
+        } ${
           tailSide === 'left' ? 'pr-1.5' : 'pl-1.5'
         } ${mounted ? 'translate-x-0' : pullBack}`}
       >

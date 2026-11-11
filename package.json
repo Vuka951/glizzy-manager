@@ -10,9 +10,6 @@
     "typecheck": "tsc --noEmit",
     "check:locale": "node scripts/locale-check.mjs",
     "check:audio": "node --no-warnings scripts/audio-check.mjs",
-    "commentary:voices": "node --no-warnings scripts/career-commentary/voices.mjs",
-    "commentary:render": "node --no-warnings scripts/career-commentary/generate.mjs --locale en",
-    "trailer:build": "node --no-warnings scripts/trailer/build.mjs",
     "sim": "./scripts/career-sim/run.sh 5 200",
     "sim:rivals": "./scripts/career-mp-sim/run.sh"
   },

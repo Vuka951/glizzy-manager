@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
-import BlackDwarfMark from '@/components/games/career/sponsors/BlackDwarfMark';
+import YellowMark from '@/components/games/career/sponsors/YellowMark';
 import { GAMES_UI } from '@/data/games/locale';
 import { playPaperSound } from '@/lib/utils/gameSounds';
 
-// Press photo for the lead story: a crane lowers the corporation's sign
+// Press photo for the lead story: a crane lowers the Yellow Party's sign
 // back onto its tower while the first deal is already being shaken on
 function SponsorPressPhoto() {
   return (
@@ -20,7 +20,7 @@ function SponsorPressPhoto() {
       <path d="M66 6l-10 6M66 6l10 6M66 6v6" className="fill-none stroke-slate-700" strokeWidth="1.4" />
       <path d="M83 12v6M49 12v5" className="stroke-slate-700" strokeWidth="1" />
       <path d="M62 56h8l1 4h-10z" className="fill-slate-700" />
-      <BlackDwarfMark x="41" y="17" width="16" height="16" className="" />
+      <YellowMark x="41" y="17" width="16" height="16" className="" />
       <path d="M4 60h88" className="stroke-slate-700" strokeWidth="1.5" />
       <circle cx="47" cy="49.5" r="2.6" className="fill-slate-800" />
       <path d="M43.8 60c0-4.4 1.6-7 3.2-7 1.1 0 2.1.9 2.7 2.6" className="fill-slate-800" />
@@ -84,17 +84,17 @@ export default function CareerIntroCutscene({ onDone }: { onDone: () => void }) 
   return (
     <div
       ref={paperRef}
-      className="w-full max-w-2xl rotate-[-1deg] rounded-sm bg-amber-50 p-5 text-left text-slate-900 shadow-2xl sm:p-7"
+      className="w-full max-w-2xl rotate-[-1deg] rounded-[2px] bg-[#f1e8d3] p-5 text-left text-slate-900 shadow-[0_1px_0_rgb(255_255_255/0.5)_inset,0_4px_0_rgb(0_0_0/0.45)] sm:p-7"
     >
       <div className="border-y-4 border-double border-slate-900 py-2 text-center">
-        <p className="text-3xl font-black uppercase tracking-[0.15em]">
+        <p className="font-serif text-3xl font-black uppercase tracking-[0.15em]">
           {SELECT.masthead}
         </p>
       </div>
 
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="border-b border-slate-900/20 pb-2.5 opacity-0 [animation-delay:1100ms] [animation-fill-mode:forwards] animate-[bubblein_0.4s_ease-out] sm:col-span-2 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-3.5">
-          <p className="text-base font-black uppercase leading-tight sm:text-lg">
+          <p className="font-serif text-base font-black uppercase leading-tight sm:text-lg">
             {INTRO.headlines[0].title}
           </p>
           <div className="mt-2 flex items-start gap-3">
@@ -108,7 +108,7 @@ export default function CareerIntroCutscene({ onDone }: { onDone: () => void }) 
         </div>
         <div className="flex flex-col gap-2.5">
           <div className="border-b border-slate-900/20 pb-2.5 opacity-0 [animation-delay:1400ms] [animation-fill-mode:forwards] animate-[bubblein_0.4s_ease-out]">
-            <p className="text-xs font-black uppercase leading-tight">
+            <p className="font-serif text-xs font-black uppercase leading-tight">
               {INTRO.headlines[1].title}
             </p>
             <div className="mt-1.5 flex items-start gap-2">
@@ -121,7 +121,7 @@ export default function CareerIntroCutscene({ onDone }: { onDone: () => void }) 
             </div>
           </div>
           <div className="opacity-0 [animation-delay:1700ms] [animation-fill-mode:forwards] animate-[bubblein_0.4s_ease-out]">
-            <p className="text-xs font-black uppercase leading-tight">
+            <p className="font-serif text-xs font-black uppercase leading-tight">
               {INTRO.headlines[2].title}
             </p>
             <p className="mt-1.5 text-[10px] leading-relaxed text-slate-600">
@@ -132,7 +132,7 @@ export default function CareerIntroCutscene({ onDone }: { onDone: () => void }) 
       </div>
 
       <div className="mt-4 border-4 border-slate-900 p-3 text-center opacity-0 [animation-delay:2100ms] [animation-fill-mode:forwards] animate-[bubblein_0.4s_ease-out]">
-        <p className="text-xl font-black uppercase tracking-widest">
+        <p className="font-serif text-xl font-black uppercase tracking-widest">
           {INTRO.ad.title}
         </p>
         <p className="mx-auto mt-1 max-w-xs text-[11px] leading-relaxed text-slate-600">
@@ -140,7 +140,7 @@ export default function CareerIntroCutscene({ onDone }: { onDone: () => void }) 
         </p>
         <button
           onClick={onDone}
-          className="mt-3 rounded-sm bg-slate-900 px-6 py-2 text-xs font-black uppercase tracking-widest text-amber-50 transition hover:bg-slate-700"
+          className="mt-3 min-h-11 rounded-[3px] bg-slate-900 px-6 py-2 font-sign text-[15px] font-bold uppercase tracking-[0.1em] text-[#f1e8d3] shadow-[0_3px_0_rgb(0_0_0/0.45)] transition hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 active:translate-y-0.5 active:shadow-none"
         >
           {INTRO.ad.cta}
         </button>

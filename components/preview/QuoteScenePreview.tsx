@@ -6,6 +6,7 @@ import BroadcastFrame from '@/components/games/career/quotes/BroadcastFrame';
 import QuoteSceneStage from '@/components/games/career/quotes/QuoteSceneStage';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { SPONSOR_IDS } from '@/data/games/careerSponsors';
+import { ELECTION_SCENE_IDS } from '@/lib/constants/electionCutscenes';
 import {
   QUOTE_LOSS_CAUSES,
   QUOTE_SCENE_BY_ID,
@@ -20,10 +21,10 @@ const VARIANT_LABELS: Record<string, string> = {
   cholesterol: 'cholesterol',
   puke: 'puking',
   surrender: 'surrender',
-  zidari: 'Masons',
-  ostrvo: 'The Island',
-  korporacija: 'Corporation',
-  stranka: 'Party',
+  blue: 'Blue',
+  green: 'Green',
+  yellow: 'Yellow',
+  red: 'Red',
   none: 'no sponsor',
 };
 
@@ -35,6 +36,11 @@ const BUTTON =
   'rounded-lg border px-3 py-1.5 text-xs font-semibold transition';
 const IDLE =
   'border-sky-200/20 bg-slate-800/60 text-slate-300 hover:border-sky-200/45 hover:text-white';
+// The election night stories have their own lab on the election preview
+const MATCH_SCENES = QUOTE_SCENES.filter(
+  (scene) => !ELECTION_SCENE_IDS.has(scene.id),
+);
+
 const ROW_LABEL =
   'w-20 shrink-0 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500';
 
@@ -56,42 +62,26 @@ function variantChoicesFor(def: QuoteSceneDefinition): string[] | null {
   return variants.length > 0 ? variants : null;
 }
 
-// The one opponent a scene can have, when every trigger of it names the
-// same character
-function fixedOpponentOf(def: QuoteSceneDefinition): string | null {
-  const named = def.triggers.map((trigger) =>
-    trigger.kind === 'match-result' ? trigger.opponent : undefined,
-  );
-  const first = named[0];
-  return first && named.every((slug) => slug === first) ? first : null;
-}
-
 type PreviewCast = {
   speaker: string;
   other?: string;
   speakerChoices: string[];
-  // Null when the scene stages nobody else or its opponent is fixed
+  // Null when the scene stages nobody else
   otherChoices: string[] | null;
 };
 
-// Who the scene plays with: the picked speaker and opponent where the scene
-// allows them, the nearest allowed pair otherwise
+// Who the scene plays with: the picked speaker, and the picked opponent
+// unless that is the speaker himself
 function castFor(
   def: QuoteSceneDefinition,
   roster: string[],
   pickedSpeaker: string,
   pickedOther: string,
 ): PreviewCast {
-  const fixedOther = fixedOpponentOf(def);
-  const speakerChoices = roster.filter((slug) => slug !== fixedOther);
-  const speaker = speakerChoices.includes(pickedSpeaker)
-    ? pickedSpeaker
-    : speakerChoices[0];
+  const speakerChoices = roster;
+  const speaker = roster.includes(pickedSpeaker) ? pickedSpeaker : roster[0];
   if (def.other !== 'opponent') {
     return { speaker, speakerChoices, otherChoices: null };
-  }
-  if (fixedOther) {
-    return { speaker, other: fixedOther, speakerChoices, otherChoices: null };
   }
   const otherChoices = roster.filter((slug) => slug !== speaker);
   return {
@@ -113,7 +103,7 @@ export default function QuoteScenePreview({
   characterBySlug: Map<string, DuelCharacter>;
 }) {
   const roster = [...characterBySlug.keys()];
-  const [scene, setScene] = useState<QuoteSceneId>(QUOTE_SCENES[0].id);
+  const [scene, setScene] = useState<QuoteSceneId>(MATCH_SCENES[0].id);
   const [pickedSpeaker, setPickedSpeaker] = useState(roster[0]);
   const [pickedOther, setPickedOther] = useState(roster[1]);
   const [variants, setVariants] = useState<
@@ -148,8 +138,8 @@ export default function QuoteScenePreview({
   // The scene after this one in the list with the same cast, queued behind
   // it to try a queue
   const followUp = (): QuotePlayback => {
-    const at = QUOTE_SCENES.findIndex((item) => item.id === scene);
-    const next = QUOTE_SCENES[(at + 1) % QUOTE_SCENES.length];
+    const at = MATCH_SCENES.findIndex((item) => item.id === scene);
+    const next = MATCH_SCENES[(at + 1) % MATCH_SCENES.length];
     const cast = castFor(next, roster, pickedSpeaker, pickedOther);
     return {
       id: next.id,
@@ -162,7 +152,7 @@ export default function QuoteScenePreview({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap gap-2">
-        {QUOTE_SCENES.map((item) => (
+        {MATCH_SCENES.map((item) => (
           <button
             key={item.id}
             data-scene={item.id}

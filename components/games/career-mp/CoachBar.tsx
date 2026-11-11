@@ -1,7 +1,9 @@
 'use client';
 
-import DoneToggle from '@/components/games/career-mp/DoneToggle';
-import PhaseTimer from '@/components/games/career-mp/PhaseTimer';
+import BrassPlate from '@/components/games/career/street/BrassPlate';
+import RoomPlank from '@/components/games/career-mp/RoomPlank';
+import DoneToggle from '@/components/games/rooms/DoneToggle';
+import PhaseTimer from '@/components/games/rooms/PhaseTimer';
 import { GAMES_UI } from '@/data/games/locale';
 import type { CoachPublic, RoomView } from '@/lib/types/careerMp';
 import { fmt } from '@/lib/utils/format';
@@ -22,7 +24,7 @@ function gateOf(view: RoomView): 'done' | 'passed' | null {
   }
 }
 
-// The room's gate in one line: how many coaches are done, the countdown and
+// The room's gate on one plank: how many coaches are done, the countdown and
 // the coach's own Done toggle. Who exactly is done sits in the tooltip; the
 // coaches themselves live in the league table
 export default function CoachBar({
@@ -47,13 +49,12 @@ export default function CoachBar({
     list.length > 0 ? list.map((c) => c.name).join(', ') : CB.nobody;
   const tooltip = `${fmt(CB.doneNames, { names: names(done) })}\n${fmt(CB.waitingNames, { names: names(missing) })}`;
   return (
-    <div className="flex max-w-full flex-wrap items-center justify-center gap-2">
+    <RoomPlank className="flex max-w-full flex-wrap items-center justify-center gap-2">
       {gate && (
-        <span
-          title={tooltip}
-          className="cursor-help rounded-full border border-sky-200/20 bg-slate-950/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-sky-200 backdrop-blur-sm"
-        >
-          {fmt(CB.done, { done: done.length, total: view.coaches.length })}
+        <span title={tooltip} className="cursor-help">
+          <BrassPlate className="tabular-nums">
+            {fmt(CB.done, { done: done.length, total: view.coaches.length })}
+          </BrassPlate>
         </span>
       )}
       <PhaseTimer deadline={deadline} serverOffset={serverOffset} />
@@ -62,6 +63,6 @@ export default function CoachBar({
           <DoneToggle done={me.done} busy={busy} onToggle={onDone} />
         </span>
       )}
-    </div>
+    </RoomPlank>
   );
 }

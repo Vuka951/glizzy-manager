@@ -1,7 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
+import CutsceneBoard from '@/components/games/career/CutsceneBoard';
+import CutsceneReceiptLines from '@/components/games/career/CutsceneReceiptLines';
 import SabotageHitStage from '@/components/games/career/SabotageHitStage';
+import BrassPlate from '@/components/games/career/street/BrassPlate';
 import ActionIcon from '@/components/icons/ActionIcon';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
@@ -17,6 +20,13 @@ const TRAININGS = GAMES_UI.career.trainings as Record<string, { name: string }>;
 const HEADLINES = GAMES_UI.career.newspaper.headlines as Record<string, string>;
 
 const METER_KEYS = ['stress', 'appetite', 'ambition', 'ego', 'fame'];
+const CHIP_DELAYS = [
+  '[animation-delay:3600ms]',
+  '[animation-delay:3800ms]',
+  '[animation-delay:4000ms]',
+  '[animation-delay:4200ms]',
+  '[animation-delay:4400ms]',
+];
 
 type Chip = { text: string; good: boolean };
 
@@ -83,62 +93,34 @@ export default function SabotageHitCutscene({
   const blocked = scene === 'hit-blocked';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3">
-      <button
-        aria-label={CUT.continue}
-        onClick={onClose}
-        className="absolute inset-0 cursor-default bg-slate-950/80 backdrop-blur-sm"
-      />
-      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-frost-border/40 bg-slate-900 shadow-2xl animate-[bubblein_0.25s_ease-out]">
+    <CutsceneBoard
+      title={HIT.kicker}
+      titleExtra={
+        counter &&
+        counter.total > 1 && (
+          <BrassPlate className="shrink-0 tabular-nums">
+            {fmt(HIT.counter, counter)}
+          </BrassPlate>
+        )
+      }
+      continueLabel={CUT.continue}
+      onClose={onClose}
+      stage={
         <SabotageHitStage scene={scene} character={character} season={season} />
-        <div className="flex flex-col gap-2.5 p-4 sm:p-5">
-          <div className="flex items-center justify-between">
-            <span
-              className={`text-[9px] font-bold uppercase tracking-[0.35em] ${blocked ? 'text-emerald-300' : 'text-red-400'}`}
-            >
-              {HIT.kicker}
-            </span>
-            {counter && counter.total > 1 && (
-              <span className="font-mono text-[9px] font-bold text-slate-500">
-                {fmt(HIT.counter, counter)}
-              </span>
-            )}
-          </div>
-          <div className="flex items-start gap-2.5">
-            <ActionIcon
-              kind={blocked ? 'guard' : 'sabotage'}
-              className={`h-7 w-7 shrink-0 ${blocked ? 'text-emerald-300' : 'text-red-400'}`}
-            />
-            <span
-              className={`min-w-0 self-center text-sm font-black uppercase leading-tight tracking-wide ${blocked ? 'text-slate-100' : 'text-red-200'}`}
-            >
-              {HEADLINES[item.templateKey] ?? ''}
-            </span>
-          </div>
-          {chips.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {chips.map((chip, i) => (
-                <span
-                  key={`${chip.text}-${i}`}
-                  className={`rounded-full border px-2 py-0.5 font-mono text-[10px] font-bold opacity-0 [animation-fill-mode:forwards] animate-[bubblein_0.35s_ease-out] ${
-                    chip.good
-                      ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300'
-                      : 'border-red-500/40 bg-red-500/10 text-red-300'
-                  } ${i === 0 ? '[animation-delay:3600ms]' : i === 1 ? '[animation-delay:3800ms]' : i === 2 ? '[animation-delay:4000ms]' : i === 3 ? '[animation-delay:4200ms]' : '[animation-delay:4400ms]'}`}
-                >
-                  {chip.text}
-                </span>
-              ))}
-            </div>
-          )}
-          <button
-            onClick={onClose}
-            className="mt-1 w-full rounded-xl border border-sky-200/25 bg-slate-800/70 py-2 text-[11px] font-black uppercase tracking-[0.3em] text-sky-200 transition hover:border-sky-200/50 hover:bg-slate-800 hover:text-white"
-          >
-            {CUT.continue}
-          </button>
-        </div>
+      }
+    >
+      <div className="flex items-start gap-2.5">
+        <ActionIcon
+          kind={blocked ? 'guard' : 'sabotage'}
+          className={`h-7 w-7 shrink-0 ${blocked ? 'text-emerald-300' : 'text-red-400'}`}
+        />
+        <span
+          className={`min-w-0 self-center font-serif text-base font-bold uppercase leading-tight ${blocked ? 'text-slate-100' : 'text-red-300'}`}
+        >
+          {HEADLINES[item.templateKey] ?? ''}
+        </span>
       </div>
-    </div>
+      <CutsceneReceiptLines lines={chips} delays={CHIP_DELAYS} />
+    </CutsceneBoard>
   );
 }

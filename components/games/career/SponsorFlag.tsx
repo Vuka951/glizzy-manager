@@ -1,4 +1,4 @@
-import PartyMark from '@/components/games/career/sponsors/PartyMark';
+import RedMark from '@/components/games/career/sponsors/RedMark';
 
 export type SponsorFlagSize = 'full' | 'seat' | 'fan';
 
@@ -26,7 +26,7 @@ const FOREARM: Record<SponsorFlagSize, string> = {
   fan: 'bottom-[15%] h-1 w-3',
 };
 
-// The party flag flying off the left of its pole, gripped at the side by a
+// The Red Party flag flying off the left of its pole, gripped at the side by a
 // fist whose forearm reaches right, into whoever is holding it. The full one
 // goes in the player's hand on the offseason scene, the seat one at the match
 // table, the fan one in the stands
@@ -45,9 +45,9 @@ export default function SponsorFlag({
       <span className="absolute inset-y-0 right-0 w-0.5 rounded-full bg-slate-300 shadow" />
       <span className="absolute right-0 top-0 h-1 w-1 rounded-full bg-amber-300" />
       <span
-        className={`absolute right-0.5 top-0.5 flex origin-right items-center justify-center overflow-hidden rounded-l-sm bg-blue-800 shadow-md ${CLOTH[size]}`}
+        className={`absolute right-0.5 top-0.5 flex origin-right items-center justify-center overflow-hidden rounded-l-sm bg-red-600 shadow-md ${CLOTH[size]}`}
       >
-        <PartyMark className="h-full w-auto" />
+        <RedMark className="h-full w-auto" />
       </span>
       <span
         className={`absolute left-full origin-left rotate-[18deg] rounded-full bg-amber-200 ${FOREARM[size]}`}

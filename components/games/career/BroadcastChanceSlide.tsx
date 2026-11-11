@@ -7,25 +7,6 @@ const B = GAMES_UI.career.broadcast;
 
 export type ChanceRow = { slug: string; pct: number };
 
-const BAR_WIDTHS = [
-  'w-[10%]',
-  'w-[20%]',
-  'w-[30%]',
-  'w-[40%]',
-  'w-[50%]',
-  'w-[60%]',
-  'w-[70%]',
-  'w-[80%]',
-  'w-[90%]',
-  'w-full',
-];
-
-function barWidth(value: number, max: number): string {
-  if (max <= 0) return BAR_WIDTHS[0];
-  const bucket = Math.ceil((value / max) * BAR_WIDTHS.length) - 1;
-  return BAR_WIDTHS[Math.max(0, Math.min(BAR_WIDTHS.length - 1, bucket))];
-}
-
 // The bookies' board: the favourites, bars growing to their title chance
 export default function BroadcastChanceSlide({
   rows,
@@ -36,8 +17,8 @@ export default function BroadcastChanceSlide({
 }) {
   const max = rows[0]?.pct ?? 0;
   return (
-    <div className="flex min-h-56 flex-col justify-center gap-2 rounded-xl border border-amber-300/20 bg-amber-300/5 p-4">
-      <p className="mb-1 text-center text-[9px] font-bold uppercase tracking-widest text-amber-300">
+    <div className="flex min-h-56 flex-col justify-center gap-2 bg-[#101a36] p-4">
+      <p className="mb-1 text-center font-sign text-[15px] font-bold uppercase leading-tight tracking-[0.1em] text-amber-300">
         <span className="mr-1">🏆</span>
         {B.titleChance}
       </p>
@@ -50,7 +31,7 @@ export default function BroadcastChanceSlide({
             key={row.slug}
             className={`flex items-center gap-2.5 opacity-0 animate-[bubblein_0.35s_ease-out_forwards] ${delay}`}
           >
-            <span className="w-4 shrink-0 font-mono text-[10px] font-bold text-slate-500">
+            <span className="w-4 shrink-0 font-sign text-[13px] font-bold tabular-nums text-slate-400">
               {i + 1}.
             </span>
             <PortraitHead character={character} className="h-8 w-8 shrink-0" />
@@ -61,20 +42,24 @@ export default function BroadcastChanceSlide({
                   {character.name}
                 </span>
                 <span
-                  className={`shrink-0 font-mono text-xs font-black [font-variant-numeric:tabular-nums] ${
+                  className={`shrink-0 font-sign text-[15px] font-bold tabular-nums ${
                     i === 0 ? 'text-amber-300' : 'text-slate-300'
                   }`}
                 >
                   {row.pct}%
                 </span>
               </div>
-              <div className="h-1.5 rounded-full bg-slate-800/80">
+              <div className="h-1.5 bg-slate-800">
                 <div
-                  className={`h-1.5 origin-left rounded-full animate-[introbar_0.8s_ease-out_both] ${
-                    i === 0
-                      ? 'bg-gradient-to-r from-amber-400/90 to-amber-200/90'
-                      : 'bg-gradient-to-r from-sky-400/90 to-cyan-300/90'
-                  } ${barWidth(row.pct, max)} ${delay}`}
+                  ref={(bar) =>
+                    bar?.style.setProperty(
+                      '--bar',
+                      `${max > 0 ? (row.pct / max) * 100 : 0}%`,
+                    )
+                  }
+                  className={`h-1.5 w-(--bar) origin-left animate-[introbar_0.8s_ease-out_both] ${
+                    i === 0 ? 'bg-amber-300' : 'bg-sky-300'
+                  } ${delay}`}
                 />
               </div>
             </div>

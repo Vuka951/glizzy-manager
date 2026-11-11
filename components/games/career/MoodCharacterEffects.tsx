@@ -1,22 +1,30 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import useAmbientMotion from '@/components/games/useAmbientMotion';
 import type { CareerMoodActivity } from '@/lib/utils/careerMood';
 
 export default function MoodCharacterEffects({
   activity,
   active = true,
+  ambient = false,
 }: {
   activity: CareerMoodActivity;
   active?: boolean;
+  // Drawn in the town, where the lite animation level stills these loops;
+  // scenes keep them whatever the setting
+  ambient?: boolean;
 }) {
+  const ambientMotion = useAmbientMotion();
+  const still = ambient && !ambientMotion;
+  const lite = still ? 'animate-none!' : '';
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reducedMotion) return;
+    if (reducedMotion || still) return;
     const animations: Animation[] = [];
 
     root.querySelectorAll<HTMLElement>('[data-tear]').forEach((tear, index) => {
@@ -75,12 +83,16 @@ export default function MoodCharacterEffects({
     });
 
     return () => animations.forEach((animation) => animation.cancel());
-  }, [activity]);
+  }, [activity, still]);
 
   return (
     <div
       ref={rootRef}
-      className={`pointer-events-none absolute inset-0 z-20 transition-opacity duration-700 ${active ? 'opacity-100' : 'opacity-0'}`}
+      className={`pointer-events-none absolute inset-0 z-20 transition-opacity duration-700 ${active ? 'opacity-100' : 'opacity-0'} ${
+        still
+          ? '[&_[data-float-effect]]:hidden [&_[data-sleep-effect]]:hidden [&_[data-tear]]:hidden'
+          : ''
+      }`}
       aria-hidden="true"
     >
       {activity === 'sick' && (
@@ -116,9 +128,9 @@ export default function MoodCharacterEffects({
 
       {activity === 'proud' && (
         <>
-          <span className="absolute -inset-3 -z-10 animate-pulse rounded-full bg-amber-300/15 blur-md" />
-          <span className="absolute -right-2 top-0 h-2.5 w-2.5 rotate-45 animate-pulse bg-amber-100 shadow-[0_0_9px_rgba(253,230,138,0.9)]" />
-          <span className="absolute -left-3 bottom-3 h-1.5 w-1.5 rotate-45 animate-pulse bg-yellow-200/90" />
+          <span className={`absolute -inset-3 -z-10 animate-pulse rounded-full bg-amber-300/15 blur-md ${lite}`} />
+          <span className={`absolute -right-2 top-0 h-2.5 w-2.5 rotate-45 animate-pulse bg-amber-100 shadow-[0_0_9px_rgba(253,230,138,0.9)] ${lite}`} />
+          <span className={`absolute -left-3 bottom-3 h-1.5 w-1.5 rotate-45 animate-pulse bg-yellow-200/90 ${lite}`} />
         </>
       )}
 

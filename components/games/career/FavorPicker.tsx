@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import PortraitHead from '@/components/games/PortraitHead';
+import CareerButton from '@/components/games/career/CareerButton';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
 import SponsorEmblem from '@/components/games/career/SponsorEmblem';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
@@ -64,31 +66,31 @@ export default function FavorPicker({
       <button
         aria-label={FAVOR.cancel}
         onClick={onClose}
-        className="absolute inset-0 cursor-default bg-slate-950/80 backdrop-blur-sm"
+        className="absolute inset-0 cursor-default bg-[#060912]/75"
       />
-      <div className="relative z-10 max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-sm bg-amber-50 p-5 text-slate-900 shadow-2xl animate-[bubblein_0.35s_ease-out] sm:p-7">
-        <div className="flex items-center justify-between gap-3 border-y-2 border-slate-900 py-2">
+      <PaperSheet className="z-10 max-h-[calc(90vh/var(--game-zoom,1))] w-full max-w-3xl overflow-y-auto p-5 text-slate-100 animate-[bubblein_0.35s_ease-out] motion-reduce:animate-none sm:p-7">
+        <div className="flex items-center justify-between gap-3 border-y-[3px] border-double border-[#1c1408] py-2">
           <div className="flex items-center gap-2.5">
             <SponsorEmblem sponsorId={party} className="h-7 w-7" />
             <div>
-              <p className="text-base font-black uppercase leading-none tracking-[0.12em]">
+              <p className="font-serif text-lg font-black uppercase leading-none tracking-[0.08em]">
                 {FAVOR.title}
               </p>
-              <p className="mt-1 text-[11px] font-semibold text-slate-600">
+              <p className="mt-1 text-[11px] font-semibold text-slate-400">
                 {SPONSOR_NAMES[party]}
               </p>
             </div>
           </div>
-          <span className="rotate-[-6deg] border-2 border-red-700 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.15em] text-red-700">
+          <span className="rotate-[-6deg] rounded-[2px] border-2 border-[#b91c1c] px-2 py-0.5 text-center font-sign text-[13px] font-extrabold uppercase leading-tight tracking-[0.08em] text-[#b91c1c]">
             {reason}
           </span>
         </div>
-        <p className="mt-2 text-center text-[11px] italic text-slate-600">
+        <p className="mt-2 text-center text-[12px] text-slate-400">
           {FAVOR.pick}
         </p>
 
         {candidates.length === 0 ? (
-          <p className="my-8 text-center text-sm italic text-slate-500">
+          <p className="my-8 text-center font-serif text-sm text-slate-400">
             {FAVOR.noTargets}
           </p>
         ) : (
@@ -110,29 +112,33 @@ export default function FavorPicker({
                   disabled={!candidate.ok}
                   aria-pressed={selected}
                   onClick={() => setPicked(selected ? null : candidate.slug)}
-                  className={`group relative flex flex-col items-center gap-1.5 rounded-sm border px-2 py-3 transition-all duration-200 ${
+                  className={`group relative flex flex-col items-center gap-1.5 rounded-[2px] px-2 py-3 transition duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1e3a8a] motion-reduce:transition-none ${
                     !candidate.ok
-                      ? 'cursor-not-allowed border-dashed border-slate-900/15 bg-transparent opacity-45'
+                      ? 'cursor-not-allowed border border-dashed border-[#1c1408]/40'
                       : selected
-                        ? 'border-red-700 bg-white shadow-md ring-2 ring-red-700/60'
-                        : 'border-slate-900/15 bg-white/50 hover:-translate-y-0.5 hover:border-slate-900/50 hover:bg-white hover:shadow-md'
+                        ? 'bg-[#fbf6e9] shadow-[0_0_0_2px_#b91c1c,0_2px_0_2px_rgb(28_20_8/0.35)]'
+                        : 'bg-[#fbf6e9]/70 shadow-[0_0_0_1px_rgb(28_20_8/0.25),0_2px_0_rgb(28_20_8/0.3)] hover:-translate-y-0.5 hover:bg-[#fbf6e9] motion-reduce:hover:translate-y-0'
                   }`}
                 >
                   <PortraitHead
                     character={character}
                     className={`h-12 w-12 transition-all duration-200 ${
-                      selected
+                      !candidate.ok ? 'opacity-50 grayscale' : selected
                         ? 'scale-105 grayscale-0'
                         : 'grayscale group-enabled:group-hover:scale-105 group-enabled:group-hover:grayscale-0'
                     }`}
                   />
-                  <span className="text-[11px] font-bold leading-tight text-slate-900">
+                  <span
+                    className={`font-serif text-[12px] font-bold leading-tight ${
+                      candidate.ok ? 'text-slate-100' : 'text-slate-400'
+                    }`}
+                  >
                     {character.name}
                   </span>
                   {tag && (
                     <span
-                      className={`text-[9px] font-semibold leading-none ${
-                        candidate.ok ? 'text-red-700' : 'text-slate-500'
+                      className={`font-sign text-[12px] font-semibold leading-none ${
+                        candidate.ok ? 'text-[#b91c1c]' : 'text-slate-400'
                       }`}
                     >
                       {tag}
@@ -141,13 +147,13 @@ export default function FavorPicker({
                   {!candidate.ok && (
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none absolute inset-x-1 top-1/2 h-px -translate-y-1/2 rotate-[-12deg] bg-slate-900/30"
+                      className="pointer-events-none absolute inset-x-1 top-1/2 h-px -translate-y-1/2 rotate-[-12deg] bg-[#1c1408]/40"
                     />
                   )}
                   {selected && (
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none absolute -right-1.5 -top-1.5 h-5 w-5 rounded-full border-2 border-red-700 bg-red-700 text-center text-[11px] font-black leading-4 text-amber-50"
+                      className="pointer-events-none absolute -right-1.5 -top-1.5 h-5 w-5 rounded-full border-2 border-[#b91c1c] bg-[#b91c1c] text-center text-[11px] font-black leading-4 text-[#fbf6e9]"
                     >
                       ✓
                     </span>
@@ -158,31 +164,28 @@ export default function FavorPicker({
           </div>
         )}
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-900/20 pt-3">
-          <p className="min-w-0 flex-1 text-[11px] text-slate-600">
-            {chosenCharacter
-              ? fmt(FAVOR.chosenLine, { name: chosenCharacter.name, reason })
-              : FAVOR.nobodyLine}
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#1c1408]/30 pt-3">
+          <p className="min-w-0 flex-1 font-serif text-[12px] text-slate-300">
+            {chosenCharacter &&
+              fmt(FAVOR.chosenLine, { name: chosenCharacter.name, reason })}
           </p>
           <div className="flex gap-2">
-            <button
-              onClick={onClose}
-              className="rounded-sm border border-slate-900/30 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-700 transition hover:border-slate-900 hover:text-slate-900"
-            >
+            <CareerButton tone="quiet" onClick={onClose} className="min-h-11">
               {FAVOR.cancel}
-            </button>
-            <button
+            </CareerButton>
+            <CareerButton
+              tone="danger"
               disabled={!chosen}
               onClick={() => chosen && onConfirm(chosen.slug, chosen.index)}
-              className="rounded-sm bg-slate-900 px-5 py-2 text-[10px] font-black uppercase tracking-widest text-amber-50 transition hover:bg-red-800 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:bg-slate-400"
+              className="min-h-11"
             >
               {chosenCharacter
                 ? fmt(FAVOR.confirm, { name: chosenCharacter.name })
                 : FAVOR.confirmEmpty}
-            </button>
+            </CareerButton>
           </div>
         </div>
-      </div>
+      </PaperSheet>
     </div>
   );
 }

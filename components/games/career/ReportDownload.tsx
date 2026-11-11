@@ -2,11 +2,12 @@
 
 import { useState, type RefObject } from 'react';
 import { flushSync } from 'react-dom';
+import CareerButton from '@/components/games/career/CareerButton';
 import { GAMES_UI } from '@/data/games/locale';
 
 const D = GAMES_UI.career.report.download;
 // The paper's own cream, so the capture has no transparent corners
-const PAPER_BACKGROUND = '#fffbeb';
+const PAPER_BACKGROUND = '#f1e8d3';
 const PIXEL_RATIO = 2;
 const JPEG_QUALITY = 0.9;
 
@@ -19,16 +20,28 @@ function nextPaint(): Promise<void> {
   });
 }
 
-const SVG_COLOR_PROPERTIES = ['fill', 'stroke', 'color', 'stop-color'] as const;
+const SVG_PINNED_PROPERTIES = [
+  'fill',
+  'stroke',
+  'color',
+  'stop-color',
+  'opacity',
+  'font-family',
+  'font-size',
+  'font-weight',
+  'letter-spacing',
+  'text-transform',
+] as const;
 
-// The chart colours come from utility classes, and the clone the capture
+// Chart colours and type come from utility classes, and the clone the capture
 // draws loses them on SVG nodes. Writing the computed values onto the live
-// nodes for the length of the shot keeps every line and bar its colour
-function pinSvgColors(root: HTMLElement): () => void {
+// nodes for the length of the shot keeps every line its colour and every label
+// its size, so a wide fallback font cannot run off the chart's edge
+function pinSvgStyles(root: HTMLElement): () => void {
   const pinned: { el: SVGElement; prop: string; prev: string }[] = [];
   root.querySelectorAll<SVGElement>('svg, svg *').forEach((el) => {
     const computed = window.getComputedStyle(el);
-    SVG_COLOR_PROPERTIES.forEach((prop) => {
+    SVG_PINNED_PROPERTIES.forEach((prop) => {
       const value = computed.getPropertyValue(prop);
       if (!value) return;
       pinned.push({ el, prop, prev: el.style.getPropertyValue(prop) });
@@ -67,7 +80,7 @@ export default function ReportDownload({
     const node = targetRef.current;
     if (!node) throw new Error('report not mounted');
     const { toJpeg, toPng } = await import('html-to-image');
-    const restore = pinSvgColors(node);
+    const restore = pinSvgStyles(node);
     try {
       return await shoot(node, format, { toJpeg, toPng });
     } finally {
@@ -131,14 +144,14 @@ export default function ReportDownload({
   };
 
   const button = (format: Format, label: string) => (
-    <button
-      type="button"
+    <CareerButton
+      tone="quiet"
+      className="min-h-11"
       onClick={() => void save(format)}
       disabled={busy !== null}
-      className="rounded-sm border-2 border-slate-900/40 bg-white/40 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-700 transition hover:border-slate-900 hover:text-slate-900 disabled:cursor-wait disabled:opacity-60"
     >
       {busy === format ? D.busy : label}
-    </button>
+    </CareerButton>
   );
 
   return (
@@ -149,7 +162,7 @@ export default function ReportDownload({
       {button('png', D.png)}
       {button('pdf', D.pdf)}
       {failed && (
-        <span className="text-[10px] font-semibold text-red-700">{D.failed}</span>
+        <span className="font-serif text-[12.5px] font-bold text-red-700">{D.failed}</span>
       )}
     </div>
   );

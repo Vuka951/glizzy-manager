@@ -5,6 +5,8 @@ import SpeakerOffIcon from '@/components/icons/SpeakerOffIcon';
 import SpeakerOnIcon from '@/components/icons/SpeakerOnIcon';
 import SpeechBubbleIcon from '@/components/icons/SpeechBubbleIcon';
 import ToggleSwitch from '@/components/games/ToggleSwitch';
+import { useCareerFrames } from '@/components/games/career/careerFrames';
+import SwitchboardMixer from '@/components/games/career/switchboard/SwitchboardMixer';
 import { GAMES_UI } from '@/data/games/locale';
 import { COMMENTARY_VOICED } from '@/lib/constants/careerCommentaryVoice';
 import { gameAudio, type AudioChannel } from '@/lib/utils/gameAudio';
@@ -28,6 +30,7 @@ export default function AudioSettingsPanel({
 }: {
   channels?: AudioChannel[];
 }) {
+  const street = useCareerFrames() === 'street';
   const settings = useSyncExternalStore(
     gameAudio.subscribe,
     gameAudio.load,
@@ -39,6 +42,8 @@ export default function AudioSettingsPanel({
   );
   const silent = settings.muted || settings.volume === 0;
   const percent = settings.muted ? 0 : Math.round(settings.volume * 100);
+
+  if (street) return <SwitchboardMixer settings={settings} channels={channels} />;
 
   return (
     <div className="w-full overflow-hidden rounded-2xl border border-sky-200/10 bg-slate-800/40 text-left">

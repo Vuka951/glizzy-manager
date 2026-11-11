@@ -1,14 +1,13 @@
-import { createHash, randomBytes } from 'node:crypto';
 import {
   COACH_COLOR_ORDER,
+  DEFAULT_COALITION_SECONDS,
+  DEFAULT_LAWS_SECONDS,
   DEFAULT_MATCH_BET_SECONDS,
   DEFAULT_MATCH_LINGER_SECONDS,
   DEFAULT_PAPER_SECONDS,
   DEFAULT_PRE_ROUND_SECONDS,
   DEFAULT_SEASON_END_SECONDS,
   DEFAULT_WINDOW_SECONDS,
-  ROOM_CODE_ALPHABET,
-  ROOM_CODE_LENGTH,
   type CoachColor,
 } from '@/lib/constants/careerMp';
 import type {
@@ -16,10 +15,10 @@ import type {
   LedgerEntry,
   PhaseState,
   Receipt,
-  RoomEvent,
   RoomSettings,
-  RoomStatus,
 } from '@/lib/types/careerMp';
+import type { RoomCore, RoomEvent, RoomSeat } from '@/lib/types/rooms';
+import type { PremierSpeech } from '@/lib/utils/careerPremier';
 import type { QuotePlayback } from '@/lib/utils/quoteCutsceneTriggers';
 import type {
   CharacterCareerState,
@@ -33,16 +32,20 @@ import type {
   SponsorId,
 } from '@/lib/utils/careerSave';
 import type { CupMatch, CupMatchBet } from '@/lib/utils/tournamentSim';
+import type { LeagueEntry } from '@/lib/utils/leagueRoster';
 import type { ElectionResult } from '@/data/games/careerElections';
+import {
+  OVERLORD_POINTS,
+  type OverlordPoints,
+} from '@/data/games/careerEconomy';
+import type {
+  GlizzyBet,
+  GlizzyBetResult,
+} from '@/data/games/careerGlizzflationBets';
 
-export type Coach = {
-  id: string;
-  name: string;
+export type Coach = RoomSeat & {
   color: CoachColor;
   slug: string | null;
-  tokenHash: string;
-  joinedAt: number;
-  lastSeenAt: number;
   ready: boolean;
 };
 
@@ -58,9 +61,11 @@ export type CoachState = {
   guarded: boolean;
   guardChance?: number;
   betStake?: number;
+  glizzyBet?: GlizzyBet;
+  lastGlizzyBet?: GlizzyBetResult;
   islandYear?: number;
   islandSeason?: number;
-  korpVendetta?: boolean;
+  yellowVendetta?: boolean;
   rivalSlug: string | null;
   rivalChoice: RivalCandidate[] | null;
   saboteursThisYear: string[];
@@ -72,8 +77,13 @@ export type CoachState = {
   // Placed or passed on the match at the cursor
   passed: boolean;
   // What the window opening did to this coach on its own: the standing
-  // contracts' payout, an ego hijack or a slump. Replayed once per key
-  windowIntro: { key: string; receipts: Receipt[] } | null;
+  // contracts' payout, an ego hijack or a slump, or the car the Yellow Party
+  // sent. Replayed once per key
+  windowIntro: {
+    key: string;
+    receipts: Receipt[];
+    scenes?: QuotePlayback[];
+  } | null;
   sponsorHistory: { sponsorId: SponsorId; year: number }[];
   rivalHistory: { slug: string; year: number; wins: number; losses: number }[];
   cupPlaces: number[];
@@ -108,6 +118,9 @@ export type StandingsRecord = {
 export type LeagueState = {
   year: number;
   season: number;
+  // Everyone in the league, in seeding order, with the names the screens print
+  roster: LeagueEntry[];
+  overlordPoints?: OverlordPoints;
   characters: Record<string, CharacterCareerState>;
   coachStates: Record<string, CoachState>;
   humanSlugs: string[];
@@ -117,6 +130,8 @@ export type LeagueState = {
   // The last issue is the morning-after paper, so every coach's own recap
   // items slot in between the league's head and tail
   lastIssueRecap?: boolean;
+  // The pre-cup paper the morning-after recap pushed off the counter
+  prevIssue?: { news: NewsItem[]; year: number; season: number };
   // The morning-after paper everybody reads, the coach's own items go between
   leagueRecap: { head: NewsItem[]; tail: NewsItem[] };
   cup: LeagueCup | null;
@@ -125,7 +140,16 @@ export type LeagueState = {
   aiGuarded: string[];
   standingsHistory: StandingsRecord[];
   parliament?: Parliament;
-  lastElection?: { year: number; result: ElectionResult };
+  // The last count; while the room sits in the coalition phase its partner
+  // vote is still open
+  lastElection?: {
+    year: number;
+    result: ElectionResult;
+    // The night's stories, picked once the government stands
+    scenes?: QuotePlayback[];
+    // The man handed the office, with what he says on air
+    premier?: PremierSpeech | null;
+  };
   seasonPricePct: number;
   seasonPriceByYear: Record<number, number[]>;
   gliziPricePct?: number;
@@ -134,7 +158,11 @@ export type LeagueState = {
   lastCupRanks?: string[];
   cupStartRanks?: string[];
   overlordSlug?: string | null;
-  governments: { year: number; government: SponsorId[] }[];
+  governments: {
+    year: number;
+    government: SponsorId[];
+    primeMinister?: string | null;
+  }[];
   skipRoundVotes: string[];
   skipCupVotes: string[];
   // Scenes cued since the last phase change, waiting for the phase every
@@ -145,17 +173,12 @@ export type LeagueState = {
   quoteScenesFired?: string[];
 };
 
-export type Room = {
-  code: string;
-  version: number;
-  // The version at which the phase last changed; an action sent against an
-  // older view is refused as stale
-  phaseVersion: number;
-  createdAt: number;
-  updatedAt: number;
+// The shared room envelope under the field names stored rooms already carry
+export type Room = RoomCore & {
   hostCoachId: string;
-  status: RoomStatus;
   settings: RoomSettings;
+  // The room's generated league, every name of it offered in the lobby
+  roster: LeagueEntry[];
   coaches: Record<string, Coach>;
   league: LeagueState | null;
   phase: PhaseState;
@@ -169,44 +192,13 @@ export const DEFAULT_SETTINGS: RoomSettings = {
   preRoundSeconds: DEFAULT_PRE_ROUND_SECONDS,
   matchBetSeconds: DEFAULT_MATCH_BET_SECONDS,
   seasonEndSeconds: DEFAULT_SEASON_END_SECONDS,
+  coalitionSeconds: DEFAULT_COALITION_SECONDS,
+  lawsSeconds: DEFAULT_LAWS_SECONDS,
   matchLingerSeconds: DEFAULT_MATCH_LINGER_SECONDS,
+  overlordPoints: OVERLORD_POINTS,
 };
-
-export function randomRoomCode(): string {
-  const bytes = randomBytes(ROOM_CODE_LENGTH);
-  let code = '';
-  for (let i = 0; i < ROOM_CODE_LENGTH; i++) {
-    code += ROOM_CODE_ALPHABET[bytes[i] % ROOM_CODE_ALPHABET.length];
-  }
-  return code;
-}
-
-export function isRoomCode(code: string): boolean {
-  return (
-    code.length === ROOM_CODE_LENGTH &&
-    [...code].every((c) => ROOM_CODE_ALPHABET.includes(c))
-  );
-}
-
-export function newToken(): string {
-  return randomBytes(32).toString('base64url');
-}
-
-export function hashToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex');
-}
-
-export function newCoachId(): string {
-  return randomBytes(6).toString('hex');
-}
 
 export function freeColor(room: Room): CoachColor | null {
   const taken = new Set(Object.values(room.coaches).map((c) => c.color));
   return COACH_COLOR_ORDER.find((color) => !taken.has(color)) ?? null;
-}
-
-export function coachByToken(room: Room, token: string | null): Coach | null {
-  if (!token) return null;
-  const hash = hashToken(token);
-  return Object.values(room.coaches).find((c) => c.tokenHash === hash) ?? null;
 }

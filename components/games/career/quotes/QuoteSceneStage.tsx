@@ -1,11 +1,22 @@
 import type { ComponentType } from 'react';
 import BigBrainScene from '@/components/games/career/quotes/BigBrainScene';
 import ChickenDinnerScene from '@/components/games/career/quotes/ChickenDinnerScene';
+import CloseCallScene from '@/components/games/career/quotes/CloseCallScene';
+import CoalitionReconciliationScene from '@/components/games/career/quotes/CoalitionReconciliationScene';
+import CoalitionSmallChairScene from '@/components/games/career/quotes/CoalitionSmallChairScene';
+import CoalitionThreeWayScene from '@/components/games/career/quotes/CoalitionThreeWayScene';
 import CrowdSurfScene from '@/components/games/career/quotes/CrowdSurfScene';
 import DressedUpScene from '@/components/games/career/quotes/DressedUpScene';
 import EggOnTrophyScene from '@/components/games/career/quotes/EggOnTrophyScene';
+import ElectionAllChannelsScene from '@/components/games/career/quotes/ElectionAllChannelsScene';
+import ElectionFlagSobScene from '@/components/games/career/quotes/ElectionFlagSobScene';
+import ElectionFridgeScene from '@/components/games/career/quotes/ElectionFridgeScene';
+import ElectionGlizzyRallyScene from '@/components/games/career/quotes/ElectionGlizzyRallyScene';
 import FlashbackScene from '@/components/games/career/quotes/FlashbackScene';
+import ForfeitWinScene from '@/components/games/career/quotes/ForfeitWinScene';
 import HitAndRunScene from '@/components/games/career/quotes/HitAndRunScene';
+import YellowRunOverScene from '@/components/games/career/quotes/YellowRunOverScene';
+import LossStreakScene from '@/components/games/career/quotes/LossStreakScene';
 import PhotoFinishScene from '@/components/games/career/quotes/PhotoFinishScene';
 import PilloryScene from '@/components/games/career/quotes/PilloryScene';
 import RunnerUpScene from '@/components/games/career/quotes/RunnerUpScene';
@@ -28,6 +39,7 @@ export type QuoteStageProps = {
   scene: QuoteSceneId;
   speaker: string;
   other?: string;
+  third?: string;
   variant?: string;
 };
 
@@ -56,6 +68,17 @@ const SCENES: Record<QuoteSceneId, ComponentType<QuoteSceneProps>> = {
   'wooden-spoon': WoodenSpoonScene,
   'sponsor-signed': SponsorDealScene,
   'price-crash': TruckCrashScene,
+  'loss-streak': LossStreakScene,
+  'close-call': CloseCallScene,
+  'forfeit-win': ForfeitWinScene,
+  'yellow-run-over': YellowRunOverScene,
+  'election-flag-sob': ElectionFlagSobScene,
+  'election-fridge': ElectionFridgeScene,
+  'election-glizzy-rally': ElectionGlizzyRallyScene,
+  'election-all-channels': ElectionAllChannelsScene,
+  'coalition-small-chair': CoalitionSmallChairScene,
+  'coalition-reconciliation': CoalitionReconciliationScene,
+  'coalition-three-way': CoalitionThreeWayScene,
 };
 
 // A playback names the other side whenever its scene stages one. A scene
@@ -64,8 +87,16 @@ export default function QuoteSceneStage({
   scene,
   speaker,
   other,
+  third,
   variant,
 }: QuoteStageProps) {
   const Scene = SCENES[scene];
-  return <Scene speaker={speaker} other={other ?? speaker} variant={variant} />;
+  return (
+    <Scene
+      speaker={speaker}
+      other={other ?? speaker}
+      third={third}
+      variant={variant}
+    />
+  );
 }

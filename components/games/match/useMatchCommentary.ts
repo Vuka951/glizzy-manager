@@ -69,8 +69,8 @@ export default function useMatchCommentary(
         const next = chainRef.current.shift();
         if (next) play(next);
       };
-      // No clip to time the line (a language without a voice bank, a file
-      // not rendered yet, autoplay refused): the caption stays up long
+      // No clip to time the line (a language without a voice bank, a
+      // caption-only line, autoplay refused): the caption stays up long
       // enough to be read, then the line ends like a spoken one
       const hold = () => {
         if (speakingRef.current !== speaking || speaking.timer !== null) return;

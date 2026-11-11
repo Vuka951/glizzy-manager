@@ -1,13 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import CareerButton from '@/components/games/career/CareerButton';
 import ClassifiedsSelect from '@/components/games/career/ClassifiedsSelect';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
 import PortraitHead from '@/components/games/PortraitHead';
-import CloseRoomButton from '@/components/games/career-mp/CloseRoomButton';
-import ColorPicker from '@/components/games/career-mp/ColorPicker';
 import { withCountdown } from '@/components/games/career-mp/CareerMpLobby';
-import CountdownPicker from '@/components/games/career-mp/CountdownPicker';
+import CorkBoard from '@/components/games/career-mp/CorkBoard';
+import NoticePin from '@/components/games/career-mp/NoticePin';
+import OverlordPointsRow from '@/components/games/career-mp/OverlordPointsRow';
 import PaperStamp from '@/components/games/career-mp/PaperStamp';
+import CloseRoomButton from '@/components/games/rooms/CloseRoomButton';
+import ColorPicker from '@/components/games/rooms/ColorPicker';
+import CountdownPicker from '@/components/games/rooms/CountdownPicker';
+import SeatTag from '@/components/games/rooms/SeatTag';
+import { OVERLORD_POINTS } from '@/data/games/careerEconomy';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
 import {
@@ -16,32 +23,29 @@ import {
   MIN_COACHES,
   type CoachColor,
 } from '@/lib/constants/careerMp';
-import { rivalsRoomPath } from '@/lib/constants/routes';
 import type { RoomAction, RoomView } from '@/lib/types/careerMp';
 import { fmt, plural } from '@/lib/utils/format';
+import { ownNameProblem, ownNameSlot } from '@/lib/utils/leagueRoster';
+import { queueGameFullscreen } from '@/lib/utils/fullscreen';
 import { playPaperSound } from '@/lib/utils/gameSounds';
 
 const L = GAMES_UI.careerMp.lobby;
-const R = GAMES_UI.careerMp.rejoin;
 
-// The team sheet before the league starts: every coach on a line in his
-// ink, the empty lines still open, the house rules beside it, the host's
-// stamp at the bottom
+// The team sheet before the league starts, pinned to the noticeboard: every
+// coach on a ruled line under his name tag, the empty lines still open, the
+// house rules beside it, the host's stamp at the bottom
 export default function RoomLobby({
   view,
   characters,
-  token,
   busy,
   send,
 }: {
   view: RoomView;
   characters: DuelCharacter[];
-  token: string;
   busy: boolean;
   send: (action: RoomAction) => void;
 }) {
   const [picking, setPicking] = useState(false);
-  const [copied, setCopied] = useState(false);
   useEffect(() => {
     playPaperSound();
   }, []);
@@ -53,24 +57,19 @@ export default function RoomLobby({
       .filter((c) => c.slug && c.id !== view.coachId)
       .map((c) => c.slug as string),
   );
+  // A written name goes over the coach's own pick, else over the last face
+  // nobody plays, the same slot the server fills
+  const ownNameReplaces =
+    me?.slug ??
+    ownNameSlot(
+      view.roster,
+      view.coaches.flatMap((c) => (c.slug ? [c.slug] : [])),
+    );
   const takenColors = new Set(view.coaches.map((c) => c.color));
   const enoughCoaches = view.coaches.length >= MIN_COACHES;
   const everyonePicked = view.coaches.every((c) => c.slug);
   const everyoneReady = view.coaches.every((c) => c.isHost || c.ready);
   const canStart = isHost && enoughCoaches && everyonePicked && everyoneReady;
-  const link =
-    typeof window === 'undefined'
-      ? ''
-      : `${window.location.origin}${rivalsRoomPath(view.code)}#token=${token}`;
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(link);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // the field stays selectable
-    }
-  };
 
   if (picking) {
     return (
@@ -79,9 +78,18 @@ export default function RoomLobby({
           characters={characters}
           taken={takenSlugs}
           selected={me?.slug ?? null}
+          busy={busy}
           onSelect={(slug) => {
             setPicking(false);
             send({ type: 'pickCharacter', slug });
+          }}
+          onReroll={() => send({ type: 'rerollLeague' })}
+          ownNameProblem={(name) =>
+            ownNameProblem(view.roster, name, ownNameReplaces)
+          }
+          onOwnName={(name) => {
+            setPicking(false);
+            send({ type: 'nameCharacter', name });
           }}
         />
       </div>
@@ -91,28 +99,25 @@ export default function RoomLobby({
   const emptyLines = Math.max(0, Math.min(3, MAX_COACHES - view.coaches.length));
 
   return (
-    <div className="w-full rotate-[-0.4deg] rounded-sm bg-amber-50/80 p-5 text-left text-slate-900 shadow-2xl animate-[bubblein_0.4s_ease-out] sm:p-7">
-      <div className="flex flex-wrap items-end justify-between gap-3 border-y-2 border-slate-900 py-2">
-        <div>
-          <p className="text-lg font-black uppercase leading-none tracking-[0.15em]">
-            {L.masthead}
-          </p>
-          <p className="mt-1 text-xs font-semibold text-slate-600">
-            {L.sheetTitle}
-          </p>
-        </div>
-        <div className="flex items-baseline gap-2">
-          <span className="text-[11px] font-semibold text-slate-600">
+    <CorkBoard
+      title={L.sheetTitle}
+      rail={
+        <span className="ml-auto flex items-center gap-2 rounded-[4px] bg-[#1f140b] px-2.5 py-1 shadow-[inset_0_1px_3px_rgb(0_0_0/0.8),0_1px_0_rgb(255_255_255/0.08)]">
+          <span className="font-sign text-[13px] font-semibold uppercase tracking-[0.06em] text-slate-300">
             {L.roomNumber}
           </span>
-          <span className="font-mono text-2xl font-black tracking-[0.3em]">
+          <span className="font-sign text-2xl font-bold leading-none tabular-nums tracking-[0.16em] text-[#fdf0c8]">
             {view.code}
           </span>
-        </div>
-      </div>
-
-      <div className="mt-4 grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:gap-10">
-        <div className="flex flex-col gap-4">
+        </span>
+      }
+    >
+      <div className="grid items-start gap-5 lg:grid-cols-[1.2fr_1fr]">
+        <PaperSheet className="flex min-w-0 rotate-[-0.3deg] flex-col px-3 pb-4 pt-6 sm:px-5">
+          <NoticePin />
+          <p className="border-b-[3px] border-double border-[#1c1408]/70 pb-1 text-center font-serif text-xl font-black uppercase tracking-[0.06em] text-slate-100">
+            {L.masthead}
+          </p>
           <ol className="flex flex-col">
             {view.coaches.map((coach, i) => {
               const character = coach.slug
@@ -123,10 +128,12 @@ export default function RoomLobby({
               return (
                 <li
                   key={coach.id}
-                  className="flex items-center gap-3 border-b border-dotted border-slate-900/40 py-2"
+                  className={`flex items-center gap-2 border-b border-[#7d93a8]/35 py-1 pr-1 sm:gap-3 ${
+                    mine ? 'bg-[#fde047]/55' : ''
+                  }`}
                 >
-                  <span className="w-5 font-mono text-xs text-slate-500">
-                    {i + 1}.
+                  <span className="flex w-7 shrink-0 self-stretch items-center justify-end border-r-2 border-r-[#b91c1c]/50 pr-1.5 font-sign text-[15px] font-semibold tabular-nums text-slate-300">
+                    {i + 1}
                   </span>
                   {character ? (
                     <PortraitHead
@@ -137,41 +144,41 @@ export default function RoomLobby({
                     <button
                       onClick={() => setPicking(true)}
                       aria-label={L.chooseCharacter}
-                      className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed text-slate-500 transition hover:bg-white/70 hover:text-red-700 ${classes.border}`}
+                      className={`flex h-11 w-11 items-center justify-center rounded-full border-2 border-dashed font-sign text-lg font-bold text-slate-400 transition hover:text-red-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1e3a8a] motion-reduce:transition-none ${classes.border}`}
                     >
                       ?
                     </button>
                   ) : (
                     <span
-                      className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed text-slate-500 ${classes.border}`}
+                      className={`flex h-10 w-10 items-center justify-center rounded-full border-2 border-dashed font-sign text-lg font-bold text-slate-400 ${classes.border}`}
                     >
                       ?
                     </span>
                   )}
                   <span className="flex min-w-0 flex-1 flex-col leading-tight">
-                    <span className="flex items-center gap-2">
-                      <span className={`h-2.5 w-2.5 rounded-full ${classes.dot}`} />
-                      <span className="truncate text-sm font-bold">
-                        {coach.name}
-                        {mine && (
-                          <span className="ml-1.5 text-[10px] font-semibold text-slate-500">
-                            ({L.you})
-                          </span>
-                        )}
-                      </span>
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      <SeatTag
+                        name={coach.name}
+                        color={coach.color}
+                        connected={coach.connected}
+                      />
+                      {mine && (
+                        <span className="font-serif text-[12px] text-slate-400">
+                          ({L.you})
+                        </span>
+                      )}
                     </span>
-                    <span className="truncate text-[11px] text-slate-600">
+                    <span className="truncate pt-0.5 font-serif text-[14px] font-semibold text-slate-200">
                       {character ? character.name : L.noCharacter}
-                      {!coach.connected && ` · ${GAMES_UI.careerMp.coachBar.offline}`}
                     </span>
                   </span>
                   {coach.ready && !coach.isHost && (
-                    <span className="text-[10px] font-bold text-emerald-700">
+                    <span className="shrink-0 rotate-[-3deg] rounded-[2px] border-2 border-[#15803d] px-1.5 py-0.5 font-sign text-[12px] font-bold uppercase leading-none tracking-[0.08em] text-[#15803d]">
                       {L.ready}
                     </span>
                   )}
                   {coach.isHost && (
-                    <span className="rotate-[-6deg] border-2 border-red-700 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[0.15em] text-red-700">
+                    <span className="shrink-0 rotate-[-6deg] rounded-[2px] border-2 border-[#b91c1c] px-1.5 py-0.5 font-sign text-[12px] font-bold uppercase leading-none tracking-[0.08em] text-[#b91c1c]">
                       {L.host}
                     </span>
                   )}
@@ -181,144 +188,128 @@ export default function RoomLobby({
             {Array.from({ length: emptyLines }, (_, i) => (
               <li
                 key={`empty-${i}`}
-                className="flex items-center gap-3 border-b border-dotted border-slate-900/40 py-2"
+                className="flex items-center gap-2 border-b border-[#7d93a8]/35 py-1 sm:gap-3"
               >
-                <span className="w-5 font-mono text-xs text-slate-600">
-                  {view.coaches.length + i + 1}.
+                <span className="flex w-7 shrink-0 self-stretch items-center justify-end border-r-2 border-r-[#b91c1c]/50 pr-1.5 font-sign text-[15px] font-semibold tabular-nums text-slate-500">
+                  {view.coaches.length + i + 1}
                 </span>
-                <span className="h-10 w-10 rounded-full border-2 border-dashed border-slate-900/15" />
-                <span className="text-[11px] italic text-slate-500">{L.empty}</span>
+                <span className="h-10 w-10 rounded-full border-2 border-dashed border-[#1c1408]/20" />
+                <span className="font-serif text-[13px] text-slate-500">
+                  {L.empty}
+                </span>
               </li>
             ))}
           </ol>
           {me && (
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-1">
-              <span className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-3">
-                <ColorPicker
-                  value={me.color}
-                  taken={takenColors}
-                  onPick={(color: CoachColor) => send({ type: 'pickColor', color })}
-                />
-                <button
+            <div className="flex flex-col gap-2 pt-2">
+              <ColorPicker
+                value={me.color}
+                taken={takenColors}
+                onPick={(color: CoachColor) => send({ type: 'pickColor', color })}
+              />
+              <div className="flex flex-wrap gap-2">
+                <CareerButton
                   onClick={() => setPicking(true)}
-                  className={`text-[11px] font-bold underline underline-offset-4 transition hover:text-red-700 ${
-                    me.slug
-                      ? 'text-slate-800 decoration-slate-900/40'
-                      : 'text-red-700 decoration-red-700/40'
-                  }`}
+                  className="min-h-11"
                 >
                   {me.slug ? L.changeCharacter : L.chooseCharacter}
-                </button>
+                </CareerButton>
                 {!isHost && (
-                  <button
-                    onClick={() => send({ type: 'ready', ready: !me.ready })}
-                    className={`grid text-[11px] font-bold underline underline-offset-4 transition ${
-                      me.ready
-                        ? 'text-emerald-700 decoration-emerald-700/40'
-                        : 'text-slate-800 decoration-slate-900/40 hover:text-red-700'
-                    }`}
+                  <CareerButton
+                    tone={me.ready ? 'good' : 'quiet'}
+                    onClick={() => {
+                      queueGameFullscreen({ fresh: false, gesture: true });
+                      send({ type: 'ready', ready: !me.ready });
+                    }}
+                    className="grid min-h-11 place-items-center"
                   >
                     <span className="col-start-1 row-start-1">
                       {me.ready ? L.notReady : L.ready}
                     </span>
                     <span
                       aria-hidden="true"
-                      className="invisible col-start-1 row-start-1 no-underline"
+                      className="invisible col-start-1 row-start-1"
                     >
                       {L.notReady}
                     </span>
-                  </button>
+                  </CareerButton>
                 )}
-              </span>
-              <span className="ml-auto flex items-center gap-4">
+              </div>
+              <div className="flex flex-wrap gap-2">
                 {isHost && (
                   <CloseRoomButton
-                    onPaper
+                    confirm={GAMES_UI.careerMp.close.confirm}
+                    hint={GAMES_UI.careerMp.close.hint}
                     busy={busy}
                     onClose={() => send({ type: 'closeRoom' })}
                   />
                 )}
-                <button
+                <CareerButton
+                  tone="quiet"
                   onClick={() => send({ type: 'leave' })}
-                  className="text-[11px] font-bold text-slate-500 underline decoration-slate-900/30 underline-offset-4 transition hover:text-red-700"
+                  className="min-h-11"
                 >
                   {L.leave}
-                </button>
-              </span>
+                </CareerButton>
+              </div>
             </div>
           )}
-        </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t-[3px] border-double border-[#1c1408]/70 pt-3">
+            <p className="font-serif text-[13px] text-slate-400">
+              {isHost
+                ? canStart
+                  ? fmt(L.coaches, { count: view.coaches.length, max: MAX_COACHES })
+                  : !enoughCoaches
+                    ? plural(L.needCoaches, MIN_COACHES, { min: MIN_COACHES })
+                    : everyonePicked
+                      ? L.needReady
+                      : L.needCharacters
+                : !everyonePicked
+                  ? L.needCharacters
+                  : everyoneReady
+                    ? L.waitingHost
+                    : L.needReady}
+            </p>
+            {isHost && (
+              <PaperStamp
+                label={busy ? L.starting : L.start}
+                disabled={!canStart || busy}
+                onClick={() => {
+                  queueGameFullscreen({ fresh: false, gesture: true });
+                  send({ type: 'start' });
+                }}
+              />
+            )}
+          </div>
+        </PaperSheet>
 
-        <div className="flex flex-col gap-5">
-          <div>
-            <p className="border-b-2 border-slate-900 pb-1 text-xs font-black uppercase tracking-[0.12em]">
+        <div className="flex min-w-0 flex-col gap-5">
+          <PaperSheet className="rotate-[0.4deg] px-3 pb-3 pt-6 sm:px-4">
+            <NoticePin tone="brass" />
+            <p className="border-b-[3px] border-double border-[#1c1408]/70 pb-1 font-serif text-[17px] font-bold text-slate-100">
               {L.rulesTitle}
             </p>
-            <p className="mt-1.5 text-[11px] italic text-slate-600">
-              {isHost ? L.rulesHint : L.rulesLater}
-            </p>
-            <div className="mt-1">
-              <CountdownPicker
-                label={L.countdown}
-                value={view.settings.windowSeconds}
-                disabled={!isHost || busy}
-                onPick={(seconds) =>
-                  send({
-                    type: 'setSettings',
-                    settings: withCountdown(view.settings, seconds),
-                  })
-                }
-              />
-            </div>
-          </div>
-          <div>
-            <p className="border-b-2 border-slate-900 pb-1 text-xs font-black uppercase tracking-[0.12em]">
-              {L.shareTitle}
-            </p>
-            <p className="mt-1.5 text-[11px] italic text-slate-600">{L.shareHint}</p>
-            <div className="mt-2 flex items-center gap-2">
-              <input
-                readOnly
-                value={link}
-                onFocus={(e) => e.currentTarget.select()}
-                className="min-w-0 flex-1 border-b border-slate-900/40 bg-transparent px-1 py-1 font-mono text-[10px] text-slate-700 focus:outline-none"
-              />
-              <button
-                onClick={copy}
-                className="shrink-0 text-[11px] font-bold text-slate-800 underline decoration-slate-900/40 underline-offset-4 transition hover:text-red-700"
-              >
-                {copied ? R.copied : R.copy}
-              </button>
-            </div>
-            <p className="mt-1 text-[10px] text-slate-500">{R.hint}</p>
-          </div>
+            <CountdownPicker
+              label={L.countdown}
+              value={view.settings.windowSeconds}
+              disabled={!isHost || busy}
+              onPick={(seconds) =>
+                send({
+                  type: 'setSettings',
+                  settings: withCountdown(view.settings, seconds),
+                })
+              }
+            />
+            <OverlordPointsRow
+              value={view.settings.overlordPoints ?? OVERLORD_POINTS}
+              disabled={!isHost || busy}
+              onPick={(overlordPoints) =>
+                send({ type: 'setSettings', settings: { overlordPoints } })
+              }
+            />
+          </PaperSheet>
         </div>
       </div>
-
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-slate-900/30 pt-4">
-        <p className="text-[11px] italic text-slate-600">
-          {isHost
-            ? canStart
-              ? fmt(L.coaches, { count: view.coaches.length, max: MAX_COACHES })
-              : !enoughCoaches
-                ? plural(L.needCoaches, MIN_COACHES, { min: MIN_COACHES })
-                : everyonePicked
-                  ? L.needReady
-                  : L.needCharacters
-            : !everyonePicked
-              ? L.needCharacters
-              : everyoneReady
-                ? L.waitingHost
-                : L.needReady}
-        </p>
-        {isHost && (
-          <PaperStamp
-            label={busy ? L.starting : L.start}
-            disabled={!canStart || busy}
-            onClick={() => send({ type: 'start' })}
-          />
-        )}
-      </div>
-    </div>
+    </CorkBoard>
   );
 }

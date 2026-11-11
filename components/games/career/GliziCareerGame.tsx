@@ -1,5 +1,8 @@
 'use client';
 
+import CareerIconButton from '@/components/games/career/CareerIconButton';
+import CareerChip from '@/components/games/career/CareerChip';
+import CareerButton from '@/components/games/career/CareerButton';
 import {
   useEffect,
   useMemo,
@@ -8,7 +11,7 @@ import {
   useSyncExternalStore,
 } from 'react';
 import GameSettingsModal from '@/components/games/GameSettingsModal';
-import FullscreenButton from '@/components/games/FullscreenButton';
+import useAmbientMotion from '@/components/games/useAmbientMotion';
 import ActionIcon, { type ActionIconKind } from '@/components/icons/ActionIcon';
 import PortraitHead from '@/components/games/PortraitHead';
 import TournamentPodium from '@/components/games/tournament/TournamentPodium';
@@ -21,11 +24,15 @@ import CareerSlotDeleteModal from '@/components/games/career/CareerSlotDeleteMod
 import CareerSlotPicker from '@/components/games/career/CareerSlotPicker';
 import SponsorModal from '@/components/games/career/SponsorModal';
 import CareerTable from '@/components/games/career/CareerTable';
+import BrassPlate from '@/components/games/career/street/BrassPlate';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
 import CharacterDossier from '@/components/games/career/CharacterDossier';
 import MetersInfoPanel from '@/components/games/career/MetersInfoPanel';
 import SponsorInfoPanel from '@/components/games/career/SponsorInfoPanel';
 import CareerWalletChip from '@/components/games/career/CareerWalletChip';
 import ClassifiedsSelect from '@/components/games/career/ClassifiedsSelect';
+import CrownPointsPicker from '@/components/games/career/CrownPointsPicker';
+import ConstitutionCelebration from '@/components/games/career/ConstitutionCelebration';
 import OverlordCelebration from '@/components/games/career/OverlordCelebration';
 import CampaignReport from '@/components/games/career/CampaignReport';
 import NewspaperSpread from '@/components/games/career/NewspaperSpread';
@@ -51,8 +58,8 @@ import {
   COMEBACK_START_FAME,
   OFFSEASON_SLOTS,
   OVERLORD_POINTS,
+  type OverlordPoints,
   PLOTTING_EGO_GAIN,
-  PRIZE_MONEY,
   SCANDAL_BACKFIRE_CHANCE,
   SPONSOR_FAME_BONUS,
   STARTING_CAREER_BALANCE,
@@ -68,6 +75,7 @@ import {
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
 import {
+  CAREER_SAVE_VERSION,
   careerSave,
   type CareerSlot,
   type CharacterCareerState,
@@ -81,6 +89,7 @@ import {
   broadcastUnlockLetter,
   donationLetter,
   electionLetter,
+  glizzyMarketLetter,
   favorLetter,
   investmentsLetter,
   leagueNews,
@@ -101,6 +110,7 @@ import { achievementStore } from '@/lib/utils/achievements';
 import { careerAchievementsUnlocked } from '@/lib/utils/careerAchievements';
 import {
   guardChance,
+  guardMaxChance,
   guardCost,
   guardPriceScale,
   playerPlotsBooked,
@@ -132,6 +142,14 @@ import type {
   ActionSceneId,
   ActionSceneOutcome,
 } from '@/lib/constants/careerScenes';
+import { leagueCharacters } from '@/lib/utils/duelCharacters';
+import {
+  generateLeague,
+  ownNameProblem,
+  withOwnName,
+  type LeagueEntry,
+} from '@/lib/utils/leagueRoster';
+import { randomSeed } from '@/lib/utils/seededRandom';
 import { seededRounds } from '@/lib/utils/careerSeeding';
 import {
   AMBITION_SLUMP_THRESHOLD,
@@ -155,8 +173,50 @@ import {
   investmentNews,
   nextInvestmentCost,
 } from '@/lib/utils/careerInvestments';
+import {
+  borrowLoan,
+  debtLetters,
+  openLeagueDebt,
+  repayLoan,
+} from '@/lib/utils/careerCredit';
+import {
+  cancelGlizzyBet,
+  glizzyMarketOpen,
+  placeGlizzyBet,
+  settleGlizzyBet,
+} from '@/lib/utils/careerGlizzflationBets';
+import type { GlizzyCall } from '@/data/games/careerGlizzflationBets';
 import { simulateOffseason } from '@/lib/utils/careerOffseason';
 import ElectionNightCutscene from '@/components/games/career/ElectionNightCutscene';
+import LawBallotDialog from '@/components/games/career/LawBallotDialog';
+import LawVoteCutscene from '@/components/games/career/LawVoteCutscene';
+import {
+  applyLawBallot,
+  applySeasonLaws,
+  closeLawBallot,
+  cupPrizeFor,
+  constitutionWin,
+  lawBallotReady,
+  lawBillFor,
+  lawMovesTotal,
+  lawsInForce,
+  lawVoteDue,
+  openLawBallot,
+  pickLawCard,
+  trainingLawScale,
+  voteLaw,
+  type LawBallot,
+  type LawVote,
+  primeMinister,
+  withPrimeMinister,
+} from '@/lib/utils/careerLaws';
+import {
+  countElection,
+  electionNews,
+  settleElection,
+  voteCoalition,
+} from '@/lib/utils/careerCoalition';
+import { electionPremier } from '@/lib/utils/careerPremier';
 import {
   ELECTION_POLL_SEASON,
   ELECTION_SEASON,
@@ -168,29 +228,29 @@ import {
   bookAiRemoval,
   campaignLetterOpen,
   closeCampaignLetters,
-  electionVotes,
-  electionResult,
   emptyParliament,
   favorsLeft,
-  governmentSeats,
   isElectionYear,
-  korporacijaTax,
-  ostrvoWeekendEveryWindow,
+  yellowTax,
+  greenWeekendEveryWindow,
   partyStatusOf,
   pollSeats,
   recordDonation,
   sabotageTaxScale,
   seatParams,
-  strankaLeadMedia,
-  strankaLeadTrainingScale,
-  strankaMediaMultiplier,
+  redLeadMedia,
+  redLeadTrainingScale,
+  redMediaMultiplier,
   outsiderOfferChance,
   recordOutsiderDonation,
 } from '@/lib/utils/careerElections';
+import { electionScenes } from '@/lib/utils/careerElectionScenes';
 import {
+  campaignFinished,
   campaignOverlord,
   careerPoints,
   crownedLeader,
+  overlordGoal,
   rankBySeeding,
 } from '@/lib/utils/careerPoints';
 import { scoutLevel, scoutReveal } from '@/lib/utils/careerScouting';
@@ -203,7 +263,7 @@ import {
 import { SPONSOR_TOP_SEED_COUNT } from '@/data/games/careerSponsors';
 import {
   newContract,
-  ostrvoSabotageScale,
+  greenSabotageScale,
   rollSponsorOffers,
   sponsorPayout,
 } from '@/lib/utils/careerSponsors';
@@ -213,6 +273,7 @@ import {
   seasonThemeIndex,
 } from '@/lib/utils/cupSeason';
 import { fmt, ordinal, plural } from '@/lib/utils/format';
+import { startGameFullscreen } from '@/lib/utils/fullscreen';
 import { seasonName } from '@/lib/utils/localeNames';
 import { playCheerSound, playBooSound } from '@/lib/utils/gameSounds';
 import {
@@ -245,7 +306,7 @@ const LEVELED_TRAININGS: TrainingId[] = [
   'fans',
 ];
 
-type UiStage = 'start' | 'intro' | 'select' | 'career' | 'overlord' | 'report';
+type UiStage = 'start' | 'intro' | 'select' | 'career' | 'finale' | 'report';
 
 // What the city does to a fresh off-season window: the tax office writes,
 // and in an election year the paper, the pollster and the campaign chest
@@ -253,7 +314,7 @@ type UiStage = 'start' | 'intro' | 'select' | 'career' | 'overlord' | 'report';
 function openCityWindow(state: SavedCareer): SavedCareer {
   const playerCh = state.characters[state.playerSlug];
   let next = { ...state, mail: closeCampaignLetters(state) };
-  const tax = korporacijaTax(playerCh, state.parliament);
+  const tax = yellowTax(playerCh, state.parliament);
   if (tax < 0) {
     next = {
       ...next,
@@ -323,14 +384,12 @@ function openCityWindow(state: SavedCareer): SavedCareer {
   return next;
 }
 
-export default function GliziCareerGame({
-  characters,
-}: {
-  characters: DuelCharacter[];
-}) {
+export default function GliziCareerGame() {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [career, setCareer] = useState<SavedCareer | null>(null);
   const [uiStage, setUiStage] = useState<UiStage>('start');
+  const [crownPoints, setCrownPoints] =
+    useState<OverlordPoints>(OVERLORD_POINTS);
   const [showTable, setShowTable] = useState(false);
   const [dossierSlug, setDossierSlug] = useState<string | null>(null);
   // The election night opens by itself once the count is in, the rival
@@ -385,13 +444,24 @@ export default function GliziCareerGame({
     );
   }, [career, activeSlot]);
 
+  // The applicants for a new career: a league from a fresh seed
+  const [applicants, setApplicants] = useState<LeagueEntry[]>(() =>
+    generateLeague(randomSeed())
+  );
+  const ownNameSlot = applicants[applicants.length - 1].slug;
+  const careerLeague = career?.league;
+  const characters = useMemo(
+    () => leagueCharacters(careerLeague ?? applicants),
+    [careerLeague, applicants]
+  );
   const characterBySlug = useMemo(
     () => new Map(characters.map((c) => [c.slug, c])),
     [characters]
   );
 
+  const ambientMotion = useAmbientMotion();
   const musicActive =
-    uiStage === 'career' || uiStage === 'overlord' || uiStage === 'report';
+    uiStage === 'career' || uiStage === 'finale' || uiStage === 'report';
   useSeasonMusic(career?.season ?? saved?.season ?? 0, musicActive);
 
   useEffect(() => {
@@ -511,23 +581,59 @@ export default function GliziCareerGame({
   // broke, fasts. Either way the scene plays right away so the player sees
   // why January is gone
   // While the season's matches are still being watched the table measures
-  // against the order the cup opened with, so an arrow can only ever
+  // against the order the cup was seeded with, so an arrow can only ever
   // describe a result already on screen. Outside that window it stays
   // season-over-season, which is what the recap and the final standings read
   const tableRanks =
-    career && career.phase === 'cup'
+    career?.phase === 'cup'
       ? (career.cupStartRanks ?? career.lastCupRanks)
       : career?.lastCupRanks;
 
-  const beginOffseason = (input: SavedCareer): SavedCareer => {
-    const beforePayout = input.characters[input.playerSlug];
+  const beginOffseason = (start: SavedCareer): SavedCareer => {
+    // The Yellow Party collects first: interest on every debt, and the
+    // warning or the car for whoever has been below zero for years
+    const debt = openLeagueDebt(start.characters, {
+      [start.playerSlug]: start.balance,
+    });
+    if (debt.runOver.includes(start.playerSlug)) {
+      playQuotes([
+        {
+          id: 'yellow-run-over',
+          speaker: start.playerSlug,
+          lineRoll: Math.random(),
+        },
+      ]);
+    }
+    const input: SavedCareer = {
+      ...start,
+      characters: debt.characters,
+      balance: debt.wallets[start.playerSlug],
+      newsQueue: [...start.newsQueue, ...debt.news],
+      mail: [
+        ...start.mail,
+        ...debtLetters(debt, start.playerSlug, start.year, start.season),
+      ],
+    };
+    // The laws on the books open the window: the holiday, the bills and
+    // the payouts, the player's share in a letter
+    const lawed = applySeasonLaws(input, {
+      [input.playerSlug]: input.balance,
+    });
+    const lawMoves = lawed.moves[input.playerSlug];
+    const lawBill = lawBillFor(lawMoves, input.year, input.season);
+    const beforePayout = lawed.state.characters[input.playerSlug];
     const paid = Object.fromEntries(
-      Object.entries(input.characters).map(([slug, character]) => [
+      Object.entries(lawed.state.characters).map(([slug, character]) => [
         slug,
         applyStandingInvestments(character),
       ])
     );
-    const base: SavedCareer = { ...input, characters: paid };
+    const base: SavedCareer = {
+      ...lawed.state,
+      characters: paid,
+      balance: input.balance + lawMovesTotal(lawMoves),
+      mail: lawBill ? [...lawed.state.mail, lawBill] : lawed.state.mail,
+    };
     const playerCh = base.characters[base.playerSlug];
     if (playerCh !== beforePayout) {
       flashToast(CAREER.toast.investPayout, beforePayout, playerCh, 0, {
@@ -667,11 +773,12 @@ export default function GliziCareerGame({
         );
       }
     }
-    return next;
+    // The prime minister's office is written down as the window opens
+    return withPrimeMinister(next);
   };
 
-  const newCareer = (slug: string) => {
-    const roster = characters.map((c) => c.slug);
+  const newCareer = (slug: string, league: LeagueEntry[] = applicants) => {
+    const roster = league.map((entry) => entry.slug);
     // The comeback story: years away from the scene left the player's
     // character with rock-bottom fame, and with it the last seed
     const states = Object.fromEntries(
@@ -683,8 +790,10 @@ export default function GliziCareerGame({
     states[slug] = { ...states[slug], fame: COMEBACK_START_FAME };
     const rivalSlug = firstYearRival(slug, roster);
     const base: SavedCareer = {
-      version: 1,
+      version: CAREER_SAVE_VERSION,
+      league,
       playerSlug: slug,
+      overlordPoints: crownPoints,
       year: 1,
       season: 0,
       phase: 'offseason',
@@ -698,7 +807,7 @@ export default function GliziCareerGame({
       newsQueue: [],
       mail: [
         welcomeLetter(),
-        overlordLetter(),
+        overlordLetter(crownPoints),
         rivalTauntLetter(1, 0, rivalSlug),
       ],
       cup: null,
@@ -713,14 +822,16 @@ export default function GliziCareerGame({
   const resumeCareer = (slot: CareerSlot) => {
     const stored = slots[slot - 1];
     if (!stored) return;
+    startGameFullscreen(cardRef.current);
     setActiveSlot(slot);
     setCareer(stored);
-    setUiStage(campaignOverlord(stored) ? 'overlord' : 'career');
-    if (stored.parliament?.pendingResult && !campaignOverlord(stored))
+    setUiStage(campaignFinished(stored) ? 'finale' : 'career');
+    if (stored.parliament?.pendingResult && !campaignFinished(stored))
       setElectionOpen(true);
   };
 
   const startInSlot = (slot: CareerSlot) => {
+    startGameFullscreen(cardRef.current);
     setActiveSlot(slot);
     setCareer(null);
     setUiStage('intro');
@@ -758,7 +869,8 @@ export default function GliziCareerGame({
       def,
       statKey ? ch[statKey].level : 0,
       seasonPriceScale(career, 'training') *
-        strankaLeadTrainingScale(ch, career.parliament, id)
+        redLeadTrainingScale(ch, career.parliament, id) *
+        trainingLawScale(career.parliament)
     );
     if (career.balance < cost) return;
     if (def.leveled && statKey && ch[statKey].level >= def.maxLevel) return;
@@ -825,16 +937,16 @@ export default function GliziCareerGame({
   const markMailRead = (id: string) => {
     if (!career) return;
     const item = career.mail.find((m) => m.id === id);
-    // Turning down the corporation is the one refusal that has consequences
-    const declinedKorp =
+    // Turning down the Yellow Party is the one refusal that has consequences
+    const declinedYellow =
       item?.kind === 'sponsor-offer' &&
-      item.sponsorId === 'korporacija' &&
+      item.sponsorId === 'yellow' &&
       !item.read &&
       !career.characters[career.playerSlug].sponsor;
     setCareer({
       ...career,
       balance: career.balance + (item && !item.read ? (item.amount ?? 0) : 0),
-      korpVendetta: career.korpVendetta || declinedKorp,
+      yellowVendetta: career.yellowVendetta || declinedYellow,
       mail: career.mail.map((m) => (m.id === id ? { ...m, read: true } : m)),
     });
   };
@@ -843,16 +955,16 @@ export default function GliziCareerGame({
   const markAllMailRead = () => {
     if (!career) return;
     const unread = career.mail.filter((m) => !m.read);
-    const declinedKorp =
+    const declinedYellow =
       !career.characters[career.playerSlug].sponsor &&
       unread.some(
-        (m) => m.kind === 'sponsor-offer' && m.sponsorId === 'korporacija'
+        (m) => m.kind === 'sponsor-offer' && m.sponsorId === 'yellow'
       );
     setCareer({
       ...career,
       balance:
         career.balance + unread.reduce((sum, m) => sum + (m.amount ?? 0), 0),
-      korpVendetta: career.korpVendetta || declinedKorp,
+      yellowVendetta: career.yellowVendetta || declinedYellow,
       mail: career.mail.map((m) => (m.read ? m : { ...m, read: true })),
     });
   };
@@ -906,32 +1018,35 @@ export default function GliziCareerGame({
   // The broadcast is over: the counted result becomes the chamber, the
   // player learns his seat, and donors in government get their favor letter
   const concludeElection = () => {
-    const result = career?.parliament?.pendingResult;
-    if (!career || !result) return;
+    const pending = career?.parliament?.pendingResult;
+    if (!career || !pending) return;
+    // A vote the player walked away from is cast for him by the AI
+    const result = settleElection(career, pending);
+    const premier = electionPremier(career, result);
     const next = applyElection(career, result);
+    playQuotes(electionScenes(career, result));
     const playerCh = next.characters[next.playerSlug];
     const status = playerCh.partyStatus ?? 'none';
-    const alone = result.government.length === 1;
     setCareer({
       ...next,
       newsQueue: [
         ...next.newsQueue,
-        leagueNews(
-          alone ? 'election-result-alone' : 'election-result',
-          next.playerSlug,
-          {
-            ...seatParams(result.seats),
-            government: result.government.join(','),
-            parties: result.government.join(','),
-            seats: governmentSeats(result),
-          },
-          'election-result',
-          { parties: 'sponsorCoalition' }
-        ),
+        electionNews(result, next.playerSlug, premier),
       ],
       mail: [
         ...next.mail,
-        electionLetter(next.year, next.season, status),
+        electionLetter(
+          next.year,
+          next.season,
+          status,
+          premier && {
+            slug: premier.slug,
+            you: premier.slug === next.playerSlug,
+          }
+        ),
+        ...(next.parliament?.elections === 1
+          ? [glizzyMarketLetter(next.year, next.season)]
+          : []),
         ...(playerCh.sponsor && favorsLeft(next, next.playerSlug) > 0
           ? [
               favorLetter(
@@ -946,17 +1061,35 @@ export default function GliziCareerGame({
     });
   };
 
+  // The player's partner vote: in, counted with the AI's, and the result
+  // goes back to the broadcast
+  const voteForCoalition = (key: string) => {
+    const pending = career?.parliament?.pendingResult;
+    if (!career || !career.parliament || !pending?.coalition) return;
+    const voted = {
+      ...pending,
+      coalition: voteCoalition(pending.coalition, career.playerSlug, key),
+    };
+    setCareer({
+      ...career,
+      parliament: {
+        ...career.parliament,
+        pendingResult: settleElection(career, voted),
+      },
+    });
+  };
+
   const acceptSponsor = (mailId: string, sponsorId: SponsorId) => {
     if (!career) return;
     const ch = career.characters[career.playerSlug];
     if (ch.sponsor) return;
-    // Signing elsewhere while the corporation's offer sits unread counts as
-    // a refusal; signing the corporation itself buries the grudge
-    const spurnedKorp =
-      sponsorId !== 'korporacija' &&
+    // Signing elsewhere while the Yellow Party's offer sits unread counts as
+    // a refusal; signing with the Yellow Party itself buries the grudge
+    const spurnedYellow =
+      sponsorId !== 'yellow' &&
       career.mail.some(
         (m) =>
-          m.kind === 'sponsor-offer' && m.sponsorId === 'korporacija' && !m.read
+          m.kind === 'sponsor-offer' && m.sponsorId === 'yellow' && !m.read
       );
     const signed = quotesFor(
       [{ kind: 'sponsor-accepted', slug: career.playerSlug, sponsorId }],
@@ -965,10 +1098,10 @@ export default function GliziCareerGame({
     setCareer({
       ...signed.state,
       ...career,
-      korpVendetta:
-        sponsorId === 'korporacija'
+      yellowVendetta:
+        sponsorId === 'yellow'
           ? false
-          : career.korpVendetta || spurnedKorp,
+          : career.yellowVendetta || spurnedYellow,
       characters: {
         ...career.characters,
         [career.playerSlug]: {
@@ -1013,9 +1146,9 @@ export default function GliziCareerGame({
     if (!career || career.slotsUsed >= OFFSEASON_SLOTS) return;
     const ch = career.characters[career.playerSlug];
     // State media never say no to a friend of the party: no per-season limit
-    const stateMedia = ch.sponsor?.sponsorId === 'stranka';
+    const stateMedia = ch.sponsor?.sponsorId === 'red';
     const fanLevel = ch.fanSkill.level;
-    const leadMedia = strankaLeadMedia(ch, career.parliament);
+    const leadMedia = redLeadMedia(ch, career.parliament);
     if (
       !stateMedia &&
       (career.mediaUses ?? 0) >=
@@ -1027,7 +1160,7 @@ export default function GliziCareerGame({
       mediaPay(
         kind,
         fanLevel,
-        stateMedia ? strankaMediaMultiplier(ch.partyStatus) : 1,
+        stateMedia ? redMediaMultiplier(ch.partyStatus) : 1,
         seasonPriceScale(career, 'media')
       ) * leadMedia.payScale
     );
@@ -1071,6 +1204,10 @@ export default function GliziCareerGame({
     // The paper prints the same scandal either way; only the meters know
     const templateKey =
       kind === 'scandal' ? 'media-scandal' : 'media-interview';
+    // One interview and one scandal to an issue, however often he goes on air
+    const alreadyPrinted = career.newsQueue.some(
+      (item) => item.templateKey === templateKey,
+    );
     setCareer({
       ...career,
       mediaUses: stateMedia ? career.mediaUses : (career.mediaUses ?? 0) + 1,
@@ -1078,16 +1215,18 @@ export default function GliziCareerGame({
       slotLog: [...career.slotLog, { kind: 'media' }],
       balance: career.balance + pay,
       characters: { ...career.characters, [career.playerSlug]: after },
-      newsQueue: [
-        ...career.newsQueue,
-        {
-          kind: 'media',
-          templateKey,
-          params: {},
-          slugs: [career.playerSlug],
-          freezeframe: MEDIA_FREEZEFRAMES[templateKey],
-        },
-      ],
+      newsQueue: alreadyPrinted
+        ? career.newsQueue
+        : [
+            ...career.newsQueue,
+            {
+              kind: 'media',
+              templateKey,
+              params: {},
+              slugs: [career.playerSlug],
+              freezeframe: MEDIA_FREEZEFRAMES[templateKey],
+            },
+          ],
     });
     flashToast(
       kind === 'scandal'
@@ -1110,9 +1249,9 @@ export default function GliziCareerGame({
   const doIsland = () => {
     if (!career) return;
     const ch = career.characters[career.playerSlug];
-    const everyWindow = ostrvoWeekendEveryWindow(ch);
+    const everyWindow = greenWeekendEveryWindow(ch);
     if (
-      ch.sponsor?.sponsorId !== 'ostrvo' ||
+      ch.sponsor?.sponsorId !== 'green' ||
       (everyWindow
         ? career.islandYear === career.year &&
           career.islandSeason === career.season
@@ -1142,9 +1281,9 @@ export default function GliziCareerGame({
     if (!career || career.slotsUsed >= OFFSEASON_SLOTS || career.guarded)
       return;
     const cost = guardCost(steps, guardPriceScale(career, career.playerSlug));
-    if (career.balance < cost) return;
-    const chance = guardChance(steps);
     const guardCh = career.characters[career.playerSlug];
+    if (career.balance < cost) return;
+    const chance = guardChance(steps, guardMaxChance(guardCh));
     const afterGuard = applyGuardHire(guardCh);
     // Hired muscle is booked like a plot: it costs money, not the month
     setCareer({
@@ -1161,6 +1300,34 @@ export default function GliziCareerGame({
       -cost,
       { icon: 'guard', scene: 'guard' }
     );
+  };
+
+  const glizzyBet = (call: GlizzyCall, stake: number) => {
+    if (!career || career.phase !== 'offseason' || !glizzyMarketOpen(career))
+      return;
+    const next = placeGlizzyBet(career, { call, stake });
+    if (next) setCareer(next);
+  };
+
+  const dropGlizzyBet = () => {
+    if (!career || career.phase !== 'offseason') return;
+    setCareer(cancelGlizzyBet(career));
+  };
+
+  // The bank's counter moves the wallet and the loan together
+  const moveLoan = (kind: 'borrow' | 'repay', amount: number) => {
+    if (!career) return;
+    const ch = career.characters[career.playerSlug];
+    const move =
+      kind === 'borrow'
+        ? borrowLoan(ch, career.balance, amount, career.parliament)
+        : repayLoan(ch, career.balance, amount);
+    if (!move) return;
+    setCareer({
+      ...career,
+      balance: move.wallet,
+      characters: { ...career.characters, [career.playerSlug]: move.ch },
+    });
   };
 
   // Standing contracts come out of the wallet, not out of the month: no slot
@@ -1210,11 +1377,11 @@ export default function GliziCareerGame({
           career.characters[career.playerSlug],
           career.parliament
         ) *
-        ostrvoSabotageScale(career.characters[career.playerSlug]) *
+        greenSabotageScale(career.characters[career.playerSlug]) *
         sabotageRepeatScale(playerPlotsBooked(career))
     );
-    if (career.balance < cost) return;
     const sabCh = career.characters[career.playerSlug];
+    if (career.balance < cost) return;
     const afterSab = {
       ...sabCh,
       ego: clampMeter(sabCh.ego + PLOTTING_EGO_GAIN),
@@ -1247,8 +1414,14 @@ export default function GliziCareerGame({
       setCareer({ ...career, phase: 'news' });
       return;
     }
+    const simulated = simulateOffseason(career);
     const next: SavedCareer = {
-      ...simulateOffseason(career),
+      ...settleGlizzyBet(
+        simulated,
+        simulated.year,
+        simulated.season,
+        simulated.gliziPricePct ?? 0
+      ).state,
       phase: 'news',
       newsSeen: true,
     };
@@ -1271,10 +1444,11 @@ export default function GliziCareerGame({
     setCareer({ ...career, phase: 'offseason', newsSeen: true });
   };
 
-  // The league's donors get first go at the opening round
-  const openCup = () => {
+  // The paper is read: the in-form names walk in with the season's stress
+  // drop and the table seeds the bracket
+  const toCup = () => {
     if (!career) return;
-    const buffed = buffedSlugsForSeason(career.season);
+    const buffed = buffedSlugsForSeason(career.season, Object.keys(career.characters));
     const withBuff = Object.fromEntries(
       Object.entries(career.characters).map(([slug, ch]) => [
         slug,
@@ -1283,13 +1457,14 @@ export default function GliziCareerGame({
           : ch,
       ])
     );
-    const seeded: SavedCareer = { ...career, characters: withBuff };
     // The line the whole season's movement is measured from
-    const seeds = rankBySeeding(seeded.characters, seeded.playerSlug);
+    const seeds = rankBySeeding(withBuff, career.playerSlug);
+    // The league's donors get first go at the opening round
     setCareer(
       bookAiRemoval(
         {
-          ...seeded,
+          ...career,
+          characters: withBuff,
           phase: 'cup',
           lastIssue: {
             news: career.newsQueue,
@@ -1325,10 +1500,6 @@ export default function GliziCareerGame({
     const champion = standings[0]?.slug ?? null;
     const playerPlace =
       standings.find((s) => s.slug === state.playerSlug)?.place ?? 0;
-    const prize =
-      playerPlace >= 1 && playerPlace <= PRIZE_MONEY.length
-        ? PRIZE_MONEY[playerPlace - 1]
-        : 0;
     const placeBySlug = new Map(standings.map((s) => [s.slug, s.place]));
     const playerContract = state.characters[state.playerSlug].sponsor;
     const playerWins = cup.rounds
@@ -1358,6 +1529,15 @@ export default function GliziCareerGame({
         return [slug, ch];
       })
     );
+    // Every placed coach takes his prize
+    placeBySlug.forEach((place, slug) => {
+      const prize = cupPrizeFor(place);
+      if (slug === state.playerSlug || prize <= 0) return;
+      characters[slug] = {
+        ...characters[slug],
+        money: (characters[slug].money ?? 0) + prize,
+      };
+    });
     // The podium belongs to the hall, not the scoreboard: a big name gets
     // carried out, an unknown gets reminded the room wanted someone else
     const championFame = champion
@@ -1370,7 +1550,8 @@ export default function GliziCareerGame({
     setCareer({
       ...state,
       phase: 'podium',
-      balance: state.balance + prize + sponsorIncome,
+      balance:
+        state.balance + cupPrizeFor(playerPlace) + sponsorIncome,
       characters,
       cupRecap: cupRecapNews({ ...state, characters }, cup.rounds, standings),
       standingsHistory: [
@@ -1400,61 +1581,120 @@ export default function GliziCareerGame({
     });
   };
 
+  // The standings close the season. After the Frozen cup of a year between
+  // two counts the chamber votes on a law first, and the season turns once
+  // the vote is in
   const advanceSeason = () => {
     if (!career) return;
-    // The campaign ends the first time anyone tops the table with the
-    // crown's points, the player's character or not
-    const crowned = campaignOverlord(career)
+    if (career.parliament?.lawBallot) return;
+    const crowning = campaignFinished(career)
       ? null
-      : crownedLeader(career.characters, career.playerSlug);
-    const wrapped = career.season === SEASON_COUNT - 1;
+      : crownedLeader(
+          career.characters,
+          career.playerSlug,
+          overlordGoal(career)
+        );
+    if (!crowning && lawVoteDue(career) && career.parliament) {
+      const ballot = openLawBallot(career);
+      if (ballot) {
+        setCareer(withLawBallot(career, ballot));
+        return;
+      }
+    }
+    advanceFrom(career);
+  };
+
+  const withLawBallot = (state: SavedCareer, ballot: LawBallot) =>
+    state.parliament
+      ? {
+          ...state,
+          parliament: {
+            ...state.parliament,
+            lawBallot: lawBallotReady(ballot)
+              ? closeLawBallot(state, ballot)
+              : ballot,
+          },
+        }
+      : state;
+
+  const pickLaw = (index: number) => {
+    const ballot = career?.parliament?.lawBallot;
+    if (!career || !ballot || ballot.picker !== career.playerSlug) return;
+    setCareer(withLawBallot(career, pickLawCard(career, ballot, index)));
+  };
+
+  const castLawVote = (vote: LawVote) => {
+    const ballot = career?.parliament?.lawBallot;
+    if (!career || !ballot) return;
+    setCareer(withLawBallot(career, voteLaw(ballot, career.playerSlug, vote)));
+  };
+
+  // The verdict is read: a vote the player walked away from is cast for him,
+  // the books change, and the season turns
+  const concludeLaws = () => {
+    const ballot = career?.parliament?.lawBallot;
+    if (!career || !ballot) return;
+    advanceFrom(applyLawBallot(career, closeLawBallot(career, ballot)));
+  };
+
+  const advanceFrom = (from: SavedCareer) => {
+    // The campaign ends the first time anyone tops the table with the
+    // crown's points, the player's character or not, or on the law vote
+    // that hands one party the city
+    const crowned = campaignFinished(from)
+      ? null
+      : crownedLeader(from.characters, from.playerSlug, overlordGoal(from));
+    const ended = crowned !== null || constitutionWin(from.parliament) !== null;
+    const wrapped = from.season === SEASON_COUNT - 1;
     // The calendar archive keeps every quarter of every year browsable
-    const logsByYear = { ...(career.logsByYear ?? {}) };
-    const yearLogs = (logsByYear[career.year] ?? [[], [], [], []]).map((l) => [
+    const logsByYear = { ...(from.logsByYear ?? {}) };
+    const yearLogs = (logsByYear[from.year] ?? [[], [], [], []]).map((l) => [
       ...l,
     ]);
-    yearLogs[career.season] = career.slotLog;
-    logsByYear[career.year] = yearLogs;
-    const electionDue = wrapped && isElectionYear(career.year);
+    yearLogs[from.season] = from.slotLog;
+    logsByYear[from.year] = yearLogs;
+    const electionDue = wrapped && isElectionYear(from.year);
     setCareer(
       beginOffseason({
-        ...career,
+        ...from,
         logsByYear,
         ...(electionDue
           ? {
               parliament: {
-                ...(career.parliament ?? emptyParliament()),
-                pendingResult: electionResult(electionVotes(career)),
+                ...(from.parliament ?? emptyParliament()),
+                pendingResult: countElection(from),
               },
             }
           : {}),
         ...(crowned
           ? {
               overlordSlug: crowned,
-              overlordWon: crowned === career.playerSlug,
+              overlordWon: crowned === from.playerSlug,
             }
           : {}),
         lastIssue:
-          (career.cupRecap ?? []).length > 0
+          (from.cupRecap ?? []).length > 0
             ? {
-                news: career.cupRecap ?? [],
-                year: career.year,
-                season: career.season,
+                news: from.cupRecap ?? [],
+                year: from.year,
+                season: from.season,
               }
-            : career.lastIssue,
+            : from.lastIssue,
+        prevIssue:
+          (from.cupRecap ?? []).length > 0 ? from.lastIssue : undefined,
         cupRecap: [],
-        lastCupRanks: rankBySeeding(career.characters, career.playerSlug),
-        season: wrapped ? 0 : career.season + 1,
-        year: wrapped ? career.year + 1 : career.year,
+        lastCupRanks: rankBySeeding(from.characters, from.playerSlug),
+        season: wrapped ? 0 : from.season + 1,
+        year: wrapped ? from.year + 1 : from.year,
         // A new year opens with the rival shortlist and a clean suspect file
         ...(wrapped
-          ? { rivalChoice: rivalCandidates(career), saboteursThisYear: [] }
+          ? { rivalChoice: rivalCandidates(from), saboteursThisYear: [] }
           : {}),
       })
     );
-    setUiStage(crowned ? 'overlord' : 'career');
+    setUiStage(ended ? 'finale' : 'career');
     setShowTable(false);
-    if (electionDue && !crowned) setElectionOpen(true);
+    if (electionDue && !ended) setElectionOpen(true);
   };
 
   const confirmStartNew = () => {
@@ -1512,22 +1752,22 @@ export default function GliziCareerGame({
 
   const topBar =
     career && playerCharacter ? (
-      <div className="flex w-full flex-wrap items-center gap-2">
-        <button
+      <div className="flex w-full flex-wrap items-center gap-1.5 min-[400px]:gap-2">
+        <CareerChip
           onClick={() => setShowCalendar(true)}
           title={CAREER.actions.calendar}
-          className="inline-flex items-center gap-1.5 rounded-full border border-sky-200/15 bg-slate-950/70 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-200 backdrop-blur-sm transition hover:border-sky-200/40 xl:px-3.5 xl:py-2 xl:text-[11px]"
+          className="inline-flex items-center gap-1.5 px-2 py-1 uppercase min-[400px]:px-3 xl:px-3.5 xl:py-1.5"
         >
           <ActionIcon
             kind="calendar"
-            className="h-3.5 w-3.5 text-sky-300 xl:h-4 xl:w-4"
+            className="hidden h-3.5 w-3.5 text-[#fdf0c8] min-[380px]:block xl:h-4 xl:w-4"
           />
           {calendarLabel}
-        </button>
-        <button
+        </CareerChip>
+        <CareerChip
           onClick={() => setDossierSlug(career.playerSlug)}
           title={CAREER.meters.title}
-          className="inline-flex items-center gap-1.5 rounded-full border border-sky-200/15 bg-slate-950/70 py-1 pl-1.5 pr-1.5 text-[10px] font-bold uppercase tracking-widest text-sky-300 backdrop-blur-sm transition hover:border-sky-200/40 hover:text-white sm:pr-3 xl:py-1.5 xl:pl-2 xl:pr-3.5 xl:text-[11px]"
+          className="inline-flex items-center gap-1.5 py-1 pl-1.5 pr-1.5 uppercase sm:pr-3 xl:py-1.5 xl:pl-2 xl:pr-3.5"
         >
           <PortraitHead
             character={playerCharacter}
@@ -1536,16 +1776,28 @@ export default function GliziCareerGame({
           <span className="hidden sm:inline">
             {fmt(CAREER.hud.coach, { name: playerCharacter.name })}
           </span>
-        </button>
+        </CareerChip>
         <CareerWalletChip balance={career.balance} />
+        {career.phase === 'offseason' && (
+          <CareerIconButton
+            label={CAREER.table.title}
+            onClick={() => setShowTable(true)}
+          >
+            <ActionIcon kind="table" className="h-3.5 w-3.5" />
+          </CareerIconButton>
+        )}
         <span className="ml-auto flex items-center gap-2">
-          <FullscreenButton targetRef={cardRef} />
           <GearButton onClick={() => setShowSettings(true)} />
         </span>
       </div>
     ) : null;
 
   const overlordSlug = career ? campaignOverlord(career) : null;
+  const constitution = constitutionWin(career?.parliament);
+  const constitutionWinners = (constitution?.winners ?? []).flatMap((slug) => {
+    const character = characterBySlug.get(slug);
+    return character ? [character] : [];
+  });
   const overlordCharacter = overlordSlug
     ? (characterBySlug.get(overlordSlug) ?? null)
     : null;
@@ -1555,16 +1807,11 @@ export default function GliziCareerGame({
   return (
     <div
       ref={cardRef}
-      className="group relative w-full overflow-hidden rounded-3xl border border-frost-border/40 bg-gradient-to-br from-card-strong/60 via-card-deep/80 to-card-strong/60 shadow-2xl [&:fullscreen]:flex [&:fullscreen]:flex-col [&:fullscreen]:overflow-y-auto [&:fullscreen]:rounded-none [&:fullscreen]:border-0 [&:fullscreen]:bg-background"
+      data-motion={ambientMotion ? 'full' : 'lite'}
+      className="group relative w-full overflow-hidden rounded-[9px] bg-[#060912] shadow-[0_0_0_1px_#160c05,0_14px_0_-8px_rgb(0_0_0/0.5)] fullscreen:flex fullscreen:flex-col fullscreen:overflow-y-auto fullscreen:rounded-none fullscreen:shadow-none fullscreen:fixed fullscreen:inset-0 fullscreen:z-[80] fullscreen:h-[calc(100dvh/var(--game-zoom,1))] fullscreen:overscroll-contain"
     >
-      {/* The frost sits on its own layer: a backdrop filter on the card itself
-          would pin every fixed modal inside the card and cut it off wherever
-          the fullscreen page has scrolled */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 backdrop-blur-sm"
-      />
-      <div className="relative z-10 flex flex-col items-center text-center">
+      {/* Raised while an overlay is open, or the site's sticky header covers its sign */}
+      <div className="relative z-10 flex flex-col items-center text-center has-[.fixed]:z-[60]">
         {quoteQueue.length > 0 && !electionOpen && (
           <QuoteCutscene
             queue={quoteQueue}
@@ -1574,51 +1821,53 @@ export default function GliziCareerGame({
         )}
         {showSettings && (
           <GameSettingsModal
+            fullscreenTarget={cardRef}
             sponsorId={playerSponsorId}
             achievementGame="manager"
             broadcastToggles={['commentator', 'cutscenes']}
+            townDisplay
             onClose={() => {
               setShowSettings(false);
               setConfirmReset(false);
             }}
           >
             {uiStage !== 'start' && (
-              <div className="flex flex-col items-center gap-3 border-t border-sky-200/10 pt-3">
+              <div className="flex flex-col items-center gap-3 border-t border-[#b8862f]/40 pt-3">
                 {confirmReset ? (
                   <div className="flex flex-col items-center gap-2">
                     <p className="text-sm font-semibold text-red-200">
                       {CAREER.start.confirmNew}
                     </p>
                     <div className="flex flex-wrap justify-center gap-2">
-                      <button
+                      <CareerButton
+                        tone="danger"
                         onClick={resetFromSettings}
-                        className="rounded-lg border border-red-500/40 bg-red-500/15 px-4 py-1.5 text-xs font-semibold text-red-200 transition hover:border-red-500/60 hover:text-white"
                       >
                         {CAREER.start.confirmYes}
-                      </button>
-                      <button
+                      </CareerButton>
+                      <CareerButton
+                        tone="quiet"
                         onClick={() => setConfirmReset(false)}
-                        className="rounded-lg border border-sky-200/20 bg-slate-800/60 px-4 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-200/40 hover:text-white"
                       >
                         {CAREER.start.confirmNo}
-                      </button>
+                      </CareerButton>
                     </div>
                   </div>
                 ) : (
                   <div className="flex flex-wrap justify-center gap-2">
-                    <button
+                    <CareerButton
+                      tone="quiet"
                       onClick={backToSlots}
-                      className="rounded-lg border border-sky-200/20 bg-slate-800/60 px-4 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-200/40 hover:text-white"
                     >
                       {CAREER.start.slots}
-                    </button>
+                    </CareerButton>
                     {(career || saved) && (
-                      <button
+                      <CareerButton
+                        tone="danger"
                         onClick={() => setConfirmReset(true)}
-                        className="rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-1.5 text-xs font-semibold text-red-300/80 transition hover:border-red-500/60 hover:text-red-200"
                       >
                         {CAREER.start.button}
-                      </button>
+                      </CareerButton>
                     )}
                   </div>
                 )}
@@ -1634,24 +1883,24 @@ export default function GliziCareerGame({
           />
         )}
         {uiStage === 'start' && (
-          <div className="relative h-[calc(100dvh-10rem)] min-h-[34rem] w-full overflow-hidden group-[:fullscreen]:h-screen">
+          <div className="relative h-[calc(100dvh/var(--game-zoom,1)_-_10rem)] min-h-[34rem] w-full overflow-hidden group-fullscreen:h-[calc(100dvh/var(--game-zoom,1))]">
             <SeasonBackdrop season={slots.find(Boolean)?.season ?? 0} />
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/25 to-slate-950/70" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/70 via-[#020617]/25 to-[#020617]/70" />
             <div className="absolute right-2 top-2 z-40 flex items-center gap-2">
-              <FullscreenButton targetRef={cardRef} />
               <GearButton onClick={() => setShowSettings(true)} />
             </div>
             <div className="relative z-10 flex h-full flex-col items-center justify-center gap-4 px-4 sm:gap-5">
-              <span className="flex items-center gap-2 rounded-full border border-sky-200/20 bg-slate-950/60 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.35em] text-sky-300 backdrop-blur-sm">
+              <BrassPlate>
                 <GlizzyIcon variant={0} className="h-3 w-5" />
                 {CAREER.start.league}
-              </span>
-              <span className="text-4xl font-black uppercase tracking-[0.25em] text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)] sm:text-5xl">
+              </BrassPlate>
+              <span
+                className="rounded-[6px] border-[3px] border-[#f1f5f9] bg-[#1e3a8a] px-6 py-1.5 font-sign text-[44px] font-extrabold uppercase leading-none tracking-[0.08em] text-[#ffffff] shadow-[0_0_0_2px_#0c1a44,0_6px_0_rgb(0_0_0/0.45)] sm:text-[60px]"
+              >
                 {CAREER.start.screen}
               </span>
               <CareerSlotPicker
                 slots={slots}
-                characterBySlug={characterBySlug}
                 onNew={startInSlot}
                 onContinue={resumeCareer}
                 onDelete={setDeletingSlot}
@@ -1661,27 +1910,63 @@ export default function GliziCareerGame({
         )}
 
         {(uiStage === 'intro' || uiStage === 'select') && (
-          <div className="relative flex min-h-[calc(100dvh-10rem)] w-full flex-col items-center justify-center overflow-hidden px-3 py-6 group-[:fullscreen]:min-h-screen sm:px-6">
+          <div className="relative flex min-h-[calc(100dvh/var(--game-zoom,1)_-_10rem)] w-full flex-col items-center justify-center overflow-hidden px-3 py-6 group-fullscreen:min-h-[calc(100dvh/var(--game-zoom,1))] sm:px-6">
             <SeasonBackdrop season={0} />
-            <div className="absolute inset-0 bg-slate-950/55" />
+            <div className="absolute inset-0 bg-[#020617]/55" />
             <div className="absolute right-2 top-2 z-40 flex items-center gap-2">
-              <FullscreenButton targetRef={cardRef} />
               <GearButton onClick={() => setShowSettings(true)} />
             </div>
             <div className="relative z-10 flex w-full justify-center">
               {uiStage === 'intro' ? (
                 <CareerIntroCutscene onDone={() => setUiStage('select')} />
               ) : (
-                <ClassifiedsSelect
-                  characters={characters}
-                  onSelect={newCareer}
-                />
+                <div className="flex w-full flex-col items-center gap-4 pt-8 sm:pt-0">
+                  <CrownPointsPicker
+                    value={crownPoints}
+                    onChange={setCrownPoints}
+                  />
+                  <ClassifiedsSelect
+                    characters={characters}
+                    onSelect={(slug) => newCareer(slug)}
+                    onReroll={() => setApplicants(generateLeague(randomSeed()))}
+                    ownNameProblem={(name) =>
+                      ownNameProblem(applicants, name, ownNameSlot)
+                    }
+                    onOwnName={(name) => {
+                      const next = withOwnName(applicants, name, ownNameSlot);
+                      const index = applicants.findIndex(
+                        (entry) => entry.slug === ownNameSlot
+                      );
+                      setApplicants(next);
+                      newCareer(next[index].slug, next);
+                    }}
+                  />
+                </div>
               )}
             </div>
           </div>
         )}
 
-        {uiStage === 'overlord' &&
+        {uiStage === 'finale' &&
+          career &&
+          playerCharacter &&
+          constitution && (
+            <SeasonStage season={career.season} topBar={topBar}>
+              <ConstitutionCelebration
+                party={constitution.party}
+                winners={constitutionWinners}
+                player={playerCharacter}
+                playerPlace={
+                  rankBySeeding(career.characters, career.playerSlug).indexOf(
+                    career.playerSlug
+                  ) + 1
+                }
+                onContinue={() => setUiStage('report')}
+              />
+            </SeasonStage>
+          )}
+
+        {uiStage === 'finale' &&
           career &&
           playerCharacter &&
           overlordCharacter && (
@@ -1694,12 +1979,13 @@ export default function GliziCareerGame({
                     career.playerSlug
                   ) + 1
                 }
+                points={overlordGoal(career)}
                 onContinue={() => setUiStage('report')}
               />
             </SeasonStage>
           )}
 
-        {uiStage === 'report' && career && overlordSlug && (
+        {uiStage === 'report' && career && (overlordSlug || constitution) && (
           <SeasonStage season={career.season} topBar={topBar}>
             <CampaignReport
               career={career}
@@ -1729,18 +2015,18 @@ export default function GliziCareerGame({
                 title={CAREER.table.title}
                 wide
                 headerExtra={
-                  <span className="flex flex-col items-end text-right">
-                    <span className="truncate text-[9px] font-bold uppercase tracking-widest text-amber-300">
-                      {plural(CAREER.table.goal, OVERLORD_POINTS, {
-                        points: OVERLORD_POINTS,
+                  <span className="flex min-w-0 flex-col items-end text-right">
+                    <span className="max-w-full truncate font-sign text-[12px] font-bold uppercase leading-tight tracking-[0.04em] text-[#f0c36a] sm:text-[13px]">
+                      {plural(CAREER.table.goal, overlordGoal(career), {
+                        points: overlordGoal(career),
                       })}
                     </span>
-                    <span className="truncate text-[9px] font-semibold text-slate-400">
-                      {plural(CAREER.table.goalProgress, OVERLORD_POINTS, {
+                    <span className="max-w-full truncate font-sign text-[12px] font-semibold leading-tight tabular-nums text-[#e2d7bd] sm:text-[13px]">
+                      {plural(CAREER.table.goalProgress, overlordGoal(career), {
                         points: careerPoints(
                           career.characters[career.playerSlug]
                         ),
-                        goal: OVERLORD_POINTS,
+                        goal: overlordGoal(career),
                         place: ordinal(
                           rankBySeeding(
                             career.characters,
@@ -1759,6 +2045,7 @@ export default function GliziCareerGame({
                   playerSlug={career.playerSlug}
                   lastCupRanks={tableRanks}
                   rivalSlug={career.rivalSlug}
+                  primeMinisterSlug={primeMinister(career)}
                   onSelect={setDossierSlug}
                 />
               </SponsorModal>
@@ -1796,6 +2083,7 @@ export default function GliziCareerGame({
                     )}
                     isPlayer={dossierSlug === career.playerSlug}
                     isRival={dossierSlug === career.rivalSlug}
+                    isPrimeMinister={dossierSlug === primeMinister(career)}
                     year={career.year}
                     onSponsorInfo={
                       dossierSlug === career.playerSlug
@@ -1833,13 +2121,40 @@ export default function GliziCareerGame({
               career.parliament?.pendingResult && (
                 <ElectionNightCutscene
                   result={career.parliament.pendingResult}
+                  premier={electionPremier(
+                    career,
+                    career.parliament.pendingResult
+                  )}
                   playerSponsor={playerSponsorId}
+                  playerSlug={career.playerSlug}
+                  characterBySlug={characterBySlug}
+                  onVote={voteForCoalition}
                   onClose={() => {
                     setElectionOpen(false);
                     concludeElection();
                   }}
                 />
               )}
+
+            {career.parliament?.lawBallot &&
+              (career.parliament.lawBallot.outcome === null ? (
+                <LawBallotDialog
+                  ballot={career.parliament.lawBallot}
+                  playerSlug={career.playerSlug}
+                  characterBySlug={characterBySlug}
+                  laws={lawsInForce(career.parliament)}
+                  onPick={pickLaw}
+                  onVote={castLawVote}
+                />
+              ) : (
+                <LawVoteCutscene
+                  ballot={career.parliament.lawBallot}
+                  seats={career.parliament.seats}
+                  characterBySlug={characterBySlug}
+                  viewerSlug={career.playerSlug}
+                  onClose={concludeLaws}
+                />
+              ))}
 
             {career.phase === 'offseason' && (
               <OffseasonScreen
@@ -1861,9 +2176,13 @@ export default function GliziCareerGame({
                 onIsland={doIsland}
                 onGuard={doGuard}
                 onInvest={invest}
+                onBorrow={(amount) => moveLoan('borrow', amount)}
+                onRepay={(amount) => moveLoan('repay', amount)}
+                onGlizzyBet={glizzyBet}
+                onCancelGlizzyBet={dropGlizzyBet}
                 onSabotage={doSabotage}
                 onOpenNews={toNews}
-                onToCup={openCup}
+                onToCup={toCup}
                 onDismissToast={() => setToast(null)}
                 onMarkMailRead={markMailRead}
                 onMarkAllMailRead={markAllMailRead}
@@ -1924,25 +2243,23 @@ export default function GliziCareerGame({
 
             {career.phase === 'standings' && (
               <SeasonStage season={career.season} topBar={topBar}>
-                <span className="rounded-full border border-sky-200/20 bg-slate-950/70 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-sky-200 backdrop-blur-sm">
-                  {CAREER.table.finalTitle}
-                </span>
-                <div className="w-full max-w-2xl rounded-2xl bg-slate-950/60 backdrop-blur-sm">
+                <div className="flex w-full max-w-2xl flex-wrap items-center justify-between gap-2">
+                  <BrassPlate>{CAREER.table.finalTitle}</BrassPlate>
+                  <CareerButton tone="danger" onClick={advanceSeason}>
+                    {CAREER.podium.backToOffSeason}
+                  </CareerButton>
+                </div>
+                <div className="w-full max-w-2xl">
                   <CareerTable
                     characters={career.characters}
                     characterBySlug={characterBySlug}
                     playerSlug={career.playerSlug}
                     lastCupRanks={career.lastCupRanks}
                     rivalSlug={career.rivalSlug}
+                    primeMinisterSlug={primeMinister(career)}
                     onSelect={setDossierSlug}
                   />
                 </div>
-                <button
-                  onClick={advanceSeason}
-                  className="rounded-xl border border-red-500/40 bg-red-500/15 px-6 py-2.5 text-sm font-semibold text-red-200 transition hover:border-red-500/60 hover:bg-red-500/25 hover:text-white"
-                >
-                  {CAREER.podium.backToOffSeason}
-                </button>
               </SeasonStage>
             )}
 
@@ -1961,7 +2278,7 @@ export default function GliziCareerGame({
 
             {career.phase === 'podium' && standings && (
               <SeasonStage season={career.season} topBar={topBar}>
-                <p className="text-lg font-bold">
+                <PaperSheet className="px-4 py-1.5 font-serif text-lg font-bold">
                   {standings[0]?.slug === career.playerSlug ? (
                     <span className="text-green-400">
                       {fmt(CAREER.podium.champion, {
@@ -1979,27 +2296,24 @@ export default function GliziCareerGame({
                       })}
                     </span>
                   )}
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-2">
+                </PaperSheet>
+                <div className="mb-6 flex flex-wrap items-center justify-center gap-2">
                   {(() => {
                     const place =
                       standings.find((s) => s.slug === career.playerSlug)
                         ?.place ?? 0;
-                    const prize =
-                      place >= 1 && place <= PRIZE_MONEY.length
-                        ? PRIZE_MONEY[place - 1]
-                        : 0;
+                    const prize = cupPrizeFor(place);
                     return prize > 0 ? (
-                      <span className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+                      <BrassPlate className="tabular-nums">
                         {plural(CAREER.podium.prize, prize, { amount: prize })}
-                      </span>
+                      </BrassPlate>
                     ) : null;
                   })()}
-                  <span className="rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-300">
+                  <BrassPlate className="tabular-nums">
                     {fmt(CAREER.podium.streak, {
                       streak: career.characters[career.playerSlug].titleStreak,
                     })}
-                  </span>
+                  </BrassPlate>
                 </div>
                 <TournamentPodium
                   standings={standings}
@@ -2007,12 +2321,13 @@ export default function GliziCareerGame({
                   betSlug={career.playerSlug}
                   theme={seasonThemeIndex(career.season)}
                 />
-                <button
+                <CareerButton
+                  tone="danger"
+                  size="lg"
                   onClick={podiumContinue}
-                  className="rounded-xl border border-red-500/40 bg-red-500/15 px-6 py-2.5 text-sm font-semibold text-red-200 transition hover:border-red-500/60 hover:bg-red-500/25 hover:text-white"
                 >
                   {CAREER.podium.continue}
-                </button>
+                </CareerButton>
               </SeasonStage>
             )}
           </>

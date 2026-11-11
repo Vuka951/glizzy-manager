@@ -17,7 +17,6 @@ export type CareerActionKind =
   | 'fast'
   | 'media'
   | 'guard'
-  | 'sabotage'
   | 'invest';
 
 export type CareerPersonality = {
@@ -45,9 +44,20 @@ export type CareerPersonality = {
   // The share of a window's income put aside for the next standing contract
   // on the list, untouchable by every other budget until it is bought
   saving: number;
-  // Which tier of plot they reach for first when they do decide to spend a
-  // window on somebody else's career
+  // Which tier of plot they reach for first when they do decide to spend
+  // money on somebody else's career
   preferredTier: 1 | 2 | 3;
+  // The chance a window's first plot gets booked once the money covers it,
+  // before the situation bends it; every further job rolls the same drive
+  // against the money it would leave behind
+  plotDrive: number;
+  // Books the plots before the month's spending instead of out of whatever
+  // the month left over
+  streetFirst: boolean;
+  // How many cups a fine keeps him off the street, counted down after every
+  // cup: he plots again in the first window the count is back at zero, so 2
+  // sits out one window and 5 sits out four
+  lieLowCups: number;
   // How the temperament reads its own situation before the window opens
   reactions: CareerReactions;
 };
@@ -65,7 +75,7 @@ export type CareerReactions = {
   // Spending pull toward a discount window and away from a surcharge
   bargain: number;
   // How much harder a plot aims at the name directly above on the table
-  bubble: number;
+  climb: number;
   // Reads the last forfeit and fixes it: a meltdown asks for rest, an
   // overfull forfeit for nutrition and a fast
   fixesLosses: number;
@@ -100,7 +110,7 @@ export const CAREER_PERSONALITIES: Record<
 > = {
   grinder: {
     id: 'grinder',
-    weights: { train: 9, rest: 4, fast: 2, media: 2, guard: 2, sabotage: 2, invest: 3 },
+    weights: { train: 9, rest: 4, fast: 2, media: 2, guard: 2, invest: 3 },
     trainingPriority: ['stomach', 'nutrition', 'sniffer', 'fans'],
     investPriority: ['assistant', 'spa', 'security'],
     restAt: 70,
@@ -109,11 +119,14 @@ export const CAREER_PERSONALITIES: Record<
     reserve: 0,
     saving: 0.4,
     preferredTier: 1,
-    reactions: { revenge: 0.5, threatGuard: 0.5, bargain: 1, bubble: 2, fixesLosses: 1, trainsWeakest: 0.8, fameSense: 0.5, escalates: false, plotPatience: 0.6 },
+    plotDrive: 0.15,
+    streetFirst: false,
+    lieLowCups: 5,
+    reactions: { revenge: 0.5, threatGuard: 0.5, bargain: 1, climb: 2, fixesLosses: 1, trainsWeakest: 0.8, fameSense: 0.5, escalates: false, plotPatience: 0.6 },
   },
   showman: {
     id: 'showman',
-    weights: { train: 7, rest: 3, fast: 2, media: 9, guard: 2, sabotage: 3, invest: 2 },
+    weights: { train: 7, rest: 3, fast: 2, media: 9, guard: 2, invest: 2 },
     trainingPriority: ['fans', 'stomach', 'nutrition', 'sniffer'],
     investPriority: ['assistant', 'security', 'spa'],
     restAt: 75,
@@ -122,11 +135,14 @@ export const CAREER_PERSONALITIES: Record<
     reserve: 0,
     saving: 0.6,
     preferredTier: 1,
-    reactions: { revenge: 1, threatGuard: 1, bargain: 0.5, bubble: 1, fixesLosses: 0.3, trainsWeakest: 0.2, fameSense: 0.3, escalates: false, plotPatience: 0.6 },
+    plotDrive: 0.3,
+    streetFirst: false,
+    lieLowCups: 3,
+    reactions: { revenge: 1, threatGuard: 1, bargain: 0.5, climb: 1, fixesLosses: 0.3, trainsWeakest: 0.2, fameSense: 0.3, escalates: false, plotPatience: 0.6 },
   },
   schemer: {
     id: 'schemer',
-    weights: { train: 7, rest: 3, fast: 2, media: 3, guard: 4, sabotage: 9, invest: 2 },
+    weights: { train: 7, rest: 3, fast: 2, media: 3, guard: 4, invest: 2 },
     trainingPriority: ['sniffer', 'stomach', 'fans', 'nutrition'],
     investPriority: ['security', 'assistant', 'spa'],
     restAt: 72,
@@ -135,11 +151,14 @@ export const CAREER_PERSONALITIES: Record<
     reserve: 40,
     saving: 0.5,
     preferredTier: 2,
-    reactions: { revenge: 4, threatGuard: 1.5, bargain: 1.5, bubble: 2, fixesLosses: 0.5, trainsWeakest: 0.5, fameSense: 0.7, escalates: true, plotPatience: 0.6 },
+    plotDrive: 0.7,
+    streetFirst: true,
+    lieLowCups: 2,
+    reactions: { revenge: 4, threatGuard: 1.5, bargain: 1.5, climb: 2, fixesLosses: 0.5, trainsWeakest: 0.5, fameSense: 0.7, escalates: true, plotPatience: 0.5 },
   },
   paranoid: {
     id: 'paranoid',
-    weights: { train: 7, rest: 4, fast: 2, media: 3, guard: 8, sabotage: 2, invest: 6 },
+    weights: { train: 7, rest: 4, fast: 2, media: 3, guard: 8, invest: 6 },
     trainingPriority: ['sniffer', 'nutrition', 'stomach', 'fans'],
     investPriority: ['security', 'spa', 'assistant'],
     restAt: 60,
@@ -148,11 +167,14 @@ export const CAREER_PERSONALITIES: Record<
     reserve: 60,
     saving: 0.7,
     preferredTier: 1,
-    reactions: { revenge: 0.5, threatGuard: 3, bargain: 1, bubble: 1.5, fixesLosses: 1, trainsWeakest: 0.6, fameSense: 0.8, escalates: false, plotPatience: 0.7 },
+    plotDrive: 0.2,
+    streetFirst: false,
+    lieLowCups: 5,
+    reactions: { revenge: 0.5, threatGuard: 3, bargain: 1, climb: 1.5, fixesLosses: 1, trainsWeakest: 0.6, fameSense: 0.8, escalates: false, plotPatience: 0.7 },
   },
   pro: {
     id: 'pro',
-    weights: { train: 7, rest: 4, fast: 3, media: 5, guard: 3, sabotage: 3, invest: 4 },
+    weights: { train: 7, rest: 4, fast: 3, media: 5, guard: 3, invest: 4 },
     trainingPriority: ['nutrition', 'stomach', 'sniffer', 'fans'],
     investPriority: ['assistant', 'security', 'spa'],
     restAt: 65,
@@ -161,11 +183,14 @@ export const CAREER_PERSONALITIES: Record<
     reserve: 20,
     saving: 0.6,
     preferredTier: 1,
-    reactions: { revenge: 1, threatGuard: 2, bargain: 1.5, bubble: 2, fixesLosses: 1, trainsWeakest: 0.7, fameSense: 1, escalates: false, plotPatience: 0.65 },
+    plotDrive: 0.15,
+    streetFirst: false,
+    lieLowCups: 5,
+    reactions: { revenge: 1, threatGuard: 2, bargain: 1.5, climb: 2, fixesLosses: 1, trainsWeakest: 0.7, fameSense: 1, escalates: false, plotPatience: 0.65 },
   },
   hedonist: {
     id: 'hedonist',
-    weights: { train: 7, rest: 6, fast: 7, media: 6, guard: 1, sabotage: 3, invest: 3 },
+    weights: { train: 7, rest: 6, fast: 7, media: 6, guard: 1, invest: 3 },
     trainingPriority: ['nutrition', 'stomach', 'fans', 'sniffer'],
     investPriority: ['spa', 'assistant', 'security'],
     restAt: 45,
@@ -174,11 +199,14 @@ export const CAREER_PERSONALITIES: Record<
     reserve: 0,
     saving: 0.45,
     preferredTier: 1,
-    reactions: { revenge: 0, threatGuard: 0.3, bargain: 0, bubble: 0.3, fixesLosses: 0, trainsWeakest: 0.1, fameSense: 0, escalates: false, plotPatience: 0.5 },
+    plotDrive: 0.3,
+    streetFirst: false,
+    lieLowCups: 3,
+    reactions: { revenge: 0, threatGuard: 0.3, bargain: 0, climb: 0.3, fixesLosses: 0, trainsWeakest: 0.1, fameSense: 0, escalates: false, plotPatience: 0.5 },
   },
   miser: {
     id: 'miser',
-    weights: { train: 7, rest: 5, fast: 3, media: 6, guard: 1, sabotage: 2, invest: 7 },
+    weights: { train: 7, rest: 5, fast: 3, media: 6, guard: 1, invest: 7 },
     trainingPriority: ['stomach', 'sniffer', 'nutrition', 'fans'],
     investPriority: ['assistant', 'security', 'spa'],
     restAt: 68,
@@ -187,11 +215,14 @@ export const CAREER_PERSONALITIES: Record<
     reserve: 200,
     saving: 0.9,
     preferredTier: 1,
-    reactions: { revenge: 1, threatGuard: 1, bargain: 3, bubble: 1, fixesLosses: 0.7, trainsWeakest: 0.6, fameSense: 1, escalates: false, plotPatience: 0.7 },
+    plotDrive: 0.2,
+    streetFirst: false,
+    lieLowCups: 4,
+    reactions: { revenge: 1, threatGuard: 1, bargain: 3, climb: 1, fixesLosses: 0.7, trainsWeakest: 0.6, fameSense: 1, escalates: false, plotPatience: 0.7 },
   },
   bruiser: {
     id: 'bruiser',
-    weights: { train: 9, rest: 4, fast: 2, media: 3, guard: 1, sabotage: 5, invest: 2 },
+    weights: { train: 9, rest: 4, fast: 2, media: 3, guard: 1, invest: 2 },
     trainingPriority: ['sparring', 'stomach', 'sniffer', 'nutrition'],
     investPriority: ['assistant', 'spa', 'security'],
     restAt: 78,
@@ -200,7 +231,10 @@ export const CAREER_PERSONALITIES: Record<
     reserve: 0,
     saving: 0.4,
     preferredTier: 1,
-    reactions: { revenge: 3, threatGuard: 0.5, bargain: 0.5, bubble: 1.5, fixesLosses: 0.3, trainsWeakest: 0.3, fameSense: 0.4, escalates: true, plotPatience: 0.5 },
+    plotDrive: 0.55,
+    streetFirst: true,
+    lieLowCups: 2,
+    reactions: { revenge: 3, threatGuard: 0.5, bargain: 0.5, climb: 1.5, fixesLosses: 0.3, trainsWeakest: 0.3, fameSense: 0.4, escalates: true, plotPatience: 0.5 },
   },
 };
 
@@ -234,6 +268,15 @@ export function trainingSurplusPull(surplus: number): number {
 // A coach with every skill at the top has nothing left to buy in the gym, so
 // the money starts going into the rest of the league
 export const LEARNED_OUT_PLOT_PULL = 3;
+
+// The street in one window: never more than this many jobs per coach
+export const AI_MAX_PLOTS_PER_WINDOW = 3;
+// A job after the first needs a name worth it: the open grudge, the feud, or
+// one of this many places directly above on the table
+export const AI_PLOT_REACH = 3;
+// Every crew the league has already sent to one door this window cuts the
+// pull of that door by this much, so the hits spread instead of piling up
+export const AI_PLOT_PILE_ON_SCALE = 0.5;
 
 // How much harder the first pick on the list is chased than the second, and
 // so on down; anything unlisted shares the tail weight

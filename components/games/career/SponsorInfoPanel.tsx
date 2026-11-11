@@ -1,33 +1,43 @@
 import SponsorEmblem from '@/components/games/career/SponsorEmblem';
-import { SPONSOR_IDS } from '@/data/games/careerSponsors';
+import TypedNotice from '@/components/games/career/TypedNotice';
+import {
+  SPONSOR_FAME_GATE,
+  SPONSOR_FAME_GATE_UNTIL_YEAR,
+  SPONSOR_IDS,
+} from '@/data/games/careerSponsors';
 import { GAMES_UI } from '@/data/games/locale';
+import { NOTICE_TERM, NOTICE_TEXT } from '@/lib/constants/typedNotice';
+import { fmt } from '@/lib/utils/format';
 
 const SPONSORS = GAMES_UI.career.sponsors;
 
 export default function SponsorInfoPanel() {
   return (
-    <div className="flex flex-col gap-3">
-      <p className="text-[11px] leading-relaxed text-slate-400">
-        {SPONSORS.info.intro}
+    <TypedNotice className="flex flex-col gap-3">
+      <p className={NOTICE_TEXT}>
+        {fmt(SPONSORS.info.intro, {
+          gate: SPONSOR_FAME_GATE,
+          year: SPONSOR_FAME_GATE_UNTIL_YEAR,
+        })}
       </p>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col">
         {SPONSOR_IDS.map((id) => (
           <div
             key={id}
-            className="flex flex-col gap-1 rounded-xl border border-sky-200/10 bg-slate-800/40 p-3"
+            className="flex items-start gap-2.5 border-t border-[#7d93a8]/40 py-2.5"
           >
-            <span className="flex items-center justify-center gap-2">
-              <SponsorEmblem sponsorId={id} className="h-5 w-5 shrink-0" />
-              <span className="text-[11px] font-bold text-slate-100">
+            <SponsorEmblem sponsorId={id} className="mt-0.5 h-6 w-6 shrink-0" />
+            <span className="flex min-w-0 flex-col">
+              <span className={NOTICE_TERM}>
                 {(SPONSORS.names as Record<string, string>)[id]}
               </span>
-            </span>
-            <span className="text-[10px] leading-relaxed text-slate-400">
-              {(SPONSORS.info.sponsors as Record<string, string>)[id]}
+              <span className={NOTICE_TEXT}>
+                {(SPONSORS.info.sponsors as Record<string, string>)[id]}
+              </span>
             </span>
           </div>
         ))}
       </div>
-    </div>
+    </TypedNotice>
   );
 }

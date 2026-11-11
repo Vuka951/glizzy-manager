@@ -2,9 +2,23 @@ import type { ActionIconKind } from '@/components/icons/ActionIcon';
 import type { InvestmentId } from '@/data/games/careerInvestments';
 import type { TrainingId } from '@/data/games/careerTraining';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
-import type { MediaAppearanceKind } from '@/data/games/careerEconomy';
+import type {
+  MediaAppearanceKind,
+  OverlordPoints,
+} from '@/data/games/careerEconomy';
+import type {
+  GlizzyBet,
+  GlizzyBetResult,
+  GlizzyCall,
+} from '@/data/games/careerGlizzflationBets';
 import type { ElectionResult } from '@/data/games/careerElections';
-import type { CoachColor, RoomErrorCode } from '@/lib/constants/careerMp';
+import type { CoachColor } from '@/lib/constants/careerMp';
+import type {
+  Playback,
+  RoomEvent,
+  RoomStatus,
+  SeatTagMap,
+} from '@/lib/types/rooms';
 import type {
   ActionSceneId,
   ActionSceneOutcome,
@@ -15,11 +29,12 @@ import type {
   SavedCareer,
   SponsorId,
 } from '@/lib/utils/careerSave';
+import type { LeagueEntry } from '@/lib/utils/leagueRoster';
 import type { Message } from '@/lib/utils/message';
+import type { ConstitutionWin, LawVote } from '@/lib/utils/careerLaws';
+import type { PremierSpeech } from '@/lib/utils/careerPremier';
 import type { QuotePlayback } from '@/lib/utils/quoteCutsceneTriggers';
 import type { CupMatchResult } from '@/lib/utils/tournamentSim';
-
-export type RoomStatus = 'lobby' | 'playing' | 'finished' | 'closed';
 
 // One line of the room browser
 export type RoomSummary = {
@@ -35,10 +50,7 @@ export type RoomSummary = {
 };
 
 // Coach name and color by character slug, for the tags on every screen
-export type CoachTagMap = Record<
-  string,
-  { name: string; color: CoachColor; connected?: boolean }
->;
+export type CoachTagMap = SeatTagMap;
 
 // A coach's seat in a stand during a clip
 export type CrowdTokenData = {
@@ -66,18 +78,17 @@ export type RoomSettings = {
   preRoundSeconds: number | null;
   matchBetSeconds: number | null;
   seasonEndSeconds: number | null;
+  // The leader's partner vote after a count without a majority; rooms made
+  // before the vote existed get the default
+  coalitionSeconds?: number | null;
+  // Each half of the law vote, the card pick and the roll call; rooms made
+  // before the chamber passed laws get the default
+  lawsSeconds?: number | null;
   matchLingerSeconds: number;
+  overlordPoints?: OverlordPoints;
 };
 
 export type Stage = { round: number };
-
-export type Playback = {
-  startedAt: number;
-  durationMs: number;
-  skipVotes: string[];
-  // Set the moment a majority skipped the clip; the cursor lingers from here
-  skippedAt?: number;
-};
 
 // The news scenes one moment cued for the whole room, in play order. The
 // sequence number grows over the whole league, so a screen knows which cue
@@ -112,6 +123,13 @@ export type PhaseState =
       quotes?: QuoteCue[];
     }
   | { kind: 'season-end'; deadline: number | null; quotes?: QuoteCue[] }
+  | { kind: 'coalition'; deadline: number | null; quotes?: QuoteCue[] }
+  | {
+      kind: 'laws';
+      stage: 'pick' | 'vote';
+      deadline: number | null;
+      quotes?: QuoteCue[];
+    }
   | { kind: 'finished'; reopenVotes: string[] };
 
 export type PhaseKind = PhaseState['kind'];
@@ -129,14 +147,10 @@ export type CoachPublic = {
   withdrawn: boolean;
   passed: boolean;
   isHost: boolean;
-};
-
-export type RoomEvent = {
-  at: number;
-  kind: string;
-  params: Record<string, string | number>;
-  // Only this coach sees the entry; absent means everyone
-  visibleTo?: string;
+  // The coach's glizzflation call for this window and how the last one went,
+  // public to the whole room
+  glizzyBet?: GlizzyBet;
+  lastGlizzyBet?: GlizzyBetResult;
 };
 
 // A live pick on the pre-match screen: who sits in which stand and for how much
@@ -159,6 +173,8 @@ export type RoomView = {
   hostCoachId: string;
   coachId: string;
   settings: RoomSettings;
+  // The characters on offer in the lobby, then the league once it started
+  roster: LeagueEntry[];
   coaches: CoachPublic[];
   phase: PhaseState;
   // The caller's own career, in the single-player shape, redacted
@@ -172,13 +188,21 @@ export type RoomView = {
   report: CampaignReportData | null;
   log: RoomEvent[];
   // The last count, for the election night every client plays once
-  lastElection: { year: number; result: ElectionResult } | null;
-  // What opening the window did to this coach, played once per key
-  windowIntro: { key: string; receipts: Receipt[] } | null;
+  lastElection: {
+    year: number;
+    result: ElectionResult;
+    scenes?: QuotePlayback[];
+    premier?: PremierSpeech | null;
+  } | null;
+  // What opening the window did to this coach, played once per key, and
+  // the scenes that open it when the Yellow Party came to collect
+  windowIntro: {
+    key: string;
+    receipts: Receipt[];
+    scenes?: QuotePlayback[];
+  } | null;
   connectedCount: number;
 };
-
-export type UnchangedView = { unchanged: true; version: number; now: number };
 
 export type Receipt = {
   // Rendered by the screen that shows the receipt, in its own language
@@ -196,6 +220,8 @@ export type LobbyAction =
   | { type: 'closeRoom' }
   | { type: 'setSettings'; settings: Partial<RoomSettings> }
   | { type: 'pickCharacter'; slug: string }
+  | { type: 'rerollLeague' }
+  | { type: 'nameCharacter'; name: string }
   | { type: 'pickColor'; color: CoachColor }
   | { type: 'rename'; name: string }
   | { type: 'ready'; ready: boolean }
@@ -209,6 +235,10 @@ export type WindowAction =
   | { type: 'island' }
   | { type: 'guard'; steps: number }
   | { type: 'invest'; investmentId: InvestmentId }
+  | { type: 'glizzyBet'; call: GlizzyCall; stake: number }
+  | { type: 'cancelGlizzyBet' }
+  | { type: 'borrow'; amount: number }
+  | { type: 'repay'; amount: number }
   | {
       type: 'sabotage';
       targetSlug: string;
@@ -235,12 +265,19 @@ export type CupAction =
 
 export type EndAction = { type: 'voteReopen'; on: boolean };
 
-export type RoomAction = LobbyAction | WindowAction | CupAction | EndAction;
+export type CoalitionAction = { type: 'voteCoalition'; key: string };
 
-export type ActionRequest = {
-  action: RoomAction;
-  expectVersion: number;
-};
+export type LawAction =
+  | { type: 'pickLaw'; index: number }
+  | { type: 'voteLaw'; vote: LawVote };
+
+export type RoomAction =
+  | LobbyAction
+  | WindowAction
+  | CupAction
+  | EndAction
+  | CoalitionAction
+  | LawAction;
 
 export type ActionResponse = {
   view: RoomView;
@@ -265,8 +302,6 @@ export type JoinRoomResponse = {
   view: RoomView;
 };
 
-export type ApiError = { error: RoomErrorCode; view?: RoomView };
-
 export type LedgerCategory =
   | 'prize'
   | 'sponsor'
@@ -278,8 +313,11 @@ export type LedgerCategory =
   | 'plots'
   | 'fines'
   | 'donations'
+  | 'glizzflation'
   | 'investments'
-  | 'tax';
+  | 'tax'
+  | 'laws'
+  | 'interest';
 
 export type LedgerEntry = {
   year: number;
@@ -311,10 +349,18 @@ export type CoachReport = {
 };
 
 export type CampaignReportData = {
+  // Empty when the campaign ended on one-party rule
   overlordSlug: string;
+  // The party that voted itself one-party rule and its coaches, all winners;
+  // absent on reports from before the constitution
+  constitution?: ConstitutionWin | null;
   coaches: CoachReport[];
   champions: { year: number; season: number; champion: string }[];
-  governments: { year: number; government: SponsorId[] }[];
+  governments: {
+    year: number;
+    government: SponsorId[];
+    primeMinister?: string | null;
+  }[];
   priceIndex: number[];
   // Wins between the human characters, row slug beats column slug
   h2h: Record<string, Record<string, number>>;

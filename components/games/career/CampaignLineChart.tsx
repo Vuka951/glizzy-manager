@@ -2,14 +2,15 @@
 
 import { useState } from 'react';
 import { GAMES_UI } from '@/data/games/locale';
+import CrownIcon from '@/components/icons/CrownIcon';
 import { linePath, type ChartSeries } from '@/lib/utils/reportCharts';
 
 const R = GAMES_UI.career.report;
 
-const WIDTH = 820;
-const HEIGHT = 340;
-const PAD = { top: 14, right: 120, bottom: 30, left: 40 };
-const LABEL_GAP = 13;
+const FULL_SIZE = { width: 820, height: 340 };
+const COMPACT_SIZE = { width: 576, height: 300 };
+const PAD = { top: 14, right: 130, bottom: 30, left: 40 };
+const LABEL_GAP = 15;
 
 export type LineTone =
   | 'emerald'
@@ -22,51 +23,29 @@ export type LineTone =
   | 'fuchsia';
 
 const STROKE: Record<LineTone, string> = {
-  emerald: 'stroke-emerald-600',
-  amber: 'stroke-amber-600',
-  sky: 'stroke-sky-600',
-  violet: 'stroke-violet-600',
-  rose: 'stroke-rose-600',
-  orange: 'stroke-orange-600',
-  teal: 'stroke-teal-600',
-  fuchsia: 'stroke-fuchsia-600',
-};
-const FILL: Record<LineTone, string> = {
-  emerald: 'fill-emerald-600',
-  amber: 'fill-amber-600',
-  sky: 'fill-sky-600',
-  violet: 'fill-violet-600',
-  rose: 'fill-rose-600',
-  orange: 'fill-orange-600',
-  teal: 'fill-teal-600',
-  fuchsia: 'fill-fuchsia-600',
-};
-// The same chart printed on newspaper stock: ink on paper instead of light
-// on the dark card
-const PAPER_STROKE: Record<LineTone, string> = {
   emerald: 'stroke-emerald-700',
   amber: 'stroke-amber-600',
   sky: 'stroke-sky-700',
   violet: 'stroke-violet-700',
   rose: 'stroke-rose-700',
   orange: 'stroke-orange-700',
-  teal: 'stroke-teal-700',
+  teal: 'stroke-teal-600',
   fuchsia: 'stroke-fuchsia-700',
 };
-const PAPER_FILL: Record<LineTone, string> = {
+const FILL: Record<LineTone, string> = {
   emerald: 'fill-emerald-700',
   amber: 'fill-amber-600',
   sky: 'fill-sky-700',
   violet: 'fill-violet-700',
   rose: 'fill-rose-700',
   orange: 'fill-orange-700',
-  teal: 'fill-teal-700',
+  teal: 'fill-teal-600',
   fuchsia: 'fill-fuchsia-700',
 };
 
-// One line per character. The picked ones wear their color and their name,
-// the rest stay as gray context, and hovering or tapping any gray line
-// lifts it out in white and names it under the chart
+// One line per character, printed on the paper. The picked ones wear their
+// color and their name, the rest stay as gray context, and hovering or tapping
+// any gray line lifts it out in black and names it under the chart
 export default function CampaignLineChart({
   series,
   xLabels,
@@ -77,7 +56,7 @@ export default function CampaignLineChart({
   goal,
   tones,
   caption,
-  paper = false,
+  compact = false,
 }: {
   series: ChartSeries[];
   xLabels: string[];
@@ -88,12 +67,14 @@ export default function CampaignLineChart({
   goal?: number;
   tones: Record<string, LineTone>;
   caption: (line: ChartSeries) => string;
-  paper?: boolean;
+  // Drawn close to its real size in a narrow sheet, so its type stays readable
+  compact?: boolean;
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
   const active = hovered ?? pinned;
 
+  const { width: WIDTH, height: HEIGHT } = compact ? COMPACT_SIZE : FULL_SIZE;
   const count = Math.max(1, xLabels.length);
   const innerWidth = WIDTH - PAD.left - PAD.right;
   const innerHeight = HEIGHT - PAD.top - PAD.bottom;
@@ -107,29 +88,12 @@ export default function CampaignLineChart({
   const isLit = (slug: string) => slug === active || slug in tones;
   const strokeOf = (slug: string) =>
     slug === active && !(slug in tones)
-      ? paper
-        ? 'stroke-slate-900'
-        : 'stroke-slate-200'
+      ? 'stroke-slate-900'
       : slug in tones
-        ? (paper ? PAPER_STROKE : STROKE)[tones[slug]]
-        : paper
-          ? 'stroke-slate-400'
-          : 'stroke-slate-600';
+        ? STROKE[tones[slug]]
+        : 'stroke-slate-400';
   const fillOf = (slug: string) =>
-    slug in tones
-      ? (paper ? PAPER_FILL : FILL)[tones[slug]]
-      : paper
-        ? 'fill-slate-900'
-        : 'fill-slate-200';
-  const ink = {
-    grid: paper ? 'stroke-slate-300' : 'stroke-slate-700',
-    tick: paper ? 'fill-slate-600' : 'fill-slate-500',
-    goalLine: paper ? 'stroke-red-700' : 'stroke-amber-600',
-    goalText: paper ? 'fill-red-800' : 'fill-amber-500',
-    point: paper ? 'stroke-amber-50' : 'stroke-slate-900',
-    name: paper ? 'fill-slate-900' : 'fill-slate-200',
-    caption: paper ? 'text-slate-600' : 'text-slate-300',
-  };
+    slug in tones ? FILL[tones[slug]] : 'fill-slate-900';
   const ordered = [
     ...series.filter((s) => !isLit(s.slug)),
     ...series.filter((s) => isLit(s.slug) && s.slug !== active),
@@ -173,14 +137,14 @@ export default function CampaignLineChart({
                   x2={WIDTH - PAD.right}
                   y1={y(tick)}
                   y2={y(tick)}
-                  className={ink.grid}
+                  className="stroke-slate-300"
                   strokeWidth={1}
                 />
                 <text
                   x={PAD.left - 8}
                   y={y(tick) + 3}
                   textAnchor="end"
-                  className={`${ink.tick} font-mono text-[10px]`}
+                  className="fill-slate-600 font-sign text-[13px] font-semibold"
                 >
                   {tick}
                 </text>
@@ -193,16 +157,19 @@ export default function CampaignLineChart({
                   x2={WIDTH - PAD.right}
                   y1={y(goal)}
                   y2={y(goal)}
-                  className={ink.goalLine}
+                  className="stroke-red-700"
                   strokeWidth={1}
                 />
-                <text
-                  x={WIDTH - PAD.right + 6}
-                  y={y(goal) + 3}
-                  className={`${ink.goalText} text-[10px] font-bold uppercase tracking-widest`}
+                <svg
+                  x={PAD.left + 4}
+                  y={y(goal) - 15}
+                  width={14}
+                  height={14}
+                  className="text-red-700"
                 >
-                  {R.legend.goal}
-                </text>
+                  <title>{R.legend.goal}</title>
+                  <CrownIcon className="h-full w-full" />
+                </svg>
               </g>
             )}
             {xLabels.map((label, i) =>
@@ -212,7 +179,7 @@ export default function CampaignLineChart({
                   x={x(i)}
                   y={HEIGHT - 10}
                   textAnchor={i === 0 ? 'start' : 'middle'}
-                  className={`${ink.tick} text-[10px] font-semibold uppercase tracking-widest`}
+                  className="fill-slate-600 font-sign text-[13px] font-semibold uppercase tracking-[0.06em]"
                 >
                   {label}
                 </text>
@@ -242,7 +209,7 @@ export default function CampaignLineChart({
                           cy={y(value)}
                           r={4}
                           strokeWidth={2}
-                          className={`${fillOf(line.slug)} ${ink.point}`}
+                          className={`${fillOf(line.slug)} stroke-[#f1e8d3]`}
                         />
                       ),
                     )}
@@ -253,7 +220,7 @@ export default function CampaignLineChart({
                         (labelY.get(line.slug) ??
                           y(line.values[end] as number)) + 3.5
                       }
-                      className={`${ink.name} text-[10px] font-bold`}
+                      className="fill-slate-900 font-sign text-[14px] font-bold"
                     >
                       {line.name}
                     </text>
@@ -277,8 +244,8 @@ export default function CampaignLineChart({
           </svg>
         </div>
       </div>
-      <p className={`text-right text-[10px] font-semibold ${ink.caption}`}>
-        {activeLine ? caption(activeLine) : R.hoverHint}
+      <p className="min-h-4 text-right font-serif text-[12px] italic text-slate-600">
+        {activeLine && caption(activeLine)}
       </p>
     </div>
   );

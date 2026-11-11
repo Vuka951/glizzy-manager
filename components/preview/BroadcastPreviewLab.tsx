@@ -3,12 +3,14 @@
 import { useMemo, useState } from 'react';
 import BroadcastOpenPanel from '@/components/games/career/BroadcastOpenPanel';
 import MatchViewer from '@/components/games/match/MatchViewer';
-import SectionTitle from '@/components/preview/SectionTitle';
-import type { DuelCharacter } from '@/data/games/glizzyDuel';
+import CareerStudioIntroPreview from '@/components/preview/CareerStudioIntroPreview';
+import PreviewSection from '@/components/preview/PreviewSection';
 import { SEASON_COUNT } from '@/data/games/careerSeasons';
 import { FULL_REVEAL } from '@/lib/utils/careerScouting';
 import { seasonName } from '@/lib/utils/localeNames';
-import type { SavedCareer } from '@/lib/utils/careerSave';
+import { CAREER_SAVE_VERSION, type SavedCareer } from '@/lib/utils/careerSave';
+import { leagueCharacters } from '@/lib/utils/duelCharacters';
+import type { LeagueEntry } from '@/lib/utils/leagueRoster';
 import { newCharacterState } from '@/lib/utils/careerMeters';
 import { planCommentary, type PlannedLine } from '@/lib/utils/matchCommentary';
 import { buildMatchTape } from '@/lib/utils/matchTape';
@@ -63,17 +65,17 @@ const PREVIEW_RESULT: CupMatchResult = {
   ],
 };
 
-// Pairings that show both tells: The Wolf sweats across from The Taxman who
-// bounces, Daniel and The Wolf both bounce
+// Two pairings by roster position: the top seed against a mid-table name,
+// and the second seed against the top seed
 const PAIRS = [
-  { label: 'The Wolf and The Taxman: bad, good', a: 'vuka', b: 'tax-inspector' },
-  { label: 'Daniel and The Wolf: good, good', a: 'dax', b: 'vuka' },
+  { label: 'Seed 1 and seed 9', a: 0, b: 8 },
+  { label: 'Seed 2 and seed 1', a: 1, b: 0 },
 ];
 
-function mockCareer(characters: DuelCharacter[]): SavedCareer {
-  const slugs = characters.map((c) => c.slug);
+function mockCareer(league: LeagueEntry[]): SavedCareer {
+  const slugs = league.map((c) => c.slug);
   const states = Object.fromEntries(
-    characters.map((c, i) => [
+    league.map((c, i) => [
       c.slug,
       {
         ...newCharacterState(c.slug, true),
@@ -101,7 +103,8 @@ function mockCareer(characters: DuelCharacter[]): SavedCareer {
     ]),
   );
   return {
-    version: 1,
+    version: CAREER_SAVE_VERSION,
+    league,
     playerSlug: slugs[0],
     year: 3,
     season: 1,
@@ -133,15 +136,20 @@ const STAGES = [
 ];
 
 export default function BroadcastPreviewLab({
-  characters,
+  league,
 }: {
-  characters: DuelCharacter[];
+  league: LeagueEntry[];
 }) {
-  const career = useMemo(() => mockCareer(characters), [characters]);
+  const characters = useMemo(() => leagueCharacters(league), [league]);
+  const career = useMemo(() => mockCareer(league), [league]);
+  const characterBySlug = useMemo(
+    () => new Map(characters.map((c) => [c.slug, c])),
+    [characters],
+  );
   const [pairIndex, setPairIndex] = useState(0);
   const pair = PAIRS[pairIndex];
-  const a = characters.find((c) => c.slug === pair.a) ?? characters[0];
-  const b = characters.find((c) => c.slug === pair.b) ?? characters[1];
+  const a = characters[pair.a % characters.length];
+  const b = characters[pair.b % characters.length];
   const [stage, setStage] = useState(2);
   const [matchKey, setMatchKey] = useState(0);
   const [openKey, setOpenKey] = useState(0);
@@ -166,111 +174,123 @@ export default function BroadcastPreviewLab({
   );
 
   return (
-    <div className="flex flex-col gap-8">
-      <section className="flex flex-col items-center gap-3">
-        <SectionTitle>Match by broadcast stage</SectionTitle>
-        <div className="flex flex-wrap justify-center gap-2">
-          {STAGES.map((s, i) => (
+    <div className="flex flex-col gap-5">
+      <PreviewSection title="Match by broadcast stage">
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-wrap justify-center gap-2">
+            {STAGES.map((s, i) => (
+              <button
+                key={s.cups}
+                onClick={() => {
+                  setStage(i);
+                  setMatchKey((k) => k + 1);
+                }}
+                className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition ${
+                  stage === i
+                    ? 'border-sky-200/60 bg-sky-200/10 text-sky-200'
+                    : 'border-sky-200/15 bg-slate-900/60 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
             <button
-              key={s.cups}
-              onClick={() => {
-                setStage(i);
-                setMatchKey((k) => k + 1);
-              }}
-              className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition ${
-                stage === i
-                  ? 'border-sky-200/60 bg-sky-200/10 text-sky-200'
-                  : 'border-sky-200/15 bg-slate-900/60 text-slate-400 hover:text-slate-200'
-              }`}
+              onClick={() => setMatchKey((k) => k + 1)}
+              className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-red-300 transition hover:text-red-200"
             >
-              {s.label}
+              Play again
             </button>
-          ))}
-          <button
-            onClick={() => setMatchKey((k) => k + 1)}
-            className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-red-300 transition hover:text-red-200"
-          >
-            Play again
-          </button>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2">
+            {PAIRS.map((p, i) => (
+              <button
+                key={p.label}
+                onClick={() => {
+                  setPairIndex(i);
+                  setMatchKey((k) => k + 1);
+                }}
+                className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition ${
+                  pairIndex === i
+                    ? 'border-amber-300/60 bg-amber-300/10 text-amber-200'
+                    : 'border-sky-200/15 bg-slate-900/60 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <div className="w-full max-w-xl">
+            <MatchViewer
+              key={`${pairIndex}-${stage}-${matchKey}`}
+              a={a}
+              b={b}
+              result={PREVIEW_RESULT}
+              betSlug={a.slug}
+              supportedSlug={a.slug}
+              moodA={career.characters[a.slug]}
+              moodB={career.characters[b.slug]}
+              revealA={FULL_REVEAL}
+              revealB={FULL_REVEAL}
+              commentary={plan}
+              tape={tape}
+              onDone={() => setMatchKey((k) => k + 1)}
+            />
+          </div>
         </div>
-        <div className="flex flex-wrap justify-center gap-2">
-          {PAIRS.map((p, i) => (
-            <button
-              key={p.label}
-              onClick={() => {
-                setPairIndex(i);
-                setMatchKey((k) => k + 1);
-              }}
-              className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition ${
-                pairIndex === i
-                  ? 'border-amber-300/60 bg-amber-300/10 text-amber-200'
-                  : 'border-sky-200/15 bg-slate-900/60 text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-        <div className="w-full max-w-xl">
-          <MatchViewer
-            key={`${pairIndex}-${stage}-${matchKey}`}
-            a={a}
-            b={b}
-            result={PREVIEW_RESULT}
-            betSlug={a.slug}
-            supportedSlug={a.slug}
-            moodA={career.characters[a.slug]}
-            moodB={career.characters[b.slug]}
-            revealA={FULL_REVEAL}
-            revealB={FULL_REVEAL}
-            commentary={plan}
-            tape={tape}
-            onDone={() => setMatchKey((k) => k + 1)}
-          />
-        </div>
-      </section>
+      </PreviewSection>
 
-      <section className="flex flex-col items-center gap-3">
-        <SectionTitle>Studio intro before the cup</SectionTitle>
-        <div className="flex flex-wrap justify-center gap-2">
-          {Array.from({ length: SEASON_COUNT }, (_, season) => (
+      <PreviewSection title="Studio intro before the cup">
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-wrap justify-center gap-2">
+            {Array.from({ length: SEASON_COUNT }, (_, season) => (
+              <button
+                key={season}
+                onClick={() => setOpenSeason(season)}
+                className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition ${
+                  openSeason === season
+                    ? 'border-amber-300/60 bg-amber-300/10 text-amber-200'
+                    : 'border-sky-200/15 bg-slate-900/60 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {seasonName(season)}
+              </button>
+            ))}
             <button
-              key={season}
-              onClick={() => setOpenSeason(season)}
-              className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition ${
-                openSeason === season
-                  ? 'border-amber-300/60 bg-amber-300/10 text-amber-200'
-                  : 'border-sky-200/15 bg-slate-900/60 text-slate-400 hover:text-slate-200'
-              }`}
+              onClick={() => setOpenYear((y) => y + 1)}
+              className="rounded-full border border-sky-200/15 bg-slate-900/60 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 transition hover:text-slate-200"
             >
-              {seasonName(season)}
+              Year {openYear}: new forecast
             </button>
-          ))}
+          </div>
           <button
-            onClick={() => setOpenYear((y) => y + 1)}
-            className="rounded-full border border-sky-200/15 bg-slate-900/60 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 transition hover:text-slate-200"
+            onClick={() => {
+              setOpenKey((k) => k + 1);
+              setShowOpen(true);
+            }}
+            className="rounded-xl border border-sky-200/25 bg-slate-800/70 px-5 py-2 text-xs font-semibold text-sky-200 transition hover:border-sky-200/50 hover:text-white"
           >
-            Year {openYear}: new forecast
+            Show studio intro
           </button>
+          {showOpen && (
+            <BroadcastOpenPanel
+              key={openKey}
+              career={{ ...career, season: openSeason, year: openYear }}
+              characterBySlug={characterBySlug}
+              preview
+            />
+          )}
         </div>
-        <button
-          onClick={() => {
-            setOpenKey((k) => k + 1);
-            setShowOpen(true);
-          }}
-          className="rounded-xl border border-sky-200/25 bg-slate-800/70 px-5 py-2 text-xs font-semibold text-sky-200 transition hover:border-sky-200/50 hover:text-white"
-        >
-          Show studio intro
-        </button>
-        {showOpen && (
-          <BroadcastOpenPanel
-            key={openKey}
-            career={{ ...career, season: openSeason, year: openYear }}
-            characterBySlug={new Map(characters.map((c) => [c.slug, c]))}
-            preview
-          />
-        )}
-      </section>
+      </PreviewSection>
+
+      <PreviewSection
+        title="Studio intro from a sample career"
+        note="BroadcastOpenPanel: the cards rotate on their own (forecast, in form, streaks, title chances), the strip on top jumps to a card, the countdown starts only on the last one. Temperature and text roll by year and season."
+      >
+        <CareerStudioIntroPreview
+          characters={characters}
+          characterBySlug={characterBySlug}
+        />
+      </PreviewSection>
     </div>
   );
 }

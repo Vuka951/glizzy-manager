@@ -1,4 +1,4 @@
-import { ActionError } from '@/lib/server/career-mp/errors';
+import { ActionError } from '@/lib/server/rooms/errors';
 import type { Room } from '@/lib/server/career-mp/room';
 import type {
   CampaignReportData,
@@ -18,12 +18,15 @@ const CATEGORIES: LedgerCategory[] = [
   'plots',
   'fines',
   'donations',
+  'glizzflation',
   'investments',
   'tax',
+  'laws',
+  'interest',
 ];
 
 // The campaign in numbers, read off the ledger, the counters and the state
-// the moment the crown lands
+// the moment the crown lands or one-party rule is voted in
 export function buildReport(room: Room): CampaignReportData {
   const league = room.league;
   if (!league) throw new ActionError('bad-room');
@@ -85,6 +88,7 @@ export function buildReport(room: Room): CampaignReportData {
   });
   return {
     overlordSlug: league.overlordSlug ?? '',
+    constitution: league.parliament?.constitution ?? null,
     coaches,
     champions: league.standingsHistory.map((r) => ({
       year: r.year,

@@ -1,8 +1,11 @@
-import { equilibriumFor } from '@/data/games/careerEquilibria';
+import {
+  AI_STARTING_FAME_SPREAD,
+  STARTING_FAME_MAX,
+  STARTING_FAME_MIN,
+} from '@/data/games/careerEquilibria';
+import { equilibriumFor } from '@/lib/utils/characterTraits';
 import { randomPersonality } from '@/data/games/careerPersonalities';
 import {
-  AI_START_FAME_MAX,
-  AI_START_FAME_MIN,
   APPETITE_REGROWTH,
   FASTING_AMBITION_GAIN,
   FASTING_APPETITE_GAIN,
@@ -21,9 +24,9 @@ import {
   REST_STRESS_DROP,
 } from '@/data/games/careerEconomy';
 import {
-  AI_START_SKILL_LEVELS,
   fameStressTaxScale,
   overtrainChance,
+  TRAINING_DEFS,
   TRAININGS_PER_LEVEL,
   type TrainingDef,
 } from '@/data/games/careerTraining';
@@ -50,29 +53,26 @@ export function newCharacterState(
   ai = false,
 ): CharacterCareerState {
   const eq = equilibriumFor(slug);
-  // Everyone starts untrained; league veterans get two random levels spread
-  // across the four skills. AI fame also gets a fresh roll around the lore
-  // value so the opening seeding varies per career
-  const skillLevels = [0, 0, 0, 0];
-  // Everyone in the league runs their off-season a different way; which way
-  // is drawn fresh per career, so the same name plays differently each run
-  if (ai) {
-    for (let i = 0; i < AI_START_SKILL_LEVELS; i++) {
-      skillLevels[Math.floor(Math.random() * skillLevels.length)] += 1;
-    }
-  }
-  const skill = (level: number) => ({ level, progress: 0 });
-  // Every AI starts as a mid-table name so the comeback player seeds among
-  // them instead of guaranteed last; fame then moves on results
+  // Everyone starts untrained. AI fame gets a fresh roll around the lore
+  // value so the opening seeding varies per career, and the temperament is
+  // drawn fresh too, so the same name plays differently each run
+  const untrained = () => ({ level: 0, progress: 0 });
   const aiFame = () =>
-    AI_START_FAME_MIN +
-    Math.floor(Math.random() * (AI_START_FAME_MAX - AI_START_FAME_MIN + 1));
+    Math.max(
+      STARTING_FAME_MIN,
+      Math.min(
+        STARTING_FAME_MAX,
+        eq.fame +
+          Math.floor(Math.random() * (AI_STARTING_FAME_SPREAD * 2 + 1)) -
+          AI_STARTING_FAME_SPREAD,
+      ),
+    );
   return {
     ...(ai ? { personality: randomPersonality() } : {}),
-    livesCap: skill(skillLevels[0]),
-    njuh: skill(skillLevels[1]),
-    nutrition: skill(skillLevels[2]),
-    fanSkill: skill(skillLevels[3]),
+    livesCap: untrained(),
+    njuh: untrained(),
+    nutrition: untrained(),
+    fanSkill: untrained(),
     stress: eq.stress,
     appetite: eq.appetite,
     ambition: eq.ambition,
@@ -198,7 +198,12 @@ export function applyTraining(
     };
   }
 
-  const STAT_MAX = { livesCap: 3, njuh: 3, nutrition: 3, fanSkill: 3 } as const;
+  const STAT_MAX = {
+    livesCap: TRAINING_DEFS.stomach.maxLevel,
+    njuh: TRAINING_DEFS.sniffer.maxLevel,
+    nutrition: TRAINING_DEFS.nutrition.maxLevel,
+    fanSkill: TRAINING_DEFS.fans.maxLevel,
+  };
   const maxLevel = STAT_MAX[statKey];
   if (stat.level >= maxLevel)
     return { next: base, outcome: 'progress', statKey };
@@ -282,13 +287,11 @@ export function applyMatchOutcome(
 
 // The season verdict: final cup placement feeds fame and ego on a scale from
 // lifting the trophy down to a first-round exit, which costs pride but not
-// fame: showing up at all is worth something. A name without a place on the
-// standings is left alone
+// fame: showing up at all is worth something
 export function applyCupPlacement(
   ch: CharacterCareerState,
   place: number,
 ): CharacterCareerState {
-  if (place < 1) return ch;
   const [fame, ego] =
     place === 1
       ? [12, 10]

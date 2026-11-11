@@ -1,78 +1,39 @@
-import { NextResponse } from 'next/server';
 import {
+  CAREER_MP_NOW_HEADER,
+  CAREER_MP_ROOM_NAMESPACE,
   COACH_COLOR_ORDER,
+  COACH_TOKEN_HEADER,
   MAX_COACHES,
-  ROOM_BOARD_WINDOW_MS,
+  OPEN_ROOMS_CAP,
+  ROOM_CREATE_PER_HOUR,
+  ROOM_CREATE_WINDOW_SECONDS,
   type CoachColor,
-  type RoomErrorCode,
 } from '@/lib/constants/careerMp';
-import { ActionError } from '@/lib/server/career-mp/errors';
-import { assertCreateAllowed } from '@/lib/server/career-mp/limits';
-import { applyAction, cleanName } from '@/lib/server/career-mp/reducer';
-import { ROSTER_SLUGS } from '@/lib/server/career-mp/roster';
+import { applyAction } from '@/lib/server/career-mp/reducer';
 import {
-  coachByToken,
   DEFAULT_SETTINGS,
   freeColor,
-  hashToken,
-  isRoomCode,
-  newCoachId,
-  newToken,
-  randomRoomCode,
   type Coach,
   type Room,
 } from '@/lib/server/career-mp/room';
-import { normalizeSettings } from '@/lib/server/career-mp/roomOps';
-import {
-  createRoom,
-  listRooms,
-  loadRoom,
-  lobbyExpired,
-  removeRoom,
-  saveRoom,
-  VersionConflict,
-} from '@/lib/server/career-mp/store';
-import { advanceExpired } from '@/lib/server/career-mp/timers';
+import { currentRoom, normalizeSettings } from '@/lib/server/career-mp/roomOps';
+import { step } from '@/lib/server/career-mp/timers';
 import { summaryOf, viewFor } from '@/lib/server/career-mp/view';
+import { ActionError } from '@/lib/server/rooms/errors';
+import { createRoomHandlers } from '@/lib/server/rooms/handlers';
+import { cleanSeatName } from '@/lib/server/rooms/identity';
+import { createRoomStore } from '@/lib/server/rooms/store';
 import type {
-  ActionRequest,
   CreateRoomRequest,
   JoinRoomRequest,
   PhaseState,
+  Receipt,
+  RoomAction,
+  RoomSummary,
+  RoomView,
 } from '@/lib/types/careerMp';
-
-// A poll refreshes presence; the write is skipped until it is this stale so
-// idle rooms cost one command per poll, not two
-const PRESENCE_WRITE_MS = 10_000;
-// Every write is optimistic on the room version. Three coaches polling and
-// clicking at once lose races often enough that two tries dropped real
-// clicks; the retries back off with jitter so the losers spread out
-const WRITE_ATTEMPTS = 6;
-const RETRY_BASE_MS = 15;
-const RETRY_JITTER_MS = 30;
-
-function retryDelay(attempt: number): Promise<void> {
-  const ms = RETRY_BASE_MS * attempt + Math.random() * RETRY_JITTER_MS;
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export function jsonError(
-  code: RoomErrorCode,
-  status: number,
-  extra?: object,
-) {
-  return NextResponse.json({ error: code, ...(extra ?? {}) }, { status });
-}
-
-// The clock every handler reads. Outside production a request may carry its
-// own so timers can be tested without waiting
-export function requestNow(req: Request): number {
-  if (process.env.NODE_ENV !== 'production') {
-    const fake = req.headers.get('x-career-mp-now');
-    if (fake && Number.isFinite(Number(fake))) return Number(fake);
-  }
-  return Date.now();
-}
+import { generateLeague } from '@/lib/utils/leagueRoster';
+import { randomSeed } from '@/lib/utils/seededRandom';
 
 function phaseKey(phase: PhaseState): string {
   switch (phase.kind) {
@@ -83,14 +44,6 @@ function phaseKey(phase: PhaseState): string {
       return `${phase.kind}:${JSON.stringify(phase.stage)}:${phase.index}`;
     default:
       return phase.kind;
-  }
-}
-
-async function readBody<T>(req: Request): Promise<T> {
-  try {
-    return (await req.json()) as T;
-  } catch {
-    throw new ActionError('bad-body');
   }
 }
 
@@ -112,247 +65,73 @@ function pickColor(room: Room, wanted: unknown): CoachColor {
 // and anything else is dropped so the join never fails over it
 function legacySlug(room: Room, body: unknown): string | null {
   const slug = (body as { slug?: unknown } | null)?.slug;
-  if (typeof slug !== 'string' || !ROSTER_SLUGS.includes(slug)) return null;
+  if (typeof slug !== 'string') return null;
+  if (!room.roster.some((e) => e.slug === slug)) return null;
   if (Object.values(room.coaches).some((c) => c.slug === slug)) return null;
   return slug;
 }
 
-function ensureNameFree(room: Room, name: string) {
-  if (
-    Object.values(room.coaches).some(
-      (c) => c.name.toLowerCase() === name.toLowerCase(),
-    )
-  )
-    throw new ActionError('name-taken', 409);
-}
+const roomStore = createRoomStore<Room>({
+  namespace: CAREER_MP_ROOM_NAMESPACE,
+  memoryKey: '__careerMpRooms',
+});
 
-export async function handleCreate(req: Request) {
-  const now = requestNow(req);
-  try {
-    const body = await readBody<CreateRoomRequest>(req);
-    const name = cleanName(body.coachName);
-    await assertCreateAllowed(req, now);
-    const token = newToken();
-    const coachId = newCoachId();
-    const empty: Room = {
-      code: '',
-      version: 0,
-      phaseVersion: 0,
-      createdAt: now,
-      updatedAt: now,
-      hostCoachId: coachId,
-      status: 'lobby',
-      settings: normalizeSettings({ ...DEFAULT_SETTINGS, ...(body.settings ?? {}) }),
-      coaches: {},
-      league: null,
-      phase: { kind: 'window', deadline: null },
-      log: [],
-      report: null,
-    };
-    const coach: Coach = {
-      id: coachId,
-      name,
-      color: pickColor(empty, body.color),
-      slug: legacySlug(empty, body),
-      tokenHash: hashToken(token),
-      joinedAt: now,
-      lastSeenAt: now,
-      ready: false,
-    };
-    let room: Room = { ...empty, coaches: { [coachId]: coach } };
-    for (let attempt = 0; attempt < 5; attempt++) {
-      room = { ...room, code: randomRoomCode() };
-      try {
-        await createRoom(room);
-        room = { ...room, version: 1 };
-        return NextResponse.json({
-          code: room.code,
-          coachId,
-          token,
-          view: viewFor(room, coachId, now),
-        });
-      } catch (e) {
-        if (!(e instanceof VersionConflict)) throw e;
-      }
-    }
-    return jsonError('no-code', 500);
-  } catch (e) {
-    if (e instanceof ActionError) return jsonError(e.code, e.status);
-    throw e;
-  }
-}
-
-// The room browser: every open room, newest touch first, nothing private
-export async function handleList(req: Request) {
-  const now = requestNow(req);
-  const listed = await listRooms(50);
-  const expired = listed.filter((room) => lobbyExpired(room, now));
-  await Promise.all(expired.map((room) => removeRoom(room.code)));
-  const rooms = listed.filter(
-    (room) =>
-      !lobbyExpired(room, now) && now - room.updatedAt <= ROOM_BOARD_WINDOW_MS,
-  );
-  return NextResponse.json({ rooms: rooms.map((room) => summaryOf(room, now)) });
-}
-
-export async function handleJoin(req: Request, rawCode: string) {
-  const now = requestNow(req);
-  const code = rawCode.toUpperCase();
-  if (!isRoomCode(code)) return jsonError('not-found', 404);
-  try {
-    const body = await readBody<JoinRoomRequest>(req);
-    const name = cleanName(body.coachName);
-    for (let attempt = 0; attempt < 2; attempt++) {
-      const room = await loadRoom(code);
-      if (!room) return jsonError('not-found', 404);
-      if (lobbyExpired(room, now)) {
-        await removeRoom(code);
-        return jsonError('expired', 410);
-      }
-      if (room.status === 'closed') return jsonError('closed', 410);
-      if (room.status !== 'lobby') return jsonError('already-started', 409);
-      if (Object.keys(room.coaches).length >= MAX_COACHES)
-        return jsonError('room-full', 409);
-      ensureNameFree(room, name);
-      const token = newToken();
-      const coachId = newCoachId();
-      const coach: Coach = {
-        id: coachId,
-        name,
-        color: pickColor(room, body.color),
-        slug: legacySlug(room, body),
-        tokenHash: hashToken(token),
-        joinedAt: now,
-        lastSeenAt: now,
-        ready: false,
-      };
-      try {
-        const saved = await saveRoom(
-          { ...room, coaches: { ...room.coaches, [coachId]: coach } },
-          now,
-        );
-        return NextResponse.json({
-          code,
-          coachId,
-          token,
-          view: viewFor(saved, coachId, now),
-        });
-      } catch (e) {
-        if (!(e instanceof VersionConflict)) throw e;
-      }
-    }
-    return jsonError('conflict', 409);
-  } catch (e) {
-    if (e instanceof ActionError) return jsonError(e.code, e.status);
-    throw e;
-  }
-}
-
-function touch(room: Room, coachId: string, now: number): Room {
-  const coach = room.coaches[coachId];
-  return {
-    ...room,
-    coaches: { ...room.coaches, [coachId]: { ...coach, lastSeenAt: now } },
-  };
-}
-
-export async function handleGet(req: Request, rawCode: string) {
-  const now = requestNow(req);
-  const code = rawCode.toUpperCase();
-  if (!isRoomCode(code)) return jsonError('not-found', 404);
-  const token = req.headers.get('x-coach-token');
-  const url = new URL(req.url);
-  const since = url.searchParams.get('since');
-  for (let attempt = 1; attempt <= WRITE_ATTEMPTS; attempt++) {
-    const room = await loadRoom(code);
-    if (!room) return jsonError('not-found', 404);
-    if (lobbyExpired(room, now)) {
-      await removeRoom(code);
-      return jsonError('expired', 410);
-    }
-    const coach = coachByToken(room, token);
-    if (!coach) return jsonError('unauthorized', 401);
-    const advanced = advanceExpired(room, now);
-    const stale = now - coach.lastSeenAt > PRESENCE_WRITE_MS;
-    if (advanced === room && !stale) {
-      if (since !== null && Number(since) === room.version) {
-        return NextResponse.json({ unchanged: true, version: room.version, now });
-      }
-      return NextResponse.json(viewFor(room, coach.id, now));
-    }
-    try {
-      const saved = await saveRoom(touch(advanced, coach.id, now), now);
-      return NextResponse.json(viewFor(saved, coach.id, now));
-    } catch (e) {
-      if (!(e instanceof VersionConflict)) throw e;
-      // A poll is read-only to the caller: when the presence write keeps
-      // losing, serve what was read and let the next poll write it
-      if (attempt === WRITE_ATTEMPTS) {
-        return NextResponse.json(viewFor(advanced, coach.id, now));
-      }
-      await retryDelay(attempt);
-    }
-  }
-  return jsonError('conflict', 409);
-}
-
-export async function handleAction(req: Request, rawCode: string) {
-  const now = requestNow(req);
-  const code = rawCode.toUpperCase();
-  if (!isRoomCode(code)) return jsonError('not-found', 404);
-  const token = req.headers.get('x-coach-token');
-  let body: ActionRequest;
-  try {
-    body = await readBody<ActionRequest>(req);
-  } catch {
-    return jsonError('bad-body', 400);
-  }
-  if (!body || typeof body !== 'object' || !body.action || typeof body.action.type !== 'string')
-    return jsonError('bad-body', 400);
-  for (let attempt = 1; attempt <= WRITE_ATTEMPTS; attempt++) {
-    if (attempt > 1) await retryDelay(attempt - 1);
-    const room = await loadRoom(code);
-    if (!room) return jsonError('not-found', 404);
-    if (lobbyExpired(room, now)) {
-      await removeRoom(code);
-      return jsonError('expired', 410);
-    }
-    const coach = coachByToken(room, token);
-    if (!coach) return jsonError('unauthorized', 401);
-    const advanced = advanceExpired(touch(room, coach.id, now), now);
-    // A click made on a phase that has since closed is refused with the
-    // fresh view; presence bumps and other coaches' clicks never are
-    const expect = Number(body.expectVersion);
-    if (
-      Number.isFinite(expect) &&
-      (phaseKey(advanced.phase) !== phaseKey(room.phase) || expect < room.phaseVersion)
-    ) {
-      let stale = advanced;
-      try {
-        stale = advanced === room ? room : await saveRoom(advanced, now);
-      } catch (e) {
-        if (!(e instanceof VersionConflict)) throw e;
-        continue;
-      }
-      return jsonError('stale', 409, { view: viewFor(stale, coach.id, now) });
-    }
-    try {
-      const applied = applyAction(advanced, coach.id, body.action, now);
-      const settled = advanceExpired(applied.room, now);
-      const phaseChanged = phaseKey(settled.phase) !== phaseKey(room.phase);
-      const saved = await saveRoom(
-        phaseChanged ? { ...settled, phaseVersion: room.version + 1 } : settled,
-        now,
-      );
-      return NextResponse.json({
-        view: viewFor(saved, coach.id, now),
-        ...(applied.receipt ? { receipt: applied.receipt } : {}),
-      });
-    } catch (e) {
-      if (e instanceof VersionConflict) continue;
-      if (e instanceof ActionError) return jsonError(e.code, e.status);
-      throw e;
-    }
-  }
-  return jsonError('conflict', 409);
-}
+export const {
+  handleCreate,
+  handleList,
+  handleJoin,
+  handleGet,
+  handleAction,
+} = createRoomHandlers<Room, Coach, RoomAction, RoomView, RoomSummary, Receipt>({
+  store: {
+    ...roomStore,
+    load: async (code) => currentRoom(await roomStore.load(code)),
+    list: async (limit) =>
+      (await roomStore.list(limit)).flatMap((saved) => currentRoom(saved) ?? []),
+  },
+  seats: {
+    get: (room) => room.coaches,
+    set: (room, coaches) => ({ ...room, coaches }),
+  },
+  maxSeats: MAX_COACHES,
+  tokenHeader: COACH_TOKEN_HEADER,
+  nowHeader: CAREER_MP_NOW_HEADER,
+  seatIdField: 'coachId',
+  createLimits: {
+    perWindow: ROOM_CREATE_PER_HOUR,
+    windowSeconds: ROOM_CREATE_WINDOW_SECONDS,
+    openRoomsCap: OPEN_ROOMS_CAP,
+    bypassEnv: 'CAREER_MP_UNLIMITED',
+  },
+  seatName: (body) => cleanSeatName((body as JoinRoomRequest).coachName),
+  buildRoom: ({ body, hostSeatId, now }) => ({
+    code: '',
+    version: 0,
+    phaseVersion: 0,
+    createdAt: now,
+    updatedAt: now,
+    hostCoachId: hostSeatId,
+    status: 'lobby',
+    settings: normalizeSettings({
+      ...DEFAULT_SETTINGS,
+      ...((body as CreateRoomRequest).settings ?? {}),
+    }),
+    roster: generateLeague(randomSeed()),
+    coaches: {},
+    league: null,
+    phase: { kind: 'window', deadline: null },
+    log: [],
+    report: null,
+  }),
+  buildSeat: ({ room, body, identity }) => ({
+    ...identity,
+    color: pickColor(room, (body as JoinRoomRequest).color),
+    slug: legacySlug(room, body),
+    ready: false,
+  }),
+  applyAction,
+  step,
+  phaseKey: (room) => phaseKey(room.phase),
+  viewFor,
+  summaryOf,
+});

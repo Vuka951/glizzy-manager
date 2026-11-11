@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RivalsPage() {
   const ui = await requestDictionary();
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col items-center gap-10 px-4 pb-16 pt-20 sm:px-6 sm:pt-24 lg:max-w-5xl">
+    <div className="mx-auto flex min-h-[calc(100vh/var(--game-zoom,1))] max-w-3xl flex-col items-center gap-10 px-4 pb-16 pt-20 sm:px-6 sm:pt-24 lg:max-w-5xl">
       <PageIntro
         eyebrow={ui.careerMp.page.eyebrow}
         title={ui.careerMp.catalog.title}

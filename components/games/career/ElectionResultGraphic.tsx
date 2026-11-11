@@ -53,7 +53,7 @@ export default function ElectionResultGraphic({
       />
       <div
         className={`flex justify-between gap-1 border-t border-slate-900/20 pt-1 ${
-          small ? 'text-[5.5px]' : 'text-[7px]'
+          small ? 'text-[9px]' : 'text-[10px]'
         }`}
       >
         {order.map((id) => (
@@ -62,12 +62,12 @@ export default function ElectionResultGraphic({
               <svg viewBox="0 0 6 6" className="h-1.5 w-1.5" aria-hidden="true">
                 <circle cx="3" cy="3" r="3" className={SPONSOR_THEMES[id].bar} />
               </svg>
-              <span className="font-mono font-bold text-slate-900">
+              <span className="font-sign font-bold tabular-nums text-slate-900">
                 {seats[id]}
               </span>
             </span>
             <span
-              className={`font-sans font-bold uppercase ${
+              className={`font-sign font-bold uppercase ${
                 government.includes(id) ? 'text-slate-900' : 'text-slate-500'
               }`}
             >
@@ -77,8 +77,8 @@ export default function ElectionResultGraphic({
         ))}
       </div>
       <p
-        className={`text-center font-mono font-bold uppercase tracking-widest text-slate-900 ${
-          small ? 'text-[5.5px]' : 'text-[7px]'
+        className={`text-center font-sign font-bold uppercase tracking-[0.06em] text-slate-900 ${
+          small ? 'text-[9px]' : 'text-[10px]'
         }`}
       >
         {fmt(NP.chartGovernment, { seats: held, total: PARLIAMENT_SEATS })}

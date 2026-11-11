@@ -68,7 +68,7 @@ function SceneGlyph({ scene }: { scene: string }) {
     return <ContractPaper />;
   }
   const signingMatch = scene.match(
-    /^signing-(zidari|ostrvo|korporacija|stranka)$/,
+    /^signing-(blue|green|yellow|red)$/,
   );
   if (signingMatch) {
     return (
@@ -494,7 +494,7 @@ function SceneGlyph({ scene }: { scene: string }) {
       </svg>
     );
   }
-  if (scene === 'zeka') {
+  if (scene === 'beast') {
     return (
       <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden="true">
         <ellipse cx="9" cy="5" rx="1.7" ry="4.4" className="fill-slate-300" transform="rotate(-10 9 5)" />
@@ -690,6 +690,20 @@ function SceneGlyph({ scene }: { scene: string }) {
       </svg>
     );
   }
+  if (scene === 'yellow-debt-warning') {
+    return <SponsorEmblem sponsorId="yellow" className="h-6 w-6" />;
+  }
+  if (scene === 'yellow-run-over') {
+    return (
+      <svg viewBox="0 0 28 18" className="h-6 w-9" aria-hidden="true">
+        <path d="M3 11l2.5-5.5h11L21 11h4v4H3z" className="fill-slate-100" />
+        <path d="M7 6.8h4.2v3.6H5.6zM12.6 6.8h3.4l2.6 3.6h-6z" className="fill-sky-300/70" />
+        <circle cx="8" cy="15" r="2.3" className="fill-slate-900 stroke-slate-500" strokeWidth="0.8" />
+        <circle cx="20" cy="15" r="2.3" className="fill-slate-900 stroke-slate-500" strokeWidth="0.8" />
+        <path d="M24.5 12.2h1.5" className="stroke-amber-300" strokeWidth="1.4" strokeLinecap="round" />
+      </svg>
+    );
+  }
   if (scene === 'invest-security') {
     return (
       <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden="true">
@@ -822,8 +836,8 @@ export default function FreezeframeGraphic({
         {scene === 'police' && <PoliceOfficer flip />}
       </div>
       <p
-        className={`truncate pt-0.5 text-center font-mono font-bold uppercase tracking-widest text-slate-400 ${
-          small ? 'max-w-20 text-[6px]' : 'max-w-24 text-[7px]'
+        className={`truncate pt-0.5 text-center font-sign font-bold uppercase tracking-[0.06em] text-slate-400 ${
+          small ? 'max-w-20 text-[9px]' : 'max-w-24 text-[10px]'
         }`}
       >
         {character.name}

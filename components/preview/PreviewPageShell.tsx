@@ -17,7 +17,7 @@ export default function PreviewPageShell({
   children,
 }: PreviewPageShellProps) {
   return (
-    <div className="min-h-screen bg-slate-950 px-4 py-6 text-slate-100 sm:px-6 lg:px-8">
+    <div className="min-h-screen overflow-x-clip bg-slate-950 px-4 py-6 text-slate-100 sm:px-6 lg:px-8">
       <div className={`mx-auto flex flex-col gap-5 ${widthClassName}`}>
         <div className="flex flex-col gap-1 text-center">
           <span className="text-[10px] font-bold uppercase tracking-[0.35em] text-sky-300">

@@ -1,3 +1,5 @@
+import CareerButton from '@/components/games/career/CareerButton';
+import TypedNotice from '@/components/games/career/TypedNotice';
 import GameModal from '@/components/games/GameModal';
 import { GAMES_UI } from '@/data/games/locale';
 import type { CareerSlot } from '@/lib/utils/careerSave';
@@ -17,22 +19,26 @@ export default function CareerSlotDeleteModal({
   return (
     <GameModal title={fmt(START.deleteTitle, { n: slot })} onClose={onClose}>
       <div className="flex flex-col items-center gap-3">
-        <p className="text-center text-sm font-semibold text-red-200">
-          {START.deleteConfirm}
-        </p>
+        <TypedNotice className="w-full">
+          <p className="text-center font-serif text-[14px] font-bold leading-snug text-red-300">
+            {START.deleteConfirm}
+          </p>
+        </TypedNotice>
         <div className="flex flex-wrap justify-center gap-2">
-          <button
+          <CareerButton
+            tone="danger"
+            className="min-h-11"
             onClick={onConfirm}
-            className="rounded-lg border border-red-500/40 bg-red-500/15 px-4 py-1.5 text-xs font-semibold text-red-200 transition hover:border-red-500/60 hover:text-white"
           >
             {START.deleteYes}
-          </button>
-          <button
+          </CareerButton>
+          <CareerButton
+            tone="quiet"
+            className="min-h-11"
             onClick={onClose}
-            className="rounded-lg border border-sky-200/20 bg-slate-800/60 px-4 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-200/40 hover:text-white"
           >
             {START.confirmNo}
-          </button>
+          </CareerButton>
         </div>
       </div>
     </GameModal>
