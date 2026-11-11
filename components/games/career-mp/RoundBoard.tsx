@@ -1,13 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { studioAccents } from '@/lib/constants/studioThemes';
+import CareerButton from '@/components/games/career/CareerButton';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
 import TournamentBracket from '@/components/games/tournament/TournamentBracket';
 import GameModal from '@/components/games/GameModal';
 import BroadcastOpenPanel from '@/components/games/career/BroadcastOpenPanel';
 import FavorPicker, {
   type FavorCandidate,
 } from '@/components/games/career/FavorPicker';
+import RoomPlank from '@/components/games/career-mp/RoomPlank';
+import RoomSign from '@/components/games/career-mp/RoomSign';
 import SkipVotes from '@/components/games/career-mp/SkipVotes';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
@@ -19,8 +22,7 @@ import {
   favorsLeft,
   roundParticipants,
 } from '@/lib/utils/careerElections';
-import { careerBettingUnlocked, matchOdds } from '@/lib/utils/careerOdds';
-import { buffedSlugsForSeason, seasonThemeIndex } from '@/lib/utils/cupSeason';
+import { buffedSlugsForSeason } from '@/lib/utils/cupSeason';
 import { fmt } from '@/lib/utils/format';
 import { cupRoundName } from '@/lib/utils/localeNames';
 import { cupMatchLoser } from '@/lib/utils/tournamentSim';
@@ -51,7 +53,6 @@ export default function RoundBoard({
   const cup = career.cup;
   const round = phase.round;
   const mySlug = career.playerSlug;
-  const accent = studioAccents(seasonThemeIndex(career.season));
   const matches = cup.rounds[round] ?? [];
   const isFinalRound = round === cup.rounds.length - 1;
   const myMatch = matches.find(
@@ -81,37 +82,34 @@ export default function RoundBoard({
           myMatch?.index === p.index && (myMatch.a === p.slug || myMatch.b === p.slug),
       };
     });
-  const bettingOpen = careerBettingUnlocked(career);
 
   return (
     <div className="flex w-full flex-col items-center gap-4">
-      <span
-        className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${accent.chip}`}
-      >
-        {cupRoundName(round)}
-      </span>
+      <RoomSign>{cupRoundName(round)}</RoomSign>
       {confirmWithdraw && (
         <GameModal title={RB.withdraw} onClose={() => setConfirmWithdraw(false)}>
           <div className="flex flex-col items-center gap-3">
-            <p className="text-center text-sm font-semibold text-red-200">
+            <PaperSheet className="w-full px-4 py-3 text-center font-serif text-[15px] font-semibold text-slate-200">
               {RB.withdrawConfirm}
-            </p>
+            </PaperSheet>
             <div className="flex flex-wrap justify-center gap-2">
-              <button
+              <CareerButton
+                tone="danger"
+                className="min-h-11"
                 onClick={() => {
                   setConfirmWithdraw(false);
                   send({ type: 'withdraw' });
                 }}
-                className="rounded-lg border border-red-500/40 bg-red-500/15 px-4 py-1.5 text-xs font-semibold text-red-200 transition hover:border-red-500/60 hover:text-white"
               >
                 {RB.withdrawYes}
-              </button>
-              <button
+              </CareerButton>
+              <CareerButton
+                tone="quiet"
+                className="min-h-11"
                 onClick={() => setConfirmWithdraw(false)}
-                className="rounded-lg border border-sky-200/20 bg-slate-800/60 px-4 py-1.5 text-xs font-semibold text-slate-200 transition hover:border-sky-200/40 hover:text-white"
               >
                 {RB.withdrawNo}
-              </button>
+              </CareerButton>
             </div>
           </div>
         </GameModal>
@@ -129,26 +127,28 @@ export default function RoundBoard({
         />
       )}
       {(favorReady || (!eliminated && myMatch)) && (
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <RoomPlank className="flex flex-wrap items-center justify-center gap-2">
           {favorReady && (
-            <button
+            <CareerButton
+              tone="buy"
+              className="min-h-11"
               onClick={() => setFavorOpen(true)}
               disabled={busy}
-              className="rounded-lg border border-amber-400/40 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-200 transition hover:border-amber-300 hover:text-white disabled:opacity-60"
             >
               {fmt(FAVOR.button, { left: favorsRemaining })}
-            </button>
+            </CareerButton>
           )}
           {!eliminated && myMatch && (
-            <button
+            <CareerButton
+              tone="danger"
+              className="min-h-11"
               onClick={() => setConfirmWithdraw(true)}
               disabled={busy}
-              className="rounded-lg border border-red-500/30 bg-red-500/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-red-300/80 transition hover:border-red-500/60 hover:text-red-200 disabled:opacity-60"
             >
               {RB.withdraw}
-            </button>
+            </CareerButton>
           )}
-        </div>
+        </RoomPlank>
       )}
       {broadcastUnlocks(career).open &&
         round === 0 &&
@@ -162,15 +162,7 @@ export default function RoundBoard({
           betSlug={mySlug}
           currentRound={round}
           matchBets={cup.matchBets}
-          buffedSlugs={buffedSlugsForSeason(career.season)}
-          oddsFor={
-            bettingOpen
-              ? (match) =>
-                  match.a && match.b
-                    ? matchOdds(career.characters, match.a, match.b)
-                    : null
-              : undefined
-          }
+          buffedSlugs={buffedSlugsForSeason(career.season, Object.keys(career.characters))}
           coaches={coaches}
         />
       </div>

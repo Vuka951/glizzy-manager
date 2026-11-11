@@ -29,7 +29,7 @@ export const TRAINING_DEFS: Record<TrainingId, TrainingDef> = {
     cost: 55,
     stressGain: 10,
     leveled: true,
-    maxLevel: 3,
+    maxLevel: 4,
   },
   nutrition: {
     id: 'nutrition',
@@ -76,9 +76,6 @@ export const TRAINING_ORDER: TrainingId[] = [
 export const OVERTRAIN_CHANCES = [0, 0.25, 0.5, 0.75];
 
 export const TRAININGS_PER_LEVEL = 3;
-
-// Levels handed to each AI character at career start, spread randomly
-export const AI_START_SKILL_LEVELS = 1;
 
 export function overtrainChance(sameTrainingStreak: number): number {
   return OVERTRAIN_CHANCES[

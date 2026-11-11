@@ -6,18 +6,16 @@ export default function SceneFrame({
   season,
   indoor,
   floor = 'bg-slate-800',
-  className = '',
   children,
 }: {
   season?: number;
   indoor?: string;
   floor?: string | null;
-  className?: string;
   children: React.ReactNode;
 }) {
   return (
     <div
-      className={`relative h-56 w-full overflow-hidden bg-slate-900 sm:h-64 ${className}`}
+      className="relative h-56 w-full overflow-hidden bg-slate-900 sm:h-64"
     >
       {season !== undefined && <SeasonBackdrop season={season} />}
       {indoor && <div className={`absolute inset-0 ${indoor}`} />}

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import CareerButton from '@/components/games/career/CareerButton';
+import CareerToggle from '@/components/games/career/CareerToggle';
 import { GAMES_UI } from '@/data/games/locale';
 import { fmt } from '@/lib/utils/format';
 
@@ -42,28 +44,24 @@ export default function IntroHoldControls({
 
   return (
     <div className="flex items-center justify-center gap-2">
-      <button
-        type="button"
+      <CareerToggle
+        selected={stayed}
+        tone="amber"
         onClick={() => {
           setStayed(true);
           onStay?.();
         }}
         disabled={stayed}
-        className={`rounded-xl border px-4 py-1.5 text-xs font-semibold transition ${
-          stayed
-            ? 'border-amber-400/60 bg-amber-500/20 text-amber-200'
-            : 'border-sky-200/20 bg-slate-800/60 text-slate-300 hover:border-sky-200/45 hover:bg-slate-800 hover:text-white'
-        }`}
       >
         {H.stay}
-      </button>
-      <button
-        type="button"
+      </CareerToggle>
+      <CareerButton
+        tone="danger"
         onClick={() => onContinue(false)}
-        className="min-w-28 rounded-xl border border-red-500/40 bg-red-500/15 px-4 py-1.5 text-xs font-semibold text-red-200 transition [font-variant-numeric:tabular-nums] hover:border-red-500/60 hover:bg-red-500/25 hover:text-white"
+        className="min-w-28 [font-variant-numeric:tabular-nums]"
       >
         {counting ? fmt(H.continueIn, { seconds: remaining }) : H.continue}
-      </button>
+      </CareerButton>
     </div>
   );
 }

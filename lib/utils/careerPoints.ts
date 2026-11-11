@@ -1,9 +1,11 @@
 import {
+  OVERLORD_POINT_OPTIONS,
   OVERLORD_POINTS,
   POINTS_FAME_DIVISOR,
   POINTS_PER_LOSS,
   POINTS_PER_TITLE,
   POINTS_PER_WIN,
+  type OverlordPoints,
 } from '@/data/games/careerEconomy';
 import { tableBonusFor } from '@/data/games/careerElections';
 import type { CharacterCareerState, SavedCareer } from '@/lib/utils/careerSave';
@@ -67,15 +69,34 @@ export function campaignOverlord(state: SavedCareer): string | null {
   return state.overlordSlug ?? (state.overlordWon ? state.playerSlug : null);
 }
 
+// The campaign is over: somebody took the crown, or a party voted itself
+// one-party rule
+export function campaignFinished(state: SavedCareer): boolean {
+  return campaignOverlord(state) !== null || Boolean(state.parliament?.constitution);
+}
+
+export function isOverlordPoints(value: unknown): value is OverlordPoints {
+  return OVERLORD_POINT_OPTIONS.some((points) => points === value);
+}
+
+// What the crown costs in this campaign; saves without the pick play the
+// short one
+export function overlordGoal(state: {
+  overlordPoints?: OverlordPoints;
+}): OverlordPoints {
+  return state.overlordPoints ?? OVERLORD_POINTS;
+}
+
 // Whoever has the crown's points, whoever they are; when several cross the
 // line in the same window the table order settles it, highest first
 export function crownedLeader(
   characters: Record<string, CharacterCareerState>,
   playerSlug?: string | ReadonlySet<string>,
+  goal: OverlordPoints = OVERLORD_POINTS,
 ): string | null {
   return (
     rankBySeeding(characters, playerSlug).find(
-      (slug) => careerPoints(characters[slug]) >= OVERLORD_POINTS,
+      (slug) => careerPoints(characters[slug]) >= goal,
     ) ?? null
   );
 }

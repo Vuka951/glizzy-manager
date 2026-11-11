@@ -3,20 +3,28 @@ import {
   closeMatchBets,
   closePaper,
   closeSeasonEnd,
+  wrapYear,
   endClip,
   everyonePassed,
   phaseExpired,
 } from '@/lib/server/career-mp/cup';
 import { BETS_CLOSING_MS } from '@/lib/constants/careerMp';
+import {
+  closeCoalition,
+  coalitionVotesIn,
+} from '@/lib/server/career-mp/coalition';
+import {
+  autoPickLaw,
+  lawVotesIn,
+  settleLaws,
+} from '@/lib/server/career-mp/laws';
 import { everyoneDone } from '@/lib/server/career-mp/reducer';
 import { closeWindow } from '@/lib/server/career-mp/resolve';
 import type { Room } from '@/lib/server/career-mp/room';
 
-const MAX_STEPS = 64;
-
 // One phase transition when its gate is open: the countdown ran out, the
 // clip and its linger played out, or every coach is done
-function step(room: Room, now: number): Room | null {
+export function step(room: Room, now: number): Room | null {
   if (room.status !== 'playing') return null;
   const expired = phaseExpired(room, now);
   switch (room.phase.kind) {
@@ -42,19 +50,20 @@ function step(room: Room, now: number): Room | null {
       return expired ? endClip(room, now) : null;
     case 'season-end':
       return expired || everyoneDone(room) ? closeSeasonEnd(room, now) : null;
+    case 'coalition':
+      return expired || coalitionVotesIn(room)
+        ? closeCoalition(room, now)
+        : null;
+    case 'laws':
+      // A picker who let the clock run out gets the AI's card and the roll
+      // call opens; the vote closes once every human is in or on the clock
+      if (room.phase.stage === 'pick') {
+        return expired ? autoPickLaw(room, now) : null;
+      }
+      return expired || lawVotesIn(room)
+        ? wrapYear(settleLaws(room, now), null, null, now)
+        : null;
     default:
       return null;
   }
-}
-
-// Nothing fires a deadline on its own: every request first applies whatever
-// has passed. A room nobody polls simply waits
-export function advanceExpired(room: Room, now: number): Room {
-  let current = room;
-  for (let i = 0; i < MAX_STEPS; i++) {
-    const next = step(current, now);
-    if (!next) return current;
-    current = next;
-  }
-  return current;
 }

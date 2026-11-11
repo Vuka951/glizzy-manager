@@ -1,4 +1,4 @@
-import BuyButton from '@/components/games/career/BuyButton';
+import CareerButton from '@/components/games/career/CareerButton';
 import { GAMES_UI } from '@/data/games/locale';
 
 const A = GAMES_UI.career.actions;
@@ -20,20 +20,18 @@ export default function DialogActions({
   onCancel: () => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-end gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
       {left && <span className="mr-auto min-w-0">{left}</span>}
-      <button
-        onClick={onCancel}
-        className="rounded-lg border border-sky-200/20 bg-slate-800/60 px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-slate-300 transition hover:border-sky-200/40 hover:text-white"
-      >
+      <CareerButton tone="quiet" onClick={onCancel}>
         {A.cancel}
-      </button>
-      <BuyButton
-        label={confirmLabel}
+      </CareerButton>
+      <CareerButton
         tone={confirmTone}
         disabled={confirmDisabled}
         onClick={onConfirm}
-      />
+      >
+        {confirmLabel}
+      </CareerButton>
     </div>
   );
 }

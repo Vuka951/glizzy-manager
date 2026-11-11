@@ -72,7 +72,7 @@ export default function RestScene({ character }: ActionSceneProps) {
           <span className="absolute inset-x-0 top-1/2 h-0.5 bg-slate-700" />
         </div>
 
-        {/* holesterol gauge on the wall, draining */}
+        {/* cholesterol gauge on the wall, draining */}
         <div className="absolute right-3 top-3 flex flex-col items-end gap-1">
           <div className="h-2 w-24 overflow-hidden rounded-full border border-slate-600/60 bg-slate-950/70">
             <div

@@ -1,12 +1,17 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import GlizzyIcon from '@/components/icons/GlizzyIcon';
+import CareerButton from '@/components/games/career/CareerButton';
+import BrassPlate from '@/components/games/career/street/BrassPlate';
 import CommentaryCaption from '@/components/games/CommentaryCaption';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
+import GlizzyIcon from '@/components/icons/GlizzyIcon';
 import StakePicker from '@/components/games/StakePicker';
 import MatchIntroOverlay from '@/components/games/match/MatchIntroOverlay';
 import CareerToast from '@/components/games/career/CareerToast';
 import CrowdToken from '@/components/games/career-mp/CrowdToken';
+import RoomPlank from '@/components/games/career-mp/RoomPlank';
+import RoomSign from '@/components/games/career-mp/RoomSign';
 import SkipVotes from '@/components/games/career-mp/SkipVotes';
 import {
   CAREER_BET_STAKE,
@@ -152,7 +157,8 @@ export default function PreMatchBets({
   const mySlug = career.playerSlug;
   const bettingOpen = careerBettingUnlocked(career);
   const odds = matchOdds(career.characters, match.a, match.b);
-  const myBet = career.cup?.matchBets[cupBetKey(phase.stage.round, phase.index)];
+  const myBet =
+    career.cup?.matchBets[cupBetKey(phase.stage.round, phase.index)];
   const stake = career.betStake ?? CAREER_BET_STAKE;
   const tokens = tokensFor(view, characterBySlug);
   // The tape is the pre-match screen itself, open from the first match
@@ -167,42 +173,51 @@ export default function PreMatchBets({
     send({ type: 'bet', side });
   };
 
-  // Under each side of the tape: the odds button (or the coach's own stake)
-  // and the stand filling up with everyone who backed that side
+  // Under each side of the tape: the bookmaker's slip with the odds to tear
+  // off (or the coach's own stake stamped on it) and everyone who backed that
+  // side
   const sideBets = (side: 'a' | 'b') => {
     const slug = side === 'a' ? match.a : match.b;
+    const fighter = side === 'a' ? a : b;
     const sideOdds = side === 'a' ? odds.a : odds.b;
     const mine = myBet?.side === side;
     const list = side === 'a' ? tokens.top : tokens.bottom;
     return (
-      <div
-        className={`flex min-w-0 flex-1 flex-col items-center gap-2 rounded-xl border p-2 ${
-          mine
-            ? 'border-amber-400/60 bg-amber-500/10'
-            : slug === mySlug
-              ? 'border-emerald-400/30 bg-emerald-950/40'
-              : 'border-sky-200/10 bg-slate-900/40'
+      <PaperSheet
+        className={`flex min-w-0 flex-1 flex-col items-center gap-1.5 bg-[#f9edb8]! px-2 pb-2.5 pt-3 ${
+          side === 'a' ? 'rotate-[-0.6deg]' : 'rotate-[0.6deg]'
         }`}
       >
-        {bettingOpen && (
-          <button
-            onClick={() => (mine ? send({ type: 'removeBet' }) : bet(side))}
-            disabled={busy}
-            className={`flex items-center gap-1.5 rounded-lg border px-3 py-1 text-xs font-bold transition disabled:opacity-60 ${
-              mine
-                ? 'border-amber-400/60 bg-amber-500/20 text-amber-200'
-                : 'border-sky-200/20 bg-slate-800/60 text-slate-200 hover:border-amber-300/60 hover:text-white'
-            }`}
-          >
-            <GlizzyIcon variant={0} className="h-3 w-5" />
-            {mine
-              ? `x${formatOdds(myBet?.odds ?? sideOdds)} (+${Math.round((myBet?.stake ?? stake) * (myBet?.odds ?? sideOdds))})`
-              : `x${formatOdds(sideOdds)}`}
-          </button>
-        )}
+        <span
+          aria-hidden="true"
+          className="absolute inset-x-1 top-1 h-1 bg-[radial-gradient(circle,rgb(28_20_8/0.55)_1.5px,transparent_2px)] bg-[length:9px_4px]"
+        />
+        <span
+          className={`max-w-full truncate px-1 font-serif text-[13px] font-semibold text-slate-100 ${
+            slug === mySlug ? 'bg-[#fde047]/55' : ''
+          }`}
+        >
+          {fighter.name}
+        </span>
+        <button
+          type="button"
+          aria-pressed={mine}
+          onClick={() => (mine ? send({ type: 'removeBet' }) : bet(side))}
+          disabled={busy}
+          className={`flex min-h-11 w-full items-center justify-center gap-1.5 rounded-[3px] border-2 px-1 font-sign text-xl font-bold leading-none tabular-nums transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1e3a8a] disabled:cursor-not-allowed motion-reduce:transition-none ${
+            mine
+              ? 'rotate-[-1.5deg] border-[#b91c1c] text-[#b91c1c]'
+              : 'border-dashed border-[#1c1408]/45 text-slate-100 enabled:hover:border-solid enabled:hover:border-[#1c1408]'
+          }`}
+        >
+          <GlizzyIcon variant={0} className="h-3 w-5 shrink-0" />
+          {mine
+            ? `x${formatOdds(myBet?.odds ?? sideOdds)} (+${Math.round((myBet?.stake ?? stake) * (myBet?.odds ?? sideOdds))})`
+            : `x${formatOdds(sideOdds)}`}
+        </button>
         <div className="flex min-h-11 w-full flex-wrap items-end justify-center gap-1">
           {list.length === 0 ? (
-            <span className="text-[9px] uppercase tracking-widest text-slate-600">
+            <span className="font-sign text-[12px] font-semibold uppercase tracking-[0.06em] text-slate-500">
               {PM.nobody}
             </span>
           ) : (
@@ -211,77 +226,87 @@ export default function PreMatchBets({
             ))
           )}
         </div>
-      </div>
+      </PaperSheet>
     );
   };
 
-  // Before the bookie opens there is nothing to bet on: the card is only the
-  // tape and a ready button
-  const footer = (
-    <div className="flex flex-col items-center gap-3 border-t border-frost-border/20 pt-3">
-      {bettingOpen && (
-        <>
-          <div className="flex w-full items-stretch gap-3">
-            {sideBets('a')}
-            {sideBets('b')}
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-              {CC.stake}
-            </span>
-            <StakePicker
-              options={CAREER_BET_STAKES}
-              value={stake}
-              balance={career.balance}
-              onPick={(next) => send({ type: 'setBetStake', stake: next })}
-            />
-          </div>
-        </>
-      )}
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        {me?.passed ? (
-          <span className="rounded-xl border border-emerald-400/50 bg-emerald-500/15 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-200">
+  const decide = (
+    <>
+      {me?.passed ? (
+        <span className="inline-flex min-h-11 items-center">
+          <span className="rotate-[-2deg] rounded-[3px] border-2 border-emerald-300 px-3 py-1 font-sign text-[15px] font-bold uppercase tracking-[0.1em] text-emerald-300">
             {myBet ? CB.passed : bettingOpen ? PM.passed : CB.ready}
           </span>
-        ) : (
-          <button
-            onClick={() => send({ type: 'pass' })}
-            disabled={busy}
-            className="rounded-xl border border-sky-200/20 bg-slate-800/60 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-200 transition hover:border-sky-200/45 hover:text-white disabled:opacity-60"
-          >
-            {bettingOpen ? PM.pass : CB.ready}
-          </button>
-        )}
-      </div>
-      <p className="text-[10px] text-slate-500">
-        {everyoneDecided && phase.deadline !== null
-          ? fmt(PM.startingIn, {
-              seconds: Math.max(
-                0,
-                Math.ceil((phase.deadline - (tick + serverOffset)) / 1000),
-              ),
-            })
-          : PM.waiting}
-      </p>
-    </div>
+        </span>
+      ) : (
+        <CareerButton
+          tone="quiet"
+          onClick={() => send({ type: 'pass' })}
+          disabled={busy}
+          className="min-h-11"
+        >
+          {bettingOpen ? PM.pass : CB.ready}
+        </CareerButton>
+      )}
+      {everyoneDecided && phase.deadline !== null && (
+        <p className="font-sign text-[14px] font-semibold tabular-nums tracking-[0.04em] text-slate-200">
+          {fmt(PM.startingIn, {
+            seconds: Math.max(
+              0,
+              Math.ceil((phase.deadline - (tick + serverOffset)) / 1000),
+            ),
+          })}
+        </p>
+      )}
+    </>
   );
 
   return (
-    <div className="flex w-full max-w-3xl flex-col items-center gap-4">
-      <span className="rounded-full border border-sky-200/20 bg-slate-950/70 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-sky-200 backdrop-blur-sm">
+    <div className="flex w-full max-w-5xl flex-col items-center gap-4">
+      <RoomSign>
         {PM.title} · {stageLabel(view)}
-      </span>
-      <MatchIntroOverlay
-        a={a}
-        b={b}
-        moodA={career.characters[match.a] ?? null}
-        moodB={career.characters[match.b] ?? null}
-        tape={tape}
-        inline
-        coachA={coaches[match.a] ?? null}
-        coachB={coaches[match.b] ?? null}
-        footer={footer}
-      />
+      </RoomSign>
+      <div className="flex w-full flex-col items-center gap-3 lg:flex-row lg:items-start lg:justify-center">
+        <MatchIntroOverlay
+          a={a}
+          b={b}
+          moodA={career.characters[match.a] ?? null}
+          moodB={career.characters[match.b] ?? null}
+          tape={tape}
+          inline
+          coachA={coaches[match.a] ?? null}
+          coachB={coaches[match.b] ?? null}
+          footer={
+            bettingOpen ? undefined : (
+              <div className="flex flex-col items-center gap-3 border-t-[3px] border-[#b8862f] pt-3">
+                {decide}
+              </div>
+            )
+          }
+        />
+        {/* The window to bet is short, so the slips sit beside the tape, and
+            above it on a phone, rather than under a tall sheet */}
+        {bettingOpen && (
+          <div className="flex w-full max-w-md shrink-0 flex-col items-center gap-3 max-lg:order-first sm:max-w-lg lg:w-96">
+            <div className="flex w-full items-stretch gap-3">
+              {sideBets('a')}
+              {sideBets('b')}
+            </div>
+            <RoomPlank className="flex w-full flex-col items-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <BrassPlate>{CC.stake}</BrassPlate>
+                <StakePicker
+                  options={CAREER_BET_STAKES}
+                  value={stake}
+                  balance={career.balance}
+                  onPick={(next) => send({ type: 'setBetStake', stake: next })}
+                />
+              </div>
+              {decide}
+            </RoomPlank>
+          </div>
+        )}
+      </div>
       <SkipVotes
         view={view}
         showClip={false}
@@ -291,7 +316,7 @@ export default function PreMatchBets({
       />
       <CommentaryCaption line={caption} viewport />
       {warning && (
-        <div className="fixed bottom-4 right-4 z-50">
+        <div className="fixed bottom-20 right-4 z-50">
           <CareerToast tone="danger">{PM.ownWarning}</CareerToast>
         </div>
       )}

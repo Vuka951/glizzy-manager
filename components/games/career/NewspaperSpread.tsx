@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
+import ConstitutionPaperGraphic from '@/components/games/career/ConstitutionPaperGraphic';
 import ElectionBallotGraphic from '@/components/games/career/ElectionBallotGraphic';
 import ElectionPollGraphic, {
   seatsFromParams,
@@ -8,49 +9,118 @@ import ElectionResultGraphic, {
 } from '@/components/games/career/ElectionResultGraphic';
 import FreezeframeGraphic from '@/components/games/career/FreezeframeGraphic';
 import GliziPriceGraphic from '@/components/games/career/GliziPriceGraphic';
+import LawPaperGraphic from '@/components/games/career/LawPaperGraphic';
 import PartyRemovalGraphic from '@/components/games/career/PartyRemovalGraphic';
+import PremierPaperGraphic from '@/components/games/career/PremierPaperGraphic';
 import SeasonGlyph from '@/components/games/career/SeasonGlyph';
-import CoachTag from '@/components/games/career-mp/CoachTag';
+import SeatTag from '@/components/games/rooms/SeatTag';
 import type { CoachTagMap } from '@/lib/types/careerMp';
 import { PARTY_SEAT_ORDER } from '@/data/games/careerElections';
 import type { SponsorId } from '@/lib/utils/careerSave';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
 import type { NewsItem } from '@/lib/utils/careerSave';
-import { seasonName } from '@/lib/utils/localeNames';
+import { isLawId, lawNewsVerdict } from '@/lib/utils/careerLaws';
+import {
+  premierArticleTail,
+  premierFromParams,
+} from '@/lib/utils/careerPremier';
+import { isSponsorId } from '@/lib/utils/careerSponsors';
+import { characterName, seasonName } from '@/lib/utils/localeNames';
 import { playPaperSound } from '@/lib/utils/gameSounds';
 import { localeTemplate, renderMessage } from '@/lib/utils/messageText';
+import { NEWSPRINT_PAINT } from '@/lib/utils/careerNewsprint';
 import { fmt } from '@/lib/utils/format';
 
 const NP = GAMES_UI.career.newspaper;
 const SELECT = GAMES_UI.career.select;
+const HEADLINES = NP.headlines as Record<string, string>;
+
+// The count's story names the premier once the office exists; older
+// stories carry none
+function itemPremier(item: NewsItem) {
+  return premierFromParams(item.params, governmentFromParams(item.params)[0]);
+}
+
+// Also what the kiosk prints on the cover, so the two never disagree
+export function headlineText(
+  item: NewsItem,
+  characterBySlug: Map<string, DuelCharacter>,
+): string {
+  const premier = itemPremier(item);
+  if (premier && premier.slug === item.slugs[0]) {
+    return fmt(HEADLINES['election-premier'], {
+      name: characterBySlug.get(premier.slug)?.name ?? premier.slug,
+    });
+  }
+  return HEADLINES[item.templateKey] ?? '';
+}
 
 // A story's hero is its first slug; every other name in it is a ref
 function articleText(item: NewsItem): string {
-  return renderMessage({
+  const text = renderMessage({
     key: `career.news.${item.templateKey}`,
     params: { ...item.params, name: item.slugs[0] ?? '' },
     refs: { ...item.refs, name: 'character' },
   });
+  const premier = itemPremier(item);
+  if (!premier) return text;
+  return `${text} ${premierArticleTail(premier, characterName(premier.slug))}`;
 }
 
 // The city desk has its own art: the chamber for a poll or a count, the
-// ballot box for an election year, the price tag for the glizi market and
-// the party's mark on a player it removed. Every other story prints a
-// picture of somebody
+// stamped bill for a law vote, the ballot box for an election year,
+// the price tag for the glizi market and the party's mark on a player it
+// removed. Every other story prints a picture of somebody
 function ArticleGraphic({
   item,
   character,
+  characterBySlug,
   small,
 }: {
   item: NewsItem;
   character: DuelCharacter;
+  characterBySlug: Map<string, DuelCharacter>;
   small?: boolean;
 }) {
   const scene = item.freezeframe ?? '';
+  const verdict = lawNewsVerdict(item.templateKey);
+  if (verdict && isLawId(item.params.lawId)) {
+    const leader = String(item.params.leader ?? '');
+    return (
+      <LawPaperGraphic
+        law={item.params.lawId}
+        party={isSponsorId(leader) ? leader : null}
+        verdict={verdict}
+        small={small}
+      />
+    );
+  }
+  const constitution = String(item.params.constitution ?? '');
+  if (verdict && isSponsorId(constitution)) {
+    return (
+      <ConstitutionPaperGraphic
+        party={constitution}
+        verdict={verdict}
+        small={small}
+      />
+    );
+  }
   if (scene === 'poll' || scene === 'election-result') {
     const seats = seatsFromParams(item.params);
     if (!seats) return null;
+    const premierSlug = itemPremier(item)?.slug;
+    const premier = premierSlug ? characterBySlug.get(premierSlug) : undefined;
+    if (scene === 'election-result' && premier) {
+      return (
+        <PremierPaperGraphic
+          seats={seats}
+          government={governmentFromParams(item.params)}
+          premier={premier}
+          small={small}
+        />
+      );
+    }
     return scene === 'poll' ? (
       <ElectionPollGraphic seats={seats} small={small} />
     ) : (
@@ -129,7 +199,6 @@ export default function NewspaperSpread({
     return () => animation.cancel();
   }, []);
 
-  const headlines = NP.headlines as Record<string, string>;
   const { valid, lead, rest, hiddenImages, leftImages } = useMemo(() => {
     // League news (the bookie, the commentator, prices, elections, the
     // parties' removals) outranks every interview and podium story
@@ -140,7 +209,10 @@ export default function NewspaperSpread({
           characterBySlug.has(item.slugs[0]),
       )
       .sort((x, y) => Number(y.kind === 'league') - Number(x.kind === 'league'));
+    // The coalition vote is the longest story an issue prints, so it always
+    // gets the lead's full width
     const leadItem =
+      validItems.find((item) => item.templateKey === 'election-coalition') ??
       validItems.find((item) => item.kind === 'league') ??
       validItems.find((item) => item.freezeframe) ??
       validItems.find(
@@ -192,13 +264,13 @@ export default function NewspaperSpread({
   return (
     <div
       ref={paperRef}
-      className="relative max-h-[75vh] w-full max-w-2xl overflow-y-auto rounded-sm bg-amber-50 p-5 text-left text-slate-900 shadow-2xl lg:max-w-4xl"
+      className={`relative max-h-[calc(75vh/var(--game-zoom,1))] w-full max-w-2xl overflow-y-auto rounded-[2px] bg-[#f1e8d3] p-5 text-left text-slate-900 shadow-[0_6px_0_rgb(0_0_0/0.45)] lg:max-w-4xl ${NEWSPRINT_PAINT}`}
     >
       <div className="border-y-4 border-double border-slate-900 py-2 text-center">
-        <p className="text-2xl font-black uppercase tracking-[0.15em] sm:text-3xl">
+        <p className="font-serif text-3xl font-black uppercase tracking-[0.08em] sm:text-4xl">
           {SELECT.masthead}
         </p>
-        <p className="mt-1 flex items-center justify-center gap-2 text-[9px] font-semibold uppercase tracking-[0.25em] text-slate-500">
+        <p className="mt-1 flex items-center justify-center gap-2 font-sign text-[12px] font-semibold uppercase tracking-[0.18em] text-slate-600">
           <SeasonGlyph season={season} className="h-4 w-4" />
           {fmt(NP.issue, { theme: seasonName(season), year })}
           <SeasonGlyph season={season} className="h-4 w-4" />
@@ -213,16 +285,16 @@ export default function NewspaperSpread({
 
       {lead && (
         <div className="mt-3 border-b-2 border-slate-900 pb-3">
-          <p className="text-[9px] font-black uppercase tracking-[0.25em] text-red-800">
+          <p className="font-sign text-[12px] font-bold uppercase tracking-[0.16em] text-[#a11919]">
             {NP.lead}
           </p>
-          <div className="mt-1 flex items-start gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="text-lg font-black uppercase leading-tight">
-                {headlines[lead.templateKey] ?? ''}
+          <div className="mt-1 flex flex-wrap items-start gap-3">
+            <div className="min-w-28 flex-1">
+              <p className="break-words font-serif text-2xl font-black leading-tight">
+                {headlineText(lead, characterBySlug)}
                 {!lead.tagless && coaches?.[lead.slugs[0]] && (
                   <span className="ml-2 inline-flex align-middle">
-                    <CoachTag
+                    <SeatTag
                       name={coaches[lead.slugs[0]].name}
                       color={coaches[lead.slugs[0]].color}
                       onPaper
@@ -230,13 +302,17 @@ export default function NewspaperSpread({
                   </span>
                 )}
               </p>
-              <p className="mt-1.5 text-xs leading-relaxed text-slate-700">
+              <p className="mt-1.5 text-[13px] leading-relaxed text-slate-700">
                 {articleText(lead)}
               </p>
             </div>
             {lead.freezeframe && leadCharacter && (
               <div className="shrink-0">
-                <ArticleGraphic item={lead} character={leadCharacter} />
+                <ArticleGraphic
+                  item={lead}
+                  character={leadCharacter}
+                  characterBySlug={characterBySlug}
+                />
               </div>
             )}
           </div>
@@ -251,7 +327,12 @@ export default function NewspaperSpread({
               !hiddenImages.has(i) &&
               character && (
                 <span className="shrink-0">
-                  <ArticleGraphic item={item} character={character} small />
+                  <ArticleGraphic
+                    item={item}
+                    character={character}
+                    characterBySlug={characterBySlug}
+                    small
+                  />
                 </span>
               );
             return (
@@ -260,14 +341,14 @@ export default function NewspaperSpread({
                 className="border-b border-slate-900/15 pb-2 sm:odd:border-r sm:odd:border-r-slate-900/15 sm:odd:pr-4 lg:mb-3 lg:break-inside-avoid lg:odd:border-r-0 lg:odd:pr-0"
               >
                 <p
-                  className={`text-xs font-black uppercase leading-tight ${
+                  className={`font-serif text-[15px] font-black leading-tight ${
                     graphic && leftImages.has(i) ? 'text-right' : ''
                   }`}
                 >
-                  {headlines[item.templateKey] ?? ''}
+                  {headlineText(item, characterBySlug)}
                   {!item.tagless && coaches?.[item.slugs[0]] && (
                     <span className="ml-1.5 inline-flex align-middle">
-                      <CoachTag
+                      <SeatTag
                         name={coaches[item.slugs[0]].name}
                         color={coaches[item.slugs[0]].color}
                         dense
@@ -278,7 +359,7 @@ export default function NewspaperSpread({
                 </p>
                 <div className="mt-1 flex items-start gap-2">
                   {leftImages.has(i) && graphic}
-                  <p className="min-w-0 flex-1 text-[11px] leading-relaxed text-slate-600">
+                  <p className="min-w-0 flex-1 text-[12px] leading-relaxed text-slate-700">
                     {articleText(item)}
                   </p>
                   {!leftImages.has(i) && graphic}
@@ -292,7 +373,7 @@ export default function NewspaperSpread({
       <div className="mt-4 flex justify-center">
         <button
           onClick={onDone}
-          className="rounded-sm bg-slate-900 px-7 py-2.5 text-xs font-black uppercase tracking-widest text-amber-50 transition hover:bg-slate-700"
+          className="min-h-11 rounded-[4px] bg-[#1c1408] px-7 font-sign text-[15px] font-bold uppercase tracking-[0.08em] text-[#f1e8d3] shadow-[0_3px_0_#000000] transition hover:bg-[#44403c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a11919] active:translate-y-px"
         >
           {cta ?? NP.cta}
         </button>

@@ -5,10 +5,8 @@ import {
 } from '@/data/games/careerTraining';
 import type { CharacterCareerState, SavedCareer } from '@/lib/utils/careerSave';
 import { applyMatchOutcome } from '@/lib/utils/careerMeters';
-import {
-  IN_FORM_GAIN_SCALE,
-  buffedSlugsForSeason,
-} from '@/lib/utils/cupSeason';
+import { inFormSeason } from '@/lib/utils/characterTraits';
+import { IN_FORM_GAIN_SCALE } from '@/lib/utils/cupSeason';
 import {
   FORFEIT_EVENT_KINDS,
   profileFor,
@@ -32,7 +30,7 @@ export function participantFor(
   },
 ): MatchParticipant {
   const ch = career.characters[slug];
-  const buffed = buffedSlugsForSeason(career.season).has(slug);
+  const buffed = inFormSeason(slug) === career.season;
   const lowMorale =
     (ch?.ego ?? 50) < LOW_MORALE_THRESHOLD ||
     (ch?.ambition ?? 50) < LOW_MORALE_THRESHOLD;

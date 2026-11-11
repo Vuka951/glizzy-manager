@@ -6,9 +6,10 @@ CODE=$(echo "$C" | jq -r .code); TA=$(echo "$C" | jq -r .token)
 J=$(curl -s -X POST $B/rooms/$CODE/join -H 'content-type: application/json' -d '{"coachName":"Guest"}')
 TB=$(echo "$J" | jq -r .token)
 V=$(curl -s $B/rooms/$CODE -H "x-coach-token: $TB" | jq -r .version)
+S0=$(echo "$J" | jq -r '.view.roster[0].slug')
 echo "room $CODE v$V"
-P=$(curl -s -w '\n%{http_code}' -X POST $B/rooms/$CODE/actions -H "x-coach-token: $TB" -H 'content-type: application/json' -d "{\"action\":{\"type\":\"pickCharacter\",\"slug\":\"vuka\"},\"expectVersion\":$V}")
-echo "guest picks in the lobby (expect 200 vuka): $(echo "$P" | tail -1) $(echo "$P" | sed '$d' | jq -r '.view.coaches[] | select(.name=="Guest") | .slug')"
+P=$(curl -s -w '\n%{http_code}' -X POST $B/rooms/$CODE/actions -H "x-coach-token: $TB" -H 'content-type: application/json' -d "{\"action\":{\"type\":\"pickCharacter\",\"slug\":\"$S0\"},\"expectVersion\":$V}")
+echo "guest picks in the lobby (expect 200 $S0): $(echo "$P" | tail -1) $(echo "$P" | sed '$d' | jq -r '.view.coaches[] | select(.name=="Guest") | .slug')"
 V=$(curl -s $B/rooms/$CODE -H "x-coach-token: $TB" | jq -r .version)
 echo -n "listed before: "; curl -s $B/rooms | jq -c "[.rooms[] | select(.code==\"$CODE\") | {status, hostName, coaches: [.coaches[].name]}]"
 echo -n "guest close (expect 403): "; curl -s -o /dev/null -w '%{http_code}\n' -X POST $B/rooms/$CODE/actions -H "x-coach-token: $TB" -H 'content-type: application/json' -d "{\"action\":{\"type\":\"closeRoom\"},\"expectVersion\":$V}"

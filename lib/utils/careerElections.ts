@@ -15,11 +15,11 @@ import {
   GLIZI_PRICE_INDEX_MIN,
   GLIZI_PRICE_MOVE_MAX,
   GLIZI_PRICE_MOVE_MIN,
-  KORPORACIJA_LEAD_REFUND,
-  KORPORACIJA_LEAD_TAX,
+  YELLOW_LEAD_REFUND,
+  YELLOW_LEAD_TAX,
   MAJORITY_SEATS,
   MIN_PARTY_SEATS,
-  OSTRVO_LEAD_SABOTAGE_TAX,
+  GREEN_LEAD_SABOTAGE_TAX,
   PARLIAMENT_SEATS,
   PARTY_BASE_VOTES,
   PARTY_PARTNER_RANKS,
@@ -27,20 +27,21 @@ import {
   POLL_NOISE_SEATS,
   SEASON_PAY_LEADER,
   SEASON_PAY_OPPOSITION,
-  STRANKA_LEAD_FAME_BONUS,
-  STRANKA_LEAD_FANS_TRAINING_SCALE,
-  STRANKA_LEAD_OUTSIDE_FAME_SCALE,
-  STRANKA_LEAD_OUTSIDE_MEDIA_USES,
-  STRANKA_LEAD_OUTSIDE_PAY_SCALE,
-  STRANKA_MEDIA_LEADER,
-  STRANKA_MEDIA_OPPOSITION,
+  RED_LEAD_FAME_BONUS,
+  RED_LEAD_FANS_TRAINING_SCALE,
+  RED_LEAD_OUTSIDE_FAME_SCALE,
+  RED_LEAD_OUTSIDE_MEDIA_USES,
+  RED_LEAD_OUTSIDE_PAY_SCALE,
+  RED_MEDIA_LEADER,
+  RED_MEDIA_OPPOSITION,
   VOTE_DONATION_DIVISOR,
   VOTE_FAME_DIVISOR,
-  ZIDARI_BLOCK_LEADER,
-  ZIDARI_BLOCK_OPPOSITION,
-  ZIDARI_LEAD_BLOCK_BONUS,
-  ZIDARI_LEAD_BLOCK_CAP,
-  ZIDARI_LEAD_GUARD_TAX,
+  VOTE_PLACE_WEIGHT,
+  BLUE_BLOCK_LEADER,
+  BLUE_BLOCK_OPPOSITION,
+  BLUE_LEAD_BLOCK_BONUS,
+  BLUE_LEAD_BLOCK_CAP,
+  BLUE_LEAD_GUARD_TAX,
   type ElectionResult,
   OUTSIDER_DONATION_WEIGHT,
   OUTSIDER_OFFER_SURE_AT,
@@ -48,10 +49,15 @@ import {
 import type { TrainingId } from '@/data/games/careerTraining';
 import {
   GUARD_BLOCK_CHANCE,
-  STRANKA_MEDIA_MULTIPLIER,
+  RED_MEDIA_MULTIPLIER,
 } from '@/data/games/careerEconomy';
 import { CAREER_PERSONALITIES } from '@/data/games/careerPersonalities';
-import { LORE_RIVALS } from '@/data/games/careerRivals';
+import { loreRivals } from '@/lib/utils/characterTraits';
+import {
+  lawPicker,
+  constitutionRatingPenalty,
+  sabotageLawScale,
+} from '@/lib/utils/careerLaws';
 import { isHumanSlug, rankBySeeding, seedingKey } from '@/lib/utils/careerPoints';
 import type {
   CharacterCareerState,
@@ -65,10 +71,10 @@ import type {
 import type { CupMatch } from '@/lib/utils/tournamentSim';
 
 const ZERO: Record<SponsorId, number> = {
-  zidari: 0,
-  ostrvo: 0,
-  korporacija: 0,
-  stranka: 0,
+  blue: 0,
+  green: 0,
+  yellow: 0,
+  red: 0,
 };
 
 export function isElectionYear(year: number): boolean {
@@ -220,32 +226,27 @@ export function votePlaceTop(tableSize: number): number {
   return tableSize + 1;
 }
 
+// What a signed man's place at the table brings his list
+function votePlacePoints(place: number, tableSize: number): number {
+  return VOTE_PLACE_WEIGHT * (votePlaceTop(tableSize) - place);
+}
+
 // Vote share in whole percent off the table as it stands: every signed
-// character brings his fame and his place, the campaign chest brings its
-// points, the leader brings its record and every party its affairs
+// character brings his fame and his place, and every party its rating: the
+// campaign chest, the affairs, the leader's record and the laws on the books
 export function countVotes(state: SavedCareer): Record<SponsorId, number> {
-  const parliament = state.parliament ?? emptyParliament();
   const order = rankBySeeding(state.characters, seedingKey(state));
+  const ratings = partyRatings(state);
   const points = { ...ZERO };
-  PARTY_SEAT_ORDER.forEach((id) => {
-    points[id] = PARTY_BASE_VOTES[id];
-  });
-  const top = votePlaceTop(order.length);
   order.forEach((slug, index) => {
     const ch = state.characters[slug];
     const party = ch.sponsor?.sponsorId;
     if (!party) return;
-    points[party] += ch.fame / VOTE_FAME_DIVISOR + (top - (index + 1));
+    points[party] +=
+      ch.fame / VOTE_FAME_DIVISOR + votePlacePoints(index + 1, order.length);
   });
-  const convictions = partyConvictions(parliament);
   PARTY_SEAT_ORDER.forEach((id) => {
-    points[id] += Math.floor(parliament.donations[id] / VOTE_DONATION_DIVISOR);
-    points[id] -= parliament.penalties[id] + convictions[id];
-  });
-  const leader = parliament.government[0];
-  if (leader) points[leader] += parliament.rating;
-  PARTY_SEAT_ORDER.forEach((id) => {
-    points[id] = Math.max(0, points[id]);
+    points[id] = Math.max(0, points[id] + ratings[id].signed);
   });
   const total = PARTY_SEAT_ORDER.reduce((sum, id) => sum + points[id], 0);
   const votes = { ...ZERO };
@@ -298,7 +299,7 @@ export function partyPlayerPoints(
       slug,
       place: index + 1,
       fame: ch.fame,
-      placePts: votePlaceTop(order.length) - (index + 1),
+      placePts: votePlacePoints(index + 1, order.length),
       famePts: Math.round(ch.fame / VOTE_FAME_DIVISOR),
       sharePts: votes[party] - without[party],
     });
@@ -323,11 +324,16 @@ export type PartyRating = {
   // The base with the party's own conduct on it: the campaign chest, the
   // affairs and punishments on record, and the leader's rating
   current: number;
+  // The same before the floor at zero, so a party deep in affairs still
+  // drags its players' points down at the count
+  signed: number;
   donations: number;
   rating: number;
   penalties: number;
   // Members caught plotting, ever; never wiped by a count
   convictions: number;
+  // Failed tries at one-party rule, for good
+  constitution: number;
 };
 
 // The part of the vote that is about the party rather than its players
@@ -341,16 +347,18 @@ export function partyRatings(state: SavedCareer): Record<SponsorId, PartyRating>
     const donations = Math.floor(parliament.donations[id] / VOTE_DONATION_DIVISOR);
     const rating = id === leader ? parliament.rating : 0;
     const penalties = parliament.penalties[id];
+    const constitution = constitutionRatingPenalty(parliament, id);
+    const raw =
+      base + donations + rating - penalties - convictions[id] - constitution;
     out[id] = {
       base,
-      current: Math.max(
-        0,
-        base + donations + rating - penalties - convictions[id],
-      ),
+      current: Math.max(0, raw),
+      signed: raw,
       donations,
       rating,
       penalties,
       convictions: convictions[id],
+      constitution,
     };
   });
   return out;
@@ -431,6 +439,35 @@ export function applyElection(
   state: SavedCareer,
   result: ElectionResult,
 ): SavedCareer {
+  const seated = seatElection(state, result);
+  const next = seated.parliament;
+  // The prime minister is picked tonight and keeps the office for the term
+  const leader = result.government[0];
+  const pm = leader ? lawPicker(seated, leader) : null;
+  return {
+    ...seated,
+    parliament: { ...next, primeMinister: pm },
+    governments: [
+      ...(state.governments ?? []),
+      { year: state.year, government: result.government, primeMinister: pm },
+    ],
+  };
+}
+
+// The man election night will hand the office to, read before the count is
+// applied so the broadcast can show him
+export function electedPremier(
+  state: SavedCareer,
+  result: ElectionResult,
+): string | null {
+  const leader = result.government[0];
+  return leader ? lawPicker(seatElection(state, result), leader) : null;
+}
+
+function seatElection(
+  state: SavedCareer,
+  result: ElectionResult,
+): SavedCareer & { parliament: Parliament } {
   const parliament = state.parliament ?? emptyParliament();
   const sameLeader = parliament.government[0] === result.government[0];
   const next: Parliament = {
@@ -451,10 +488,6 @@ export function applyElection(
   return {
     ...state,
     parliament: next,
-    governments: [
-      ...(state.governments ?? []),
-      { year: state.year, government: result.government },
-    ],
     characters: withPartyStatuses(state.characters, result.government),
   };
 }
@@ -479,33 +512,33 @@ export function seasonPayAdjust(status?: PartyStatus): number {
   return 0;
 }
 
-// The Zidari house crew by seat, plus the door bonus when Zidari lead
-export function zidariBlockChance(
+// The Blue Party house crew by seat, plus the door bonus when the Blue Party leads
+export function blueBlockChance(
   ch: CharacterCareerState,
   parliament?: Parliament,
 ): number {
   const base =
     ch.partyStatus === 'leader'
-      ? ZIDARI_BLOCK_LEADER
+      ? BLUE_BLOCK_LEADER
       : ch.partyStatus === 'opposition'
-        ? ZIDARI_BLOCK_OPPOSITION
+        ? BLUE_BLOCK_OPPOSITION
         : GUARD_BLOCK_CHANCE;
   if (
-    leadingParty(parliament) === 'zidari' &&
-    ch.sponsor?.sponsorId === 'zidari'
+    leadingParty(parliament) === 'blue' &&
+    ch.sponsor?.sponsorId === 'blue'
   ) {
-    return Math.min(ZIDARI_LEAD_BLOCK_CAP, base + ZIDARI_LEAD_BLOCK_BONUS);
+    return Math.min(BLUE_LEAD_BLOCK_CAP, base + BLUE_LEAD_BLOCK_BONUS);
   }
   return base;
 }
 
-export function strankaMediaMultiplier(status?: PartyStatus): number {
-  if (status === 'leader') return STRANKA_MEDIA_LEADER;
-  if (status === 'opposition') return STRANKA_MEDIA_OPPOSITION;
-  return STRANKA_MEDIA_MULTIPLIER;
+export function redMediaMultiplier(status?: PartyStatus): number {
+  if (status === 'leader') return RED_MEDIA_LEADER;
+  if (status === 'opposition') return RED_MEDIA_OPPOSITION;
+  return RED_MEDIA_MULTIPLIER;
 }
 
-export type StrankaLeadMedia = {
+export type RedLeadMedia = {
   payScale: number;
   // Added to the fame an appearance brings
   fameDelta: number;
@@ -514,7 +547,7 @@ export type StrankaLeadMedia = {
   usesDelta: number;
 };
 
-const NEUTRAL_MEDIA: StrankaLeadMedia = {
+const NEUTRAL_MEDIA: RedLeadMedia = {
   payScale: 1,
   fameDelta: 0,
   fameScale: 1,
@@ -524,20 +557,20 @@ const NEUTRAL_MEDIA: StrankaLeadMedia = {
 // What the leading party's power does to a media appearance: a fame bonus
 // for its own clients, less pay, half the fame and one appearance fewer for
 // anyone outside the government. Whoever had a single slot has none
-export function strankaLeadMedia(
+export function redLeadMedia(
   ch: CharacterCareerState,
   parliament?: Parliament,
-): StrankaLeadMedia {
-  if (leadingParty(parliament) !== 'stranka') return NEUTRAL_MEDIA;
-  if (ch.sponsor?.sponsorId === 'stranka') {
-    return { ...NEUTRAL_MEDIA, fameDelta: STRANKA_LEAD_FAME_BONUS };
+): RedLeadMedia {
+  if (leadingParty(parliament) !== 'red') return NEUTRAL_MEDIA;
+  if (ch.sponsor?.sponsorId === 'red') {
+    return { ...NEUTRAL_MEDIA, fameDelta: RED_LEAD_FAME_BONUS };
   }
   if (outsideGovernment(ch, parliament)) {
     return {
-      payScale: STRANKA_LEAD_OUTSIDE_PAY_SCALE,
+      payScale: RED_LEAD_OUTSIDE_PAY_SCALE,
       fameDelta: 0,
-      fameScale: STRANKA_LEAD_OUTSIDE_FAME_SCALE,
-      usesDelta: -STRANKA_LEAD_OUTSIDE_MEDIA_USES,
+      fameScale: RED_LEAD_OUTSIDE_FAME_SCALE,
+      usesDelta: -RED_LEAD_OUTSIDE_MEDIA_USES,
     };
   }
   return NEUTRAL_MEDIA;
@@ -545,36 +578,39 @@ export function strankaLeadMedia(
 
 // State media coach their own: fan training is cheaper for the party's
 // clients while the party leads
-export function strankaLeadTrainingScale(
+export function redLeadTrainingScale(
   ch: CharacterCareerState,
   parliament: Parliament | undefined,
   trainingId: TrainingId,
 ): number {
   return trainingId === 'fans' &&
-    leadingParty(parliament) === 'stranka' &&
-    ch.sponsor?.sponsorId === 'stranka'
-    ? STRANKA_LEAD_FANS_TRAINING_SCALE
+    leadingParty(parliament) === 'red' &&
+    ch.sponsor?.sponsorId === 'red'
+    ? RED_LEAD_FANS_TRAINING_SCALE
     : 1;
 }
 
+// The leading party's door tax
 export function guardTaxScale(
   ch: CharacterCareerState,
   parliament?: Parliament,
 ): number {
-  return leadingParty(parliament) === 'zidari' &&
+  return leadingParty(parliament) === 'blue' &&
     outsideGovernment(ch, parliament)
-    ? 1 + ZIDARI_LEAD_GUARD_TAX
+    ? 1 + BLUE_LEAD_GUARD_TAX
     : 1;
 }
 
+// The leading party's island rates and the public order law
 export function sabotageTaxScale(
   ch: CharacterCareerState,
   parliament?: Parliament,
 ): number {
-  return leadingParty(parliament) === 'ostrvo' &&
-    outsideGovernment(ch, parliament)
-    ? 1 + OSTRVO_LEAD_SABOTAGE_TAX
-    : 1;
+  const lead =
+    leadingParty(parliament) === 'green' && outsideGovernment(ch, parliament)
+      ? 1 + GREEN_LEAD_SABOTAGE_TAX
+      : 1;
+  return lead * sabotageLawScale(parliament);
 }
 
 // While the island sits in the government the archive is the prosecutor's
@@ -584,28 +620,32 @@ export function shieldedFromIndictment(
   parliament?: Parliament,
 ): boolean {
   return (
-    target.sponsor?.sponsorId === 'ostrvo' &&
-    (parliament?.government.includes('ostrvo') ?? false)
+    target.sponsor?.sponsorId === 'green' &&
+    (parliament?.government.includes('green') ?? false)
   );
 }
 
-// The Korporacija's tax office: a refund for its own clients, a bill for
+// The Yellow Party's tax office: a refund for its own clients, a bill for
 // everyone outside the government, nothing for the junior partner
-export function korporacijaTax(
+export function yellowTax(
   ch: CharacterCareerState,
   parliament?: Parliament,
 ): number {
-  if (leadingParty(parliament) !== 'korporacija') return 0;
-  if (ch.sponsor?.sponsorId === 'korporacija') return KORPORACIJA_LEAD_REFUND;
-  if (outsideGovernment(ch, parliament)) return -KORPORACIJA_LEAD_TAX;
+  if (leadingParty(parliament) !== 'yellow') return 0;
+  if (ch.sponsor?.sponsorId === 'yellow') return YELLOW_LEAD_REFUND;
+  if (outsideGovernment(ch, parliament)) return -YELLOW_LEAD_TAX;
   return 0;
 }
 
-export function ostrvoWeekendEveryWindow(ch: CharacterCareerState): boolean {
-  return ch.sponsor?.sponsorId === 'ostrvo' && ch.partyStatus === 'leader';
+export function greenWeekendEveryWindow(ch: CharacterCareerState): boolean {
+  return ch.sponsor?.sponsorId === 'green' && ch.partyStatus === 'leader';
 }
 
-export type GliziPriceEvent = { up: boolean; pct: number; ratingDelta: number };
+export type GliziPriceEvent = {
+  up: boolean;
+  pct: number;
+  ratingDelta: number;
+};
 
 // The compounded index after a story: the last one times the move, held
 // between the floor and the ceiling
@@ -647,6 +687,8 @@ export function rollGliziPriceEvent(
   };
 }
 
+// The donation goes into the party's chest and onto the donor list the
+// favor reads
 export function recordDonation(
   parliament: Parliament,
   slug: string,
@@ -819,7 +861,7 @@ export function bookAiRemoval(state: SavedCareer, round: number): SavedCareer {
       canRemove(state, bySlug, p.slug),
     );
     if (reachable.length === 0) continue;
-    const grudges = LORE_RIVALS[bySlug] ?? [];
+    const grudges = loreRivals(bySlug, Object.keys(state.characters));
     const pick =
       reachable.find((p) => grudges.includes(p.slug)) ??
       (bySlug === state.rivalSlug

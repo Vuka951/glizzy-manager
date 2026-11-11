@@ -9,6 +9,9 @@ import type { SceneAnimationSpec } from '@/lib/constants/sceneAnimations';
 const QUOTE = GAMES_UI.career.quoteCutscene;
 
 const BUMPER_MS = 950;
+// Past this many characters the headline steps down a size so a long name
+// still fits the lower third in two lines
+const LONG_HEADLINE_CHARS = 28;
 const LOWER_THIRD_AT_MS = 820;
 
 const CUSTOM: Record<string, SceneAnimationSpec> = {
@@ -92,17 +95,19 @@ export default function BroadcastFrame({
   children,
   headline,
   subtitle,
+  ticker = QUOTE.ticker,
 }: {
   children: React.ReactNode;
   headline?: string;
   subtitle?: React.ReactNode;
+  ticker?: string[];
 }) {
   const overlay = useRef<HTMLDivElement>(null);
   const chrome = useRef<HTMLDivElement>(null);
   useSceneAnimation(overlay, CUSTOM);
   useSceneAnimation(chrome, CUSTOM);
   const title = headline || GAMES_UI.cup.studio.title;
-  const tickerItems = [title, ...QUOTE.ticker, title, ...QUOTE.ticker];
+  const tickerItems = [title, ...ticker, title, ...ticker];
 
   return (
     <div className="relative bg-slate-950">
@@ -118,7 +123,7 @@ export default function BroadcastFrame({
           >
             <div
               data-anim="bumper-band"
-              className="absolute inset-x-[-8%] top-1/2 h-[42%] origin-left -translate-y-1/2 -rotate-3 bg-red-600 shadow-[0_0_40px_rgba(220,38,38,0.55)]"
+              className="absolute inset-x-[-8%] top-1/2 h-[42%] origin-left -translate-y-1/2 -rotate-3 bg-red-600 shadow-[0_3px_0_#7f1d1d,0_-3px_0_#7f1d1d]"
             />
             <div
               data-anim="bumper-jolt"
@@ -127,7 +132,7 @@ export default function BroadcastFrame({
               <span className="h-0.5 w-3/4 bg-slate-50/80" />
               <span
                 data-anim="bumper-slam"
-                className="whitespace-nowrap text-3xl font-black uppercase italic tracking-tight text-slate-50 drop-shadow-[0_3px_0_rgba(2,6,23,0.7)] sm:text-5xl"
+                className="whitespace-nowrap font-sign text-4xl font-extrabold uppercase italic tracking-tight text-slate-50 drop-shadow-[0_3px_0_rgba(2,6,23,0.7)] sm:text-6xl"
               >
                 {QUOTE.breaking}
               </span>
@@ -135,7 +140,7 @@ export default function BroadcastFrame({
             </div>
           </div>
 
-          <span className="absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-sm bg-red-600 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[0.2em] text-slate-50 shadow-md sm:left-3 sm:top-3 sm:px-2 sm:text-[10px]">
+          <span className="absolute left-2 top-2 inline-flex items-center gap-1.5 rounded-[2px] bg-red-600 px-1.5 py-0.5 font-sign text-[12px] font-bold uppercase leading-tight tracking-[0.1em] text-slate-50 shadow-[0_2px_0_rgb(2_6_23/0.7)] sm:left-3 sm:top-3 sm:px-2 sm:text-[13px]">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-slate-50" />
             {GAMES_UI.cup.studio.live}
           </span>
@@ -150,12 +155,18 @@ export default function BroadcastFrame({
       <div ref={chrome} className="relative z-10 -mt-3 overflow-hidden">
         <div
           data-anim="lower-third-in"
-          className="flex items-stretch pr-3 shadow-[0_-4px_14px_rgba(2,6,23,0.5)] sm:pr-6"
+          className="flex items-stretch pr-3 shadow-[0_-2px_0_rgb(2_6_23/0.7)] sm:pr-6"
         >
-          <span className="flex shrink-0 items-center bg-red-600 px-2.5 py-1 text-[10px] font-black uppercase italic tracking-[0.18em] text-slate-50 sm:px-3 sm:text-xs">
+          <span className="flex shrink-0 items-center bg-red-600 px-2.5 py-1 font-sign text-[13px] font-extrabold uppercase italic leading-none tracking-[0.08em] text-slate-50 sm:px-3 sm:text-sm">
             {QUOTE.breaking}
           </span>
-          <span className="min-w-0 flex-1 truncate bg-slate-100 px-3 py-1 text-xs font-black uppercase tracking-wide text-slate-950 sm:text-sm">
+          <span
+            className={`line-clamp-2 min-w-0 flex-1 text-balance bg-slate-100 px-3 py-1 font-sign font-bold uppercase leading-tight text-slate-950 ${
+              title.length > LONG_HEADLINE_CHARS
+                ? 'text-[12px] tracking-normal sm:text-[14px] sm:tracking-wide'
+                : 'text-[14px] tracking-wide sm:text-[16px]'
+            }`}
+          >
             {title}
           </span>
         </div>
@@ -179,7 +190,7 @@ export default function BroadcastFrame({
                   {tickerItems.map((item, index) => (
                     <span
                       key={index}
-                      className="flex items-center gap-3 whitespace-nowrap pl-3 pr-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300"
+                      className="flex items-center gap-3 whitespace-nowrap pl-3 pr-3 font-sign text-[12px] font-semibold uppercase tracking-[0.12em] text-slate-300"
                     >
                       <span className="h-1.5 w-1.5 bg-red-500" />
                       {item}

@@ -1,12 +1,12 @@
-import IslandMark from '@/components/games/career/sponsors/IslandMark';
-import MasonsMark from '@/components/games/career/sponsors/MasonsMark';
-import PartyMark from '@/components/games/career/sponsors/PartyMark';
-import BlackDwarfMark from '@/components/games/career/sponsors/BlackDwarfMark';
+import BlueMark from '@/components/games/career/sponsors/BlueMark';
+import GreenMark from '@/components/games/career/sponsors/GreenMark';
+import RedMark from '@/components/games/career/sponsors/RedMark';
+import YellowMark from '@/components/games/career/sponsors/YellowMark';
 import type { SponsorId } from '@/lib/utils/careerSave';
 
 // One mark per sponsor, all drawn on the same rounded badge in each sponsor's
-// palette so contracts read at a glance: zidari brick and stone, ostrvo
-// emerald and sand, korporacija yellow on black, stranka gold and red on blue
+// palette so contracts read at a glance: blue and white, emerald and sand,
+// yellow on black, red and cream
 export default function SponsorEmblem({
   sponsorId,
   className = 'h-5 w-5',
@@ -14,8 +14,8 @@ export default function SponsorEmblem({
   sponsorId: SponsorId;
   className?: string;
 }) {
-  if (sponsorId === 'zidari') return <MasonsMark className={className} />;
-  if (sponsorId === 'ostrvo') return <IslandMark className={className} />;
-  if (sponsorId === 'korporacija') return <BlackDwarfMark className={className} />;
-  return <PartyMark className={className} />;
+  if (sponsorId === 'blue') return <BlueMark className={className} />;
+  if (sponsorId === 'green') return <GreenMark className={className} />;
+  if (sponsorId === 'yellow') return <YellowMark className={className} />;
+  return <RedMark className={className} />;
 }

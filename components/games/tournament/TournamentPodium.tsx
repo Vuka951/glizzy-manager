@@ -1,3 +1,7 @@
+'use client';
+
+import { useCareerFrames } from '@/components/games/career/careerFrames';
+import TournamentPodiumStreet from '@/components/games/tournament/TournamentPodiumStreet';
 import { studioAccents } from '@/lib/constants/studioThemes';
 import PortraitHead from '@/components/games/PortraitHead';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
@@ -55,7 +59,17 @@ export default function TournamentPodium({
   betSlug: string | null;
   theme?: number;
 }) {
+  const street = useCareerFrames() === 'street';
   const accent = studioAccents(theme);
+  if (street) {
+    return (
+      <TournamentPodiumStreet
+        standings={standings}
+        characterBySlug={characterBySlug}
+        betSlug={betSlug}
+      />
+    );
+  }
   const podium = standings.filter((s) => s.place <= 3);
   const arranged = [
     podium.find((s) => s.place === 2),

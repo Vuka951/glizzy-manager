@@ -7,6 +7,8 @@ import {
 } from '@/data/games/achievements';
 import { SEASON_COUNT } from '@/data/games/careerSeasons';
 import { TRAINING_DEFS } from '@/data/games/careerTraining';
+import { partyStatusOf } from '@/lib/utils/careerElections';
+import { pickedCard } from '@/lib/utils/careerLaws';
 import { STAT_KEY_BY_TRAINING } from '@/lib/utils/careerMeters';
 import type { CharacterCareerState, SavedCareer } from '@/lib/utils/careerSave';
 import { CUP_BRACKET_SIZE, cupMatchWinner } from '@/lib/utils/tournamentSim';
@@ -58,6 +60,46 @@ function beatRivalInCup(state: SavedCareer): boolean {
     );
 }
 
+// The one-party constitution went through with the player on the party's
+// list, the same roll the campaign's winners are read from
+function wroteConstitution(prev: SavedCareer, next: SavedCareer): boolean {
+  const constitution = next.parliament?.constitution;
+  if (!constitution || prev.parliament?.constitution) return false;
+  return constitution.winners.includes(next.playerSlug);
+}
+
+// A bill put on the books by a vote closed since the last save, with the
+// player's party sitting in the government that held it
+function lawPassedInGovernment(prev: SavedCareer, next: SavedCareer): boolean {
+  const party = next.characters[next.playerSlug]?.sponsor?.sponsorId;
+  const closed = (next.parliament?.lawVotes ?? []).slice(
+    prev.parliament?.lawVotes?.length ?? 0,
+  );
+  return closed.some((vote) => {
+    const status = partyStatusOf(vote.government, party);
+    return (
+      vote.outcome === 'passed' &&
+      pickedCard(vote)?.action === 'pass' &&
+      (status === 'leader' || status === 'partner')
+    );
+  });
+}
+
+// A room hands over a fresh copy of the save on every poll, so a new
+// result is told from the last one by its values
+function glizzyBetCashed(prev: SavedCareer, next: SavedCareer): boolean {
+  const last = prev.lastGlizzyBet;
+  const result = next.lastGlizzyBet;
+  if (!result || result.payout <= result.stake) return false;
+  return (
+    !last ||
+    last.call !== result.call ||
+    last.stake !== result.stake ||
+    last.actualPct !== result.actualPct ||
+    last.payout !== result.payout
+  );
+}
+
 // Every career trophy is a change between two saves of the same run, so the
 // game only has to hand over the state before and after each update
 export function careerAchievementsUnlocked(
@@ -71,8 +113,8 @@ export function careerAchievementsUnlocked(
   const cupJustEnded = prev.phase === 'cup' && next.phase === 'podium';
   const lastCup = next.standingsHistory[next.standingsHistory.length - 1];
   const wonCup = cupJustEnded && lastCup?.champion === next.playerSlug;
-  // Seeded in the bottom half of the bracket when the cup opened
-  const bottomHalfSeed =
+  // In the bottom half of the bracket when the cup opened
+  const underdogSeed =
     (next.cupStartRanks?.indexOf(next.playerSlug) ?? -1) >=
     CUP_BRACKET_SIZE / 2;
   const slot = lastSlot(prev, next);
@@ -91,13 +133,19 @@ export function careerAchievementsUnlocked(
         next.overlordSlug === next.playerSlug &&
         !prev.overlordWon,
     ],
-    ['career-underdog', wonCup && bottomHalfSeed],
+    ['career-underdog', wonCup && underdogSeed],
     ['career-rival-down', cupJustEnded && beatRivalInCup(next)],
     ['career-sponsored', !before.sponsor && Boolean(after.sponsor)],
     [
       'career-leader',
       after.partyStatus === 'leader' && before.partyStatus !== 'leader',
     ],
+    ['career-constitution', wroteConstitution(prev, next)],
+    [
+      'career-prime-minister',
+      electionCounted && next.parliament?.primeMinister === next.playerSlug,
+    ],
+    ['career-law-passed', lawPassedInGovernment(prev, next)],
     ['career-favor', favorsUsed(next) > favorsUsed(prev)],
     ['career-donor', donated(next) > donated(prev)],
     [
@@ -115,12 +163,16 @@ export function careerAchievementsUnlocked(
       'career-rich',
       next.balance >= CAREER_RICH_BALANCE && prev.balance < CAREER_RICH_BALANCE,
     ],
+    ['career-glizzy-call', glizzyBetCashed(prev, next)],
     ['career-maxed', !maxedTraining(before) && maxedTraining(after)],
     [
       'career-media-payday',
       slot === 'media' && next.balance - prev.balance >= CAREER_MEDIA_PAYDAY,
     ],
-    ['career-plot-hit', (after.hitRecency ?? 0) > (before.hitRecency ?? 0)],
+    [
+      'career-plot-hit',
+      (after.plotsLanded ?? 0) > (before.plotsLanded ?? 0),
+    ],
     // A crew comes out of the wallet, not the month, so it never logs a slot
     ['career-guard', !prev.guarded && Boolean(next.guarded)],
     ['career-island', slot === 'island'],

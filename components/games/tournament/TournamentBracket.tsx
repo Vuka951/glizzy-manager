@@ -1,7 +1,16 @@
+'use client';
+
+import CareerButton from '@/components/games/career/CareerButton';
+import CareerToggle from '@/components/games/career/CareerToggle';
+import { useCareerFrames } from '@/components/games/career/careerFrames';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
 import GlizzyIcon from '@/components/icons/GlizzyIcon';
 import Icon from '@/components/icons/Icon';
 import PortraitHead from '@/components/games/PortraitHead';
-import CoachTag from '@/components/games/career-mp/CoachTag';
+import SeatTag from '@/components/games/rooms/SeatTag';
+import MatchEndBadge, {
+  type MatchEnding,
+} from '@/components/games/tournament/MatchEndBadge';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { COACH_COLOR_CLASSES } from '@/lib/constants/careerMp';
 import type { CoachTagMap } from '@/lib/types/careerMp';
@@ -11,13 +20,27 @@ import { fmt } from '@/lib/utils/format';
 import { cupRoundName } from '@/lib/utils/localeNames';
 import {
   cupBetKey,
+  resultHadTiebreak,
   type CupMatch,
   type CupMatchBet,
+  type CupMatchResult,
 } from '@/lib/utils/tournamentSim';
 
 const LINE = 'border-slate-600';
+const INK_LINE = 'border-[#1c1408]/55';
 
 const PILL_POS = 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2';
+
+function matchEnding(result: CupMatchResult): MatchEnding | null {
+  if (result.reason) return result.reason;
+  return resultHadTiebreak(result) ? 'tiebreak' : null;
+}
+
+function matchEndingLabel(ending: MatchEnding): string {
+  return ending === 'tiebreak'
+    ? GAMES_UI.cup.bracket.suddenDeath
+    : GAMES_UI.cup.viewer.reasons[ending];
+}
 
 function BracketSide({
   character,
@@ -28,6 +51,7 @@ function BracketSide({
   trophy,
   inForm,
   coach,
+  street,
 }: {
   character: DuelCharacter | null;
   lives: number | null;
@@ -37,12 +61,23 @@ function BracketSide({
   trophy?: boolean;
   inForm?: boolean;
   coach?: CoachTagMap[string];
+  street: boolean;
 }) {
+  const nameType = street
+    ? dense
+      ? 'font-sign text-[12px] leading-none'
+      : 'font-serif text-[11px]'
+    : dense
+      ? 'text-[8px]'
+      : 'text-[10px]';
+  const livesType = street
+    ? `font-sign ${dense ? 'text-[12px]' : 'text-[14px]'} tabular-nums`
+    : `font-mono ${dense ? 'text-[8px]' : 'text-[10px]'}`;
   return (
     <div
       className={`flex min-w-0 flex-1 items-center ${
         dense ? 'gap-1' : 'gap-1.5'
-      } ${state === 'loser' ? 'opacity-45 grayscale' : ''}`}
+      } ${state === 'loser' ? (street ? 'opacity-60 grayscale' : 'opacity-45 grayscale') : ''}`}
     >
       {character ? (
         <PortraitHead
@@ -63,13 +98,13 @@ function BracketSide({
         />
       )}
       <span
-        className={`flex-1 truncate text-left font-semibold ${
-          dense ? 'text-[8px]' : 'text-[10px]'
-        } ${state === 'winner' ? 'text-amber-200' : 'text-slate-300'}`}
+        className={`flex-1 truncate text-left font-semibold ${nameType} ${
+          state === 'winner' ? 'text-amber-200' : 'text-slate-300'
+        } ${street && state === 'loser' ? 'line-through decoration-[#b91c1c]' : ''}`}
       >
         {character?.name ?? '...'}
       </span>
-      {coach && <CoachTag name={coach.name} color={coach.color} dense connected={coach.connected} />}
+      {coach && <SeatTag name={coach.name} color={coach.color} dense connected={coach.connected} />}
       {inForm && (
         <span title={GAMES_UI.cup.bracket.inForm}>
           <Icon
@@ -83,7 +118,7 @@ function BracketSide({
       )}
       {lives !== null && (
         <span
-          className={`font-mono font-bold ${dense ? 'text-[8px]' : 'text-[10px]'} ${
+          className={`font-bold ${livesType} ${
             state === 'winner' ? 'text-amber-300' : 'text-slate-500'
           }`}
         >
@@ -118,6 +153,8 @@ export default function TournamentBracket({
   // A shared league: every human's character carries his coach's tag
   coaches?: CoachTagMap;
 }) {
+  const street = useCareerFrames() === 'street';
+  const line = street ? INK_LINE : LINE;
   const finalMatch = rounds[3]?.[0] ?? null;
   const championSlug = finalMatch?.result
     ? finalMatch.result.winner === 'a'
@@ -137,6 +174,7 @@ export default function TournamentBracket({
     const a = match.a ? characterBySlug.get(match.a) ?? null : null;
     const b = match.b ? characterBySlug.get(match.b) ?? null : null;
     const winner = match.result?.winner ?? null;
+    const ending = match.result ? matchEnding(match.result) : null;
     const involvesBet =
       betSlug !== null && (match.a === betSlug || match.b === betSlug);
     const bet = matchBets[cupBetKey(r, match.index)];
@@ -146,21 +184,27 @@ export default function TournamentBracket({
 
     return (
       <div
-        className={`relative w-full rounded-lg border ${
-          involvesBet
-            ? 'border-sky-300/40 bg-slate-800/60'
-            : 'border-sky-200/10 bg-slate-800/40'
+        className={`relative w-full border ${
+          street
+            ? `rounded-[1px] border-[#1c1408]/55 ${involvesBet ? 'bg-[#fde047]/55' : ''}`
+            : `rounded-lg ${
+                involvesBet
+                  ? 'border-sky-300/40 bg-slate-800/60'
+                  : 'border-sky-200/10 bg-slate-800/40'
+              }`
         }`}
       >
         {(['a', 'b'] as const).map((side) => {
           const character = side === 'a' ? a : b;
-          const lives = match.result
-            ? side === 'a'
-              ? match.result.livesA
-              : match.result.livesB
-            : null;
           const state =
             winner === null ? 'pending' : winner === side ? 'winner' : 'loser';
+          const endBadge = state === 'loser' ? ending : null;
+          const lives =
+            match.result && !endBadge
+              ? side === 'a'
+                ? match.result.livesA
+                : match.result.livesB
+              : null;
           const sideSlug = side === 'a' ? match.a : match.b;
           const wagered = bet?.side === side;
           const sideOdds = odds ? (side === 'a' ? odds.a : odds.b) : null;
@@ -170,7 +214,13 @@ export default function TournamentBracket({
               key={side}
               className={`flex items-center gap-1 ${
                 dense ? 'h-6 px-1' : 'h-7 px-2'
-              } ${side === 'b' ? 'border-t border-sky-200/5' : ''}`}
+              } ${
+                side === 'b'
+                  ? street
+                    ? 'border-t border-[#1c1408]/25'
+                    : 'border-t border-sky-200/5'
+                  : ''
+              }`}
             >
               <BracketSide
                 character={character}
@@ -181,9 +231,27 @@ export default function TournamentBracket({
                 trophy={showTrophy}
                 inForm={sideSlug !== null && buffedSlugs?.has(sideSlug)}
                 coach={sideSlug ? coaches?.[sideSlug] : undefined}
+                street={street}
               />
+              {endBadge && (
+                <MatchEndBadge
+                  ending={endBadge}
+                  label={matchEndingLabel(endBadge)}
+                  removedBy={match.result?.removedBy}
+                  dense={dense}
+                />
+              )}
+              {wagered && !match.result && !(actionable && onToggleBet) && (
+                <GlizzyIcon
+                  variant={0}
+                  className={`shrink-0 ${dense ? 'h-2 w-3' : 'h-2.5 w-4'}`}
+                />
+              )}
               {actionable && onToggleBet && (
-                <button
+                <CareerToggle
+                  selected={wagered}
+                  tone="amber"
+                  size="sm"
                   onClick={() => onToggleBet(match.index, side)}
                   title={
                     sideOdds !== null
@@ -192,11 +260,7 @@ export default function TournamentBracket({
                         })
                       : GAMES_UI.cup.bracket.betTitle
                   }
-                  className={`flex flex-shrink-0 items-center gap-0.5 rounded-md border px-1 py-0.5 transition ${
-                    wagered
-                      ? 'border-amber-400/60 bg-amber-500/20'
-                      : 'border-sky-200/15 bg-slate-900/60 opacity-60 hover:opacity-100'
-                  }`}
+                  className="flex flex-shrink-0 items-center gap-0.5"
                 >
                   <GlizzyIcon
                     variant={0}
@@ -223,30 +287,42 @@ export default function TournamentBracket({
                       </span>
                     )
                   )}
-                </button>
+                </CareerToggle>
               )}
             </div>
           );
         })}
-        {actionable && onWatch ? (
-          <button
+        {actionable && onWatch && street ? (
+          <div className="border-t border-[#1c1408]/25 p-0.5">
+            <CareerButton
+              tone={involvesBet ? 'danger' : 'neutral'}
+              size="sm"
+              full
+              onClick={() => onWatch(match.index)}
+              className="min-h-8 whitespace-nowrap"
+            >
+              {involvesBet
+                ? GAMES_UI.cup.bracket.yourMatch
+                : GAMES_UI.cup.bracket.watch}
+            </CareerButton>
+          </div>
+        ) : actionable && onWatch ? (
+          <CareerButton
+            tone={involvesBet ? 'danger' : 'neutral'}
+            size="sm"
             onClick={() => onWatch(match.index)}
-            className={`absolute z-10 whitespace-nowrap rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase tracking-wide shadow-md transition ${
-              PILL_POS
-            } ${
-              involvesBet
-                ? 'border-red-500/50 bg-slate-950 text-red-200 hover:border-red-400 hover:text-white'
-                : 'border-sky-200/30 bg-slate-950 text-sky-200 hover:border-sky-200/60 hover:text-white'
-            }`}
+            className={`absolute z-10 whitespace-nowrap ${PILL_POS}`}
           >
             {involvesBet
               ? GAMES_UI.cup.bracket.yourMatch
               : GAMES_UI.cup.bracket.watch}
-          </button>
+          </CareerButton>
         ) : match.result && bet ? (
           <span
-            className={`absolute z-10 whitespace-nowrap rounded-full border border-sky-200/15 bg-slate-950 px-2 py-0.5 font-mono text-[8px] font-bold shadow-md ${
-              PILL_POS
+            className={`absolute z-10 whitespace-nowrap ${
+              street
+                ? 'left-1/2 top-[calc(100%_-_3px)] -translate-x-1/2 -rotate-2 rounded-[2px] border-2 border-current bg-[#f1e8d3] px-1 font-sign text-[10px] font-bold uppercase leading-none tracking-[0.04em]'
+                : `rounded-full border border-sky-200/15 bg-slate-950 px-2 py-0.5 font-mono text-[8px] font-bold shadow-md ${PILL_POS}`
             } ${bet.won ? 'text-green-300' : 'text-red-400'}`}
           >
             {bet.won
@@ -259,23 +335,41 @@ export default function TournamentBracket({
   };
 
   const roundLabel = (r: number) => (
-    <div className="flex h-5 items-center justify-center whitespace-nowrap text-[8px] font-bold uppercase tracking-wider text-slate-500">
+    <div
+      className={`flex h-5 items-center justify-center whitespace-nowrap font-bold uppercase ${
+        street
+          ? 'font-sign text-[13px] tracking-[0.08em] text-slate-400'
+          : 'text-[8px] tracking-wider text-slate-500'
+      }`}
+    >
       {cupRoundName(r)}
     </div>
   );
 
   const labelChip = (r: number) => (
-    <span className="pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-sky-200/10 bg-slate-900 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-slate-500">
+    <span
+      className={`pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-bold uppercase ${
+        street
+          ? 'bg-[#f1e8d3] px-1.5 font-sign text-[12px] leading-tight tracking-[0.08em] text-slate-400'
+          : 'rounded-full border border-sky-200/10 bg-slate-900 px-2 py-0.5 text-[8px] tracking-wider text-slate-500'
+      }`}
+    >
       {cupRoundName(r)}
     </span>
   );
 
   const championBanner = (
     <div
-      className={`flex flex-col items-center gap-1 rounded-xl border px-3 py-2 ${
-        champion
-          ? 'border-amber-300/40 bg-amber-400/10'
-          : 'border-sky-200/10 bg-slate-900/40'
+      className={`flex flex-col items-center gap-1 px-3 py-2 ${
+        street
+          ? `rounded-[3px] border-[3px] border-double ${
+              champion ? 'border-[#92400e] bg-[#fde047]/40' : 'border-[#1c1408]/40'
+            }`
+          : `rounded-xl border ${
+              champion
+                ? 'border-amber-300/40 bg-amber-400/10'
+                : 'border-sky-200/10 bg-slate-900/40'
+            }`
       }`}
     >
       <Icon
@@ -285,12 +379,24 @@ export default function TournamentBracket({
       {champion ? (
         <>
           <PortraitHead character={champion} className="h-8 w-8" />
-          <span className="max-w-24 truncate text-[10px] font-bold text-amber-200">
+          <span
+            className={
+              street
+                ? 'max-w-24 truncate font-serif text-[12px] font-bold text-amber-200'
+                : 'max-w-24 truncate text-[10px] font-bold text-amber-200'
+            }
+          >
             {champion.name}
           </span>
         </>
       ) : (
-        <span className="text-[9px] font-bold uppercase tracking-widest text-slate-600">
+        <span
+          className={
+            street
+              ? 'font-sign text-[12px] font-bold uppercase tracking-[0.08em] text-slate-500'
+              : 'text-[9px] font-bold uppercase tracking-widest text-slate-600'
+          }
+        >
           {GAMES_UI.cup.podium.screenTitle}
         </span>
       )}
@@ -324,14 +430,14 @@ export default function TournamentBracket({
         {Array.from({ length: cells }, (_, i) => (
           <div key={i} className="relative">
             <div
-              className={`absolute bottom-[calc(25%-3px)] top-[calc(25%-3px)] border-y-[3px] ${LINE} ${
+              className={`absolute bottom-[calc(25%-3px)] top-[calc(25%-3px)] border-y-[3px] ${line} ${
                 mirrored
                   ? 'left-[calc(50%-1.5px)] right-0 border-l-[3px]'
                   : 'left-0 right-[calc(50%-1.5px)] border-r-[3px]'
               }`}
             />
             <div
-              className={`absolute top-[calc(50%-1.5px)] border-t-[3px] ${LINE} ${
+              className={`absolute top-[calc(50%-1.5px)] border-t-[3px] ${line} ${
                 mirrored
                   ? 'left-0 right-[calc(50%-1.5px)]'
                   : 'left-[calc(50%-1.5px)] right-0'
@@ -348,7 +454,7 @@ export default function TournamentBracket({
       <div className="h-5" />
       <div className="relative flex-1">
         <div
-          className={`absolute top-[calc(50%-1.5px)] w-full border-t-[3px] ${LINE}`}
+          className={`absolute top-[calc(50%-1.5px)] w-full border-t-[3px] ${line}`}
         />
       </div>
     </div>
@@ -366,14 +472,14 @@ export default function TournamentBracket({
         {Array.from({ length: cells }, (_, i) => (
           <div key={i} className="relative">
             <div
-              className={`absolute left-[calc(25%-2.5px)] right-[calc(25%-2.5px)] border-x-[3px] ${LINE} ${
+              className={`absolute left-[calc(25%-2.5px)] right-[calc(25%-2.5px)] border-x-[3px] ${line} ${
                 up
                   ? 'bottom-0 top-[calc(50%-1.5px)] border-t-[3px]'
                   : 'bottom-[calc(50%-1.5px)] top-0 border-b-[3px]'
               }`}
             />
             <div
-              className={`absolute left-[calc(50%-1.5px)] border-l-[3px] ${LINE} ${
+              className={`absolute left-[calc(50%-1.5px)] border-l-[3px] ${line} ${
                 up ? 'bottom-[calc(50%-1.5px)] top-0' : 'bottom-0 top-[calc(50%-1.5px)]'
               }`}
             />
@@ -384,16 +490,16 @@ export default function TournamentBracket({
     </div>
   );
 
-  const vLine = <div className={`mx-auto h-4 w-0 border-l-[3px] ${LINE}`} />;
+  const vLine = <div className={`mx-auto h-4 w-0 border-l-[3px] ${line}`} />;
 
   const vLineChip = (r: number) => (
     <div className="relative h-9">
-      <div className={`absolute bottom-0 left-[calc(50%-1.5px)] top-0 border-l-[3px] ${LINE}`} />
+      <div className={`absolute bottom-0 left-[calc(50%-1.5px)] top-0 border-l-[3px] ${line}`} />
       {labelChip(r)}
     </div>
   );
 
-  return (
+  const chart = (
     <div className="w-full">
       {/* Horizontal converging bracket */}
       <div className="hidden w-full overflow-x-auto pb-2 sm:block">
@@ -474,5 +580,13 @@ export default function TournamentBracket({
         {roundLabel(0)}
       </div>
     </div>
+  );
+  // The draw chart taped to the wall of the hall, kept up by hand in ink
+  return street ? (
+    <PaperSheet className="mx-auto w-full max-w-5xl px-1.5 pb-2 pt-1 sm:px-3">
+      {chart}
+    </PaperSheet>
+  ) : (
+    chart
   );
 }

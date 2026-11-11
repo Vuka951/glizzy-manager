@@ -4,6 +4,8 @@
 export type QuoteSceneProps = {
   speaker: string;
   other: string;
+  // The third party of a three-way government, on the coalition scene
+  third?: string;
   variant?: string;
 };
 

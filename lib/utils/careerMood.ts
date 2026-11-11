@@ -132,7 +132,7 @@ export function careerMoodFor(ch: CharacterCareerState): CareerMood {
   if (ch.appetite > 65) return emoji('😋', 'hungry', true);
   if (ch.ambition < 25) return emoji('😴', 'defeated');
   if (ch.ego < 25) return emoji('😬', 'anxious');
-  if (ch.fame < 50) return emoji('🥸', 'shy');
+  if (ch.fame < 22) return emoji('🥸', 'shy');
   if (ch.stress <= 20) return emoji('😌', 'relaxed');
   if (
     ch.stress <= 35 &&

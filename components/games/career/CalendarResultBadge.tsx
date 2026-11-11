@@ -27,11 +27,11 @@ export default function CalendarResultBadge({ place }: { place: number }) {
       place: ordinal(place),
     });
     icon = 'medal';
-    color = 'text-orange-300';
+    color = 'text-amber-600';
   } else if (place === 4) {
     label = GAMES_UI.career.offseason.yearCalendar.semifinal;
     icon = 'star';
-    color = 'text-violet-300';
+    color = 'text-purple-400';
   } else if (place >= 5 && place <= 8) {
     label = GAMES_UI.career.offseason.yearCalendar.quarterfinal;
     icon = 'swords';
@@ -45,7 +45,7 @@ export default function CalendarResultBadge({ place }: { place: number }) {
   return (
     <span
       data-calendar-result={place}
-      className={`flex max-w-full items-center justify-center gap-1.5 text-[10px] font-semibold leading-tight ${color}`}
+      className={`flex max-w-full items-center justify-center gap-1 font-sign text-[14px] font-bold leading-tight tracking-[0.02em] ${color}`}
     >
       {icon === 'medal' ? (
         <span className="relative h-4 w-4 shrink-0" aria-hidden="true">
@@ -53,7 +53,7 @@ export default function CalendarResultBadge({ place }: { place: number }) {
             <path d="M5 2h6l1 6-5 3L5 2Zm8 0h6l-2 9-5-3 1-6Z" />
             <circle cx="12" cy="15.5" r="6.5" />
           </svg>
-          <span className="absolute inset-x-0 bottom-0.5 text-center text-[7px] font-black leading-none text-slate-950">
+          <span className="absolute inset-x-0 bottom-0.5 text-center text-[9px] font-black leading-none text-slate-950">
             {place}
           </span>
         </span>

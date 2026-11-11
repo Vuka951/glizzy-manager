@@ -3,7 +3,7 @@ export type InvestmentId = 'security' | 'spa' | 'assistant' | 'scout';
 export type InvestmentDef = {
   id: InvestmentId;
   // Price of each level, indexed by the level being bought out of
-  costs: [number, number, number];
+  costs: number[];
   maxLevel: number;
   // Contracts that only change what the coach can see. The league never buys
   // one, because nothing in the simulation reads it
@@ -14,8 +14,8 @@ export type InvestmentDef = {
 // single season's income: this is where a good year's prize money goes when
 // the coach decides to buy something that never has to be bought again
 export const INVESTMENT_DEFS: Record<InvestmentId, InvestmentDef> = {
-  security: { id: 'security', costs: [280, 560, 1000], maxLevel: 3 },
-  spa: { id: 'spa', costs: [240, 480, 860], maxLevel: 3 },
+  security: { id: 'security', costs: [280, 560, 1000, 1800], maxLevel: 4 },
+  spa: { id: 'spa', costs: [240, 480, 860, 1550], maxLevel: 4 },
   assistant: { id: 'assistant', costs: [320, 640, 1150], maxLevel: 3 },
   scout: { id: 'scout', costs: [300, 620, 1120], maxLevel: 3, playerOnly: true },
 };
@@ -34,11 +34,20 @@ export const AI_INVESTMENT_ORDER: InvestmentId[] = INVESTMENT_ORDER.filter(
 );
 
 // Standing block chance the retainer buys, by level
-export const SECURITY_CHANCE = [0.15, 0.25, 0.35];
+export const SECURITY_CHANCE = [0.15, 0.25, 0.35, 0.5];
+// What the retainer adds around town: the booth and the dog at the character's
+// heel come with the first level
+export const SECURITY_CCTV_LEVEL = 2;
+export const SECURITY_PATROL_LEVEL = 3;
+export const SECURITY_SEARCHLIGHT_LEVEL = 4;
 // Cholesterol the spa card washes off at the start of every window
-export const SPA_STRESS_DROP = [10, 15, 30];
+export const SPA_STRESS_DROP = [10, 15, 30, 40];
 // Sessions the assistant coach runs on his own each window
 export const ASSISTANT_SESSIONS = [1, 2, 3];
+
+// From this level the assistant coach leaves the door for the chalkboard on the
+// lawn
+export const ASSISTANT_TACTICS_LEVEL = 3;
 
 // What each level of the informant opens up on somebody else's card. The
 // ladder goes from what they can do, through what shape they are in, to how

@@ -38,7 +38,7 @@ export function buildMatchTape(
   slugB: string,
 ): MatchTape {
   const winPctA = Math.round(matchWinChance(career.characters, slugA, slugB) * 100);
-  const buffed = buffedSlugsForSeason(career.season);
+  const buffed = buffedSlugsForSeason(career.season, Object.keys(career.characters));
   const rival = isRivalMatch(career, slugA, slugB);
   const lastChampion =
     career.standingsHistory[career.standingsHistory.length - 1]?.champion ?? null;

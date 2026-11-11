@@ -6,9 +6,11 @@ import {
   plural,
   type PluralForms,
 } from '@/lib/utils/format';
+import { isLawId, lawName } from '@/lib/utils/careerLaws';
 import {
   characterName,
   investmentName,
+  seasonName,
   sponsorCoalitionName,
   sponsorName,
   trainingName,
@@ -29,6 +31,12 @@ const REF_RENDERERS: Record<MessageRefKind, (value: string) => string> = {
   sponsorCoalition: (value) => sponsorCoalitionName(splitIds(value)),
   training: trainingName,
   investment: investmentName,
+  law: (value) => (isLawId(value) ? lawName(value) : value),
+  lawList: (value) =>
+    splitIds(value)
+      .map((id) => (isLawId(id) ? lawName(id) : id))
+      .join(', '),
+  season: (value) => seasonName(Number(value)),
   ordinal: (value) => ordinal(Number(value)),
   count: (value) => value,
 };

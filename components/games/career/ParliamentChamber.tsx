@@ -4,39 +4,15 @@ import {
 } from '@/data/games/careerElections';
 import { SPONSOR_THEMES } from '@/lib/constants/sponsorThemes';
 import type { SponsorId } from '@/lib/utils/careerSave';
-
-const VIEW_W = 400;
-const VIEW_H = 220;
-const ROWS = [12, 16, 20, 24, 28];
-const INNER_RADIUS = 66;
-const OUTER_RADIUS = 186;
-const SEAT_RADIUS = 5.6;
-
-type Seat = { x: number; y: number; angle: number };
-
-// Five arcs of seats, listed from the far left of the chamber to the far
-// right so the party order can be painted straight onto them
-function seatPositions(): Seat[] {
-  const seats: Seat[] = [];
-  const step = (OUTER_RADIUS - INNER_RADIUS) / (ROWS.length - 1);
-  ROWS.forEach((count, row) => {
-    const radius = INNER_RADIUS + row * step;
-    for (let i = 0; i < count; i++) {
-      const angle = Math.PI - (Math.PI * (i + 0.5)) / count;
-      seats.push({
-        x: VIEW_W / 2 + radius * Math.cos(angle),
-        y: VIEW_H - 8 - radius * Math.sin(angle),
-        angle,
-      });
-    }
-  });
-  return seats.sort((a, b) => b.angle - a.angle).slice(0, PARLIAMENT_SEATS);
-}
-
-const SEATS = seatPositions();
+import {
+  CHAMBER_SEAT_RADIUS as SEAT_RADIUS,
+  CHAMBER_SEATS as SEATS,
+  CHAMBER_VIEW_H as VIEW_H,
+  CHAMBER_VIEW_W as VIEW_W,
+} from '@/lib/utils/chamberSeats';
 
 // The hemicycle. Seats are painted party by party in PARTY_SEAT_ORDER,
-// Ostrvo on the far left and Zidari on the far right. Revealed caps how many
+// the Green Party on the far left and the Blue Party on the far right. Revealed caps how many
 // seats are lit, for the election night count; dimOutside fades every seat
 // that is not in the government
 export default function ParliamentChamber({

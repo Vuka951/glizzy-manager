@@ -1,5 +1,6 @@
 import GlizzyIcon from '@/components/icons/GlizzyIcon';
 import Icon from '@/components/icons/Icon';
+import CareerMeterGauge from '@/components/games/career/CareerMeterGauge';
 import InfoButton from '@/components/games/career/InfoButton';
 import HeartIcon from '@/components/icons/HeartIcon';
 import NoseIcon from '@/components/icons/NoseIcon';
@@ -10,6 +11,7 @@ import {
 } from '@/lib/utils/careerMeters';
 import { FULL_REVEAL, type ScoutReveal } from '@/lib/utils/careerScouting';
 import type { CharacterCareerState } from '@/lib/utils/careerSave';
+import { TRAINING_DEFS } from '@/data/games/careerTraining';
 import { GAMES_UI } from '@/data/games/locale';
 import { fmt } from '@/lib/utils/format';
 
@@ -33,7 +35,6 @@ export function meterWidthClass(value: number): string {
   return WIDTH_STEPS[Math.max(0, Math.min(20, Math.round(value / 5)))];
 }
 
-const widthClass = meterWidthClass;
 
 export type MeterTone = 'great' | 'ok' | 'warn' | 'danger';
 
@@ -88,31 +89,23 @@ function MeterBar({
   note?: string | null;
   known?: boolean;
 }) {
-  const barColor =
-    tone === 'danger'
-      ? 'bg-red-500'
-      : tone === 'warn'
-        ? 'bg-amber-400'
-        : tone === 'great'
-          ? 'bg-emerald-400'
-          : 'bg-slate-200';
   return (
-    <div className="flex flex-col gap-0.5">
+    <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+        <span className="flex items-center gap-1.5 font-sign text-[14px] font-bold uppercase leading-none tracking-[0.06em] text-slate-300">
           {icon}
           {label}
         </span>
         <span className="flex items-center gap-1.5">
           {known && note && (
-            <span className="rounded-full border border-red-500/40 bg-red-500/10 px-1.5 text-[8px] font-bold uppercase tracking-widest text-red-300">
+            <span className="-rotate-2 rounded-[2px] border border-red-300 px-1 font-sign text-[12px] font-bold uppercase leading-tight tracking-[0.05em] text-red-300">
               {note}
             </span>
           )}
           <span
-            className={`font-mono text-[10px] font-bold ${
+            className={`font-sign text-[16px] font-bold leading-none tabular-nums ${
               !known
-                ? 'text-slate-600'
+                ? 'text-slate-500'
                 : tone === 'danger'
                   ? 'text-red-400'
                   : tone === 'warn'
@@ -127,15 +120,11 @@ function MeterBar({
         </span>
       </div>
       {known ? (
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
-          <div
-            className={`h-full rounded-full transition-all duration-500 ${barColor} ${widthClass(value)}`}
-          />
-        </div>
+        <CareerMeterGauge value={value} tone={tone} />
       ) : (
-        <div className="flex h-1.5 w-full items-stretch gap-1">
+        <div className="flex h-[6px] w-full items-stretch gap-1">
           {Array.from({ length: UNKNOWN_SEGMENTS }, (_, i) => (
-            <span key={i} className="flex-1 rounded-full bg-slate-800" />
+            <span key={i} className="flex-1 rounded-[1px] bg-slate-800" />
           ))}
         </div>
       )}
@@ -162,7 +151,7 @@ function StatPips({
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="flex min-w-0 items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+      <span className="flex min-w-0 items-center gap-1.5 font-sign text-[14px] font-bold uppercase leading-none tracking-[0.06em] text-slate-300">
         {icon}
         <span className="truncate">{label}</span>
       </span>
@@ -171,12 +160,12 @@ function StatPips({
           {Array.from({ length: max }, (_, i) => (
             <span
               key={i}
-              className={`h-2 w-2 rounded-full ${
+              className={`h-2.5 w-[6px] rounded-[1px] ${
                 !known
-                  ? 'border border-dashed border-slate-700'
+                  ? 'border border-dashed border-slate-600'
                   : i < level
-                    ? 'bg-amber-400'
-                    : 'border border-slate-600'
+                    ? 'bg-amber-300'
+                    : 'bg-slate-700'
               }`}
             />
           ))}
@@ -186,14 +175,14 @@ function StatPips({
             {Array.from({ length: 3 }, (_, i) => (
               <span
                 key={i}
-                className={`h-1 w-2 rounded-sm ${
+                className={`h-1 w-2 rounded-[1px] ${
                   known && i < progress ? 'bg-sky-400' : 'bg-slate-800'
                 }`}
               />
             ))}
           </span>
         )}
-        <span className="w-10 text-right font-mono text-[9px] font-bold text-slate-500">
+        <span className="w-9 text-right font-sign text-[13px] font-semibold leading-none tabular-nums text-slate-400">
           {!known
             ? D.unknown
             : level >= max
@@ -207,13 +196,11 @@ function StatPips({
 
 export default function MetersPanel({
   ch,
-  showTitle = true,
   title = M.title,
   onInfo,
   reveal = FULL_REVEAL,
 }: {
   ch: CharacterCareerState;
-  showTitle?: boolean;
   title?: string;
   onInfo?: () => void;
   // How much of somebody else's card the informant on the payroll opens up
@@ -223,23 +210,19 @@ export default function MetersPanel({
   const appetiteNote =
     ch.appetite < 20 ? M.appetiteLow : ch.appetite > 80 ? M.appetiteHigh : null;
   return (
-    <div className="flex w-full flex-col gap-2.5 rounded-2xl border border-sky-200/10 bg-slate-900/40 p-4">
-      {(showTitle || onInfo) && (
-        <div className="flex items-center justify-between gap-2">
-          {showTitle && (
-            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-sky-400">
-              {title}
-            </span>
-          )}
-          {onInfo && (
-            <InfoButton
-              label={M.infoTitle}
-              onClick={onInfo}
-              className="ml-auto"
-            />
-          )}
-        </div>
-      )}
+    <div className="flex w-full flex-col gap-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-sign text-[15px] font-bold uppercase tracking-[0.07em] text-slate-100">
+          {title}
+        </span>
+        {onInfo && (
+          <InfoButton
+            label={M.infoTitle}
+            onClick={onInfo}
+            className="ml-auto"
+          />
+        )}
+      </div>
       <MeterBar
         icon={<HeartIcon className={`h-3 w-3 ${tones.stress === 'danger' ? 'text-red-400' : ''}`} />}
         label={M.stress}
@@ -279,13 +262,13 @@ export default function MetersPanel({
         tone={tones.fame}
         known={reveal.meters}
       />
-      <div className="mt-1 flex flex-col gap-1.5 border-t border-sky-200/10 pt-2.5">
+      <div className="mt-1 flex flex-col gap-1.5 border-t border-[#1c1408]/30 pt-2.5">
         <StatPips
           icon={<GlizzyIcon variant={0} className="h-2.5 w-4" />}
           label={T.stomach.name}
           level={ch.livesCap.level}
           progress={ch.livesCap.progress}
-          max={3}
+          max={TRAINING_DEFS.stomach.maxLevel}
           known={reveal.skills}
           showProgress={reveal.detail}
         />
@@ -294,7 +277,7 @@ export default function MetersPanel({
           label={T.sniffer.name}
           level={ch.njuh.level}
           progress={ch.njuh.progress}
-          max={3}
+          max={TRAINING_DEFS.sniffer.maxLevel}
           known={reveal.skills}
           showProgress={reveal.detail}
         />
@@ -303,7 +286,7 @@ export default function MetersPanel({
           label={T.nutrition.name}
           level={ch.nutrition.level}
           progress={ch.nutrition.progress}
-          max={3}
+          max={TRAINING_DEFS.nutrition.maxLevel}
           known={reveal.skills}
           showProgress={reveal.detail}
         />
@@ -312,7 +295,7 @@ export default function MetersPanel({
           label={T.fans.name}
           level={ch.fanSkill.level}
           progress={ch.fanSkill.progress}
-          max={3}
+          max={TRAINING_DEFS.fans.maxLevel}
           known={reveal.skills}
           showProgress={reveal.detail}
         />

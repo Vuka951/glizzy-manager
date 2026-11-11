@@ -18,7 +18,7 @@ export const CAREER_BET_UNLOCK_CUPS = 2;
 // and the clamps keep every match worth at least a look while stopping the
 // long shots from paying out a career in one night
 export const BET_ODDS_MIN = 1.1;
-export const BET_ODDS_MAX = 2.2;
+export const BET_ODDS_MAX = 2.5;
 export const BET_ODDS_MARGIN = 0.9;
 export const BET_ODDS_RANK_WEIGHT = 2;
 export const BET_ODDS_SOFTNESS = 50;
@@ -47,8 +47,8 @@ export const MEDIA_SCANDAL_PAY = 70;
 export const MEDIA_SCANDAL_FAME_SCALE = 2;
 export const MEDIA_SCANDAL_STRESS = 30;
 export const MEDIA_SCANDAL_EGO_GAIN = 6;
-// Stranka's state media: double pay and no once-per-season limit
-export const STRANKA_MEDIA_MULTIPLIER = 2;
+// The Red Party's state media: double pay and no once-per-season limit
+export const RED_MEDIA_MULTIPLIER = 2;
 
 // A staged scandal sells either way, but sometimes it slips the leash:
 // the pay lands while fame and ego take the fall and cholesterol doubles up
@@ -62,6 +62,8 @@ export const GUARD_STEP_COST = 0.1;
 export const GUARD_MIN_CHANCE = 0.3;
 // Even a fully funded crew misses the odd visitor
 export const GUARD_MAX_CHANCE = 0.85;
+// The Blue Party crew works its own clients' doors past that ceiling
+export const BLUE_GUARD_MAX_CHANCE = 0.95;
 // The crew charges for the attention a client draws: every place inside the
 // top of the table adds this much to the fee, so the leader pays the most
 export const GUARD_TOP_POSITIONS = 5;
@@ -78,7 +80,7 @@ export const SABOTAGE_MAX_CHANCE = 0.95;
 // and a failed one costs neither the fine nor the table points. While the
 // island sits in the government, planted evidence against them never reaches
 // an indictment either
-export const OSTRVO_SABOTAGE_DISCOUNT = 0.25;
+export const GREEN_SABOTAGE_DISCOUNT = 0.25;
 export const SABOTAGE_SUCCESS = [0.5, 0.5, 0.5];
 export const SABOTAGE_BOOST_STEP = 0.05;
 export const SABOTAGE_BOOST_STEP_COST = 0.1;
@@ -87,7 +89,7 @@ export const SABOTAGE_BOOST_STEP_COST = 0.1;
 // costs this much more than the one before
 export const SABOTAGE_REPEAT_SCALE = 1.5;
 // The standard package stops 3 out of 5 landed attacks; AI hires and the
-// Zidari house crew always run the standard package
+// The Blue Party house crew always run the standard package
 export const GUARD_BLOCK_CHANCE = 0.6;
 // Planted evidence opens an investigation; the judge is a separate coin toss
 // that decides whether the mid-match arrest actually happens
@@ -96,6 +98,10 @@ export const POLICE_INDICTMENT_CHANCE = 0.75;
 // on the coach's record grows the next fine by a quarter, floored
 export const SABOTAGE_FINE_BASE = 10;
 export const SABOTAGE_FINE_GROWTH = 1.25;
+// How many cups a fine stays fresh on a human coach's record, the window a
+// second conviction makes the harder headline. AI coaches lie low for as long
+// as their temperament says (careerPersonalities.ts)
+export const HUMAN_FINE_RECENCY_CUPS = 3;
 // Running the plot, or paying somebody to watch your back, is its own kind
 // of swagger: taking the off-season into your own hands feeds the ego
 export const PLOTTING_EGO_GAIN = 8;
@@ -123,13 +129,13 @@ export const sabotageMeterEffects: Record<
   'nutrition-bribed': { appetite: -15 },
   'fans-rumor': { fame: -15, ego: -10, stress: 10 },
   'catfish-date': { stress: 30, fame: -15 },
-  'catfish-zeka': { stress: 30, ego: -15 },
+  'catfish-beast': { stress: 30, ego: -15 },
   'catfish-demons': { stress: 30, ambition: -15 },
   'police-tax': { fame: -10 },
   'police-stash': { fame: -10 },
   'police-island': { fame: -10 },
   'police-smuggling': { fame: -10 },
-  'korp-vendetta': { fame: -10 },
+  'yellow-vendetta': { fame: -10 },
 };
 
 // League table points: seeding into each cup is read straight off the table
@@ -141,16 +147,18 @@ export const POINTS_FAME_DIVISOR = 5;
 // Signing a sponsor is publicity in itself
 export const SPONSOR_FAME_BONUS = 10;
 // The campaign ends the first time anyone, the player's character or an AI,
-// reaches this many table points: that character is the Glizi Overlord. When
-// several get there in the same window the one with the most points takes it
-export const OVERLORD_POINTS = 300;
+// reaches the crown's table points: that character is the Glizi Overlord. When
+// several get there in the same window the one with the most points takes it.
+// A solo career picks the short or the long campaign, a shared room can also
+// go one longer
+export type OverlordPoints = 250 | 500 | 750;
+export const OVERLORD_POINT_OPTIONS: OverlordPoints[] = [250, 500, 750];
+export const SOLO_OVERLORD_POINT_OPTIONS: OverlordPoints[] = [250, 500];
+export const OVERLORD_POINTS: OverlordPoints = 250;
 
 // Coming back from obscurity: the player's character restarts with almost
 // no fame, which also makes him the guaranteed last seed
 export const COMEBACK_START_FAME = 10;
-// AI characters open a career with fame drawn evenly from this range
-export const AI_START_FAME_MIN = 20;
-export const AI_START_FAME_MAX = 50;
 
 export const REST_STRESS_DROP = 30;
 export const REST_DRIFT = 12;

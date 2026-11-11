@@ -39,7 +39,7 @@ export default function BroadcastWeatherSlide({
   const twinkles = themeIndex === WEATHER_TWINKLES;
   return (
     <div
-      className={`relative flex min-h-56 flex-col justify-center overflow-hidden rounded-xl border p-5 ${WEATHER_TINTS[themeIndex]}`}
+      className={`relative flex min-h-56 flex-col justify-center overflow-hidden p-5 ${WEATHER_TINTS[themeIndex]}`}
     >
       {particles.map((particle, i) => (
         <span
@@ -59,20 +59,20 @@ export default function BroadcastWeatherSlide({
       )}
       <div className="relative flex items-center gap-5">
         <span
-          className={`shrink-0 text-6xl font-black leading-none [font-variant-numeric:tabular-nums] ${WEATHER_TEXT[themeIndex]}`}
+          className={`shrink-0 font-sign text-7xl font-extrabold leading-none tabular-nums ${WEATHER_TEXT[themeIndex]}`}
         >
           {degrees}°
         </span>
         <div className="min-w-0">
-          <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
+          <p className="font-sign text-[13px] font-bold uppercase leading-tight tracking-[0.1em] text-slate-400">
             {B.weatherTitle}
           </p>
-          <p className="text-lg font-black text-slate-100">{seasonName(season)}</p>
+          <p className="font-sign text-[22px] font-extrabold uppercase leading-tight text-slate-100">{seasonName(season)}</p>
           <p className="text-xs leading-snug text-slate-300">{report}</p>
         </div>
       </div>
       {champions.length > 0 && (
-        <div className="relative mt-4 flex items-center gap-2 rounded-lg border border-white/10 bg-slate-950/50 px-3 py-1.5 animate-[introslide_0.5s_ease-out_both] [animation-delay:700ms]">
+        <div className="relative mt-4 flex items-center gap-2 rounded-[3px] bg-slate-950 px-3 py-1.5 animate-[introslide_0.5s_ease-out_both] [animation-delay:700ms]">
           <span className="text-sm">🏆</span>
           <span className="text-[10px] font-semibold text-slate-300">{B.pastChampions}</span>
           <span className="ml-auto flex items-center gap-2">
@@ -81,7 +81,7 @@ export default function BroadcastWeatherSlide({
               return character ? (
                 <span key={`${champion.slug}-${champion.year}`} className="flex items-center gap-1">
                   <PortraitHead character={character} className="h-6 w-6" />
-                  <span className="font-mono text-[9px] text-slate-400">
+                  <span className="font-sign text-[12px] tabular-nums text-slate-400">
                     {fmt(B.championYear, { year: champion.year })}
                   </span>
                 </span>

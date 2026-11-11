@@ -1,7 +1,7 @@
 // Clip integrity check for the audio bank: node scripts/audio-check.mjs
 // Collects every clip the code can play (cutscene cues and beds, quote
-// scenes, the sfx banks, the mood lines, the season music, the arena crowd
-// and the voiced commentary lines) and compares it with public/games/audio.
+// scenes, the sfx banks, the premier clips, the mood lines, the season
+// music, the arena crowd and the voiced commentary lines) and compares it with public/games/audio.
 // Fails (exit 1) on a referenced clip with no file, a file no code
 // references, a non-mp3 file, a cutscene id nothing plays, or a file whose
 // container or stream metadata carries a tag. The tag check needs ffprobe; without it the check
@@ -24,10 +24,10 @@ const { CUTSCENE_AUDIO_DIR, ARENA_CROWD_BED_SRC, CUTSCENE_SOUNDTRACKS, SABOTAGE_
   await import('../lib/constants/cutsceneSounds.ts');
 const { QUOTE_SCENES, QUOTE_WORD_BLIP } = await import('../lib/constants/quoteCutscenes.ts');
 const { GAME_MUSIC_TRACKS } = await import('../lib/constants/gameMusic.ts');
-const { COMMENTARY_VOICE_LOCALES } = await import('../lib/constants/careerCommentaryVoice.ts');
+const { CAPTION_ONLY_LINES, COMMENTARY_VOICE_LOCALES } = await import('../lib/constants/careerCommentaryVoice.ts');
 const { moodSoundVariants } = await import('../lib/utils/moodSounds.ts');
+const { PREMIER_CLIPS, premierClipSrc } = await import('../lib/constants/electionPremier.ts');
 const gameSounds = await import('../lib/utils/gameSounds.ts');
-const { CHARACTER_ROSTER } = await import('../data/games/roster.ts');
 
 // A clip's url under public/, and the places that play it
 const references = new Map();
@@ -73,6 +73,12 @@ const SFX_BANKS = [
   { call: 'playShutterSound', args: [], sfx: 'shutter' },
   { call: 'playTrophySound', args: [], sfx: 'trophy' },
   { call: 'playCharacterSelectSound', args: [] },
+  { call: 'playHoverSound', args: [] },
+  { call: 'playSplashSound', args: [] },
+  { call: 'playDogSound', args: [] },
+  { call: 'playBusArriveSound', args: [] },
+  { call: 'playBusLeaveSound', args: [] },
+  ...PREMIER_CLIPS.map((clip) => ({ call: 'playQuoteClip', args: [premierClipSrc(clip.id)] })),
 ];
 const MAX_BANK_VARIANTS = 20;
 
@@ -120,6 +126,7 @@ const sfxFiles = new Map();
 function referCues(cues, label) {
   for (const cue of cues) {
     if (cue.clip) refer(cutsceneUrl(cue.clip), label);
+    for (const clip of cue.pick ?? []) refer(cutsceneUrl(clip), label);
     if (cue.sfx) {
       const urls = sfxFiles.get(cue.sfx);
       if (!urls) {
@@ -178,19 +185,15 @@ for (const activity of moodActivities) {
 GAME_MUSIC_TRACKS.forEach((url, season) => refer(url, `season ${season + 1}`));
 
 // Mirrors clipUrl in lib/utils/matchCommentary.ts and the generator: a
-// line that names a character has one take per roster slug
+// voiced line has one take per language, and a caption-only line (one that
+// names a character, or one waiting for a re-render) has none
 for (const locale of COMMENTARY_VOICE_LOCALES) {
   const dictionary = JSON.parse(
     readFileSync(join(ROOT, 'data', 'games', 'locales', `${locale}.json`), 'utf8'),
   );
   const base = `${AUDIO_URL_BASE}commentary/career/${locale}`;
-  for (const [id, copy] of Object.entries(dictionary.commentary.lines)) {
-    const label = `commentary ${locale} ${id}`;
-    if (copy.text.includes('{name}')) {
-      for (const character of CHARACTER_ROSTER) refer(`${base}/${id}--${character.slug}.mp3`, label);
-    } else {
-      refer(`${base}/${id}.mp3`, label);
-    }
+  for (const id of Object.keys(dictionary.commentary.lines)) {
+    if (!CAPTION_ONLY_LINES.has(id)) refer(`${base}/${id}.mp3`, `commentary ${locale} ${id}`);
   }
 }
 

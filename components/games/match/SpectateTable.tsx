@@ -1,17 +1,19 @@
-import GlizzyIcon from '@/components/icons/GlizzyIcon';
-import LivesRow from '@/components/games/LivesRow';
+'use client';
+
+import { useCareerFrames } from '@/components/games/career/careerFrames';
+import BrassPlate from '@/components/games/career/street/BrassPlate';
 import PortraitHead from '@/components/games/PortraitHead';
 import SponsorActorGear from '@/components/games/career/SponsorActorGear';
-import SpotIcon from '@/components/icons/SpotIcon';
-import { studioAccents } from '@/lib/constants/studioThemes';
 import MatchAudience from '@/components/games/match/MatchAudience';
-import CoachTag from '@/components/games/career-mp/CoachTag';
+import MatchTablePlace from '@/components/games/match/MatchTablePlace';
+import MatchTableSpot from '@/components/games/match/MatchTableSpot';
+import MatchTableSurface from '@/components/games/match/MatchTableSurface';
+import SeatTag from '@/components/games/rooms/SeatTag';
 import CrowdPot from '@/components/games/career-mp/CrowdPot';
 import CrowdTokenEffect from '@/components/games/career-mp/CrowdTokenEffect';
 import type { CoachTagMap, CoachTokens } from '@/lib/types/careerMp';
 import MoodBubble from '@/components/games/career/MoodBubble';
 import SniffCue from '@/components/games/match/SniffCue';
-import SniffScent from '@/components/games/match/SniffScent';
 import TurnRoleCue, { type TurnRole } from '@/components/games/TurnRoleCue';
 import {
   useVictoryAnimation,
@@ -23,7 +25,6 @@ import {
   type HidingSpotId,
 } from '@/data/games/glizzyDuel';
 import type { CharacterCareerState, SponsorId } from '@/lib/utils/careerSave';
-import { hidingSpotLabel } from '@/lib/utils/localeNames';
 
 // The hop runs twice inside VICTORY_HOP_MS, then the cheer loops
 const WINNER_MOTION: Record<VictoryBeat, string> = {
@@ -112,15 +113,13 @@ export default function SpectateTable({
   bottomCoach?: CoachTagMap[string] | null;
   coachTokens?: CoachTokens | null;
 }) {
-  const accent = studioAccents(theme);
+  const street = useCareerFrames() === 'street';
   const victoryBeat = useVictoryAnimation({
     active: outcome !== null && celebrate,
   });
 
   const seat = (side: 'top' | 'bottom') => {
     const character = side === 'top' ? top : bottom;
-    const lives = side === 'top' ? topLives : bottomLives;
-    const cap = side === 'top' ? topCap : bottomCap;
     const mood = side === 'top' ? topMood : bottomMood;
     const role: TurnRole | null =
       phase.kind === 'place' && phase.hider === side
@@ -133,41 +132,35 @@ export default function SpectateTable({
     const delta = side === 'top' ? topDelta : bottomDelta;
     const sponsor = side === 'top' ? topSponsor : bottomSponsor;
     const coach = side === 'top' ? topCoach : bottomCoach;
-    const nameplate = (
+    // The name hangs off the bottom of the portrait like a ribbon, which
+    // leaves the space above the head to the mood bubble
+    const nameplate = street ? (
       <span
-        className={`flex items-center gap-1.5 text-xs font-semibold text-white transition-opacity duration-500 ${
+        className={`absolute left-1/2 top-full z-30 -mt-2.5 flex -translate-x-1/2 whitespace-nowrap transition-opacity duration-500 ${
+          outcome ? 'opacity-0' : 'opacity-100'
+        }`}
+      >
+        <BrassPlate>
+          {character.name}
+          {coach && <SeatTag name={coach.name} color={coach.color} connected={coach.connected} />}
+        </BrassPlate>
+      </span>
+    ) : (
+      <span
+        className={`absolute left-1/2 top-full z-30 -mt-2.5 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-md border border-sky-200/15 bg-slate-950/85 px-2 py-px text-[11px] font-semibold text-white shadow-[0_2px_6px_rgba(0,0,0,0.5)] transition-opacity duration-500 ${
           outcome ? 'opacity-0' : 'opacity-100'
         }`}
       >
         {character.name}
-        {coach && <CoachTag name={coach.name} color={coach.color} connected={coach.connected} />}
+        {coach && <SeatTag name={coach.name} color={coach.color} connected={coach.connected} />}
       </span>
     );
     return (
       <div
-        className={`relative z-30 flex flex-col items-center gap-1 transition-opacity duration-700 ${
+        className={`relative z-30 flex flex-col items-center gap-3 transition-opacity duration-700 ${
           exit === side ? 'opacity-0' : ''
-        }`}
+        } ${side === 'top' ? 'pt-5' : ''}`}
       >
-        {side === 'top' && nameplate}
-        {side === 'bottom' && stats && (
-          <span
-            className={`relative z-30 transition-opacity duration-500 ${
-              outcome ? 'opacity-0' : 'opacity-100'
-            }`}
-          >
-            {stats}
-          </span>
-        )}
-        {side === 'bottom' && (
-          <div
-            className={`transition-opacity duration-500 ${
-              outcome ? 'opacity-0' : 'opacity-100'
-            }`}
-          >
-            <LivesRow lives={lives} cap={cap} />
-          </div>
-        )}
         <div className="relative z-20">
           <div
             className={`relative transition-all duration-500 ${
@@ -189,7 +182,11 @@ export default function SpectateTable({
             <PortraitHead
               character={character}
               className={`h-11 w-11 transition-all duration-500 sm:h-12 sm:w-12 ${
-                betSlug === character.slug ? 'ring-2 ring-sky-300' : ''
+                betSlug === character.slug
+                  ? street
+                    ? 'ring-2 ring-[#fcd34d]'
+                    : 'ring-2 ring-sky-300'
+                  : ''
               } ${sick === side ? '[filter:sepia(1)_hue-rotate(55deg)_saturate(2.6)]' : ''}`}
             />
             {sponsor && <SponsorActorGear sponsorId={sponsor} variant="seat" />}
@@ -240,17 +237,9 @@ export default function SpectateTable({
               <CrowdTokenEffect outcome="won" variant={1} />
             )}
           </div>
+          {nameplate}
         </div>
-        {side === 'top' && (
-          <div
-            className={`transition-opacity duration-500 ${
-              outcome ? 'opacity-0' : 'opacity-100'
-            }`}
-          >
-            <LivesRow lives={lives} cap={cap} />
-          </div>
-        )}
-        {side === 'top' && stats && (
+        {stats && (
           <span
             className={`relative z-30 transition-opacity duration-500 ${
               outcome ? 'opacity-0' : 'opacity-100'
@@ -259,14 +248,12 @@ export default function SpectateTable({
             {stats}
           </span>
         )}
-
-        {side === 'bottom' && nameplate}
       </div>
     );
   };
 
   return (
-    <div className="relative isolate flex w-full max-w-xs flex-col items-center group-[:fullscreen]:max-w-sm">
+    <div className="relative isolate flex w-full max-w-xs flex-col items-center group-fullscreen:max-w-sm">
       <MatchAudience
         top={top}
         bottom={bottom}
@@ -284,88 +271,58 @@ export default function SpectateTable({
             sponsor board: the top seat's pot top right, the bottom seat's
             bottom left */}
         {(coachTokens?.topPot ?? 0) > 0 && (
-          <span className="absolute -right-10 -top-8 z-30">
+          <span className="absolute -right-1 -top-8 z-30 sm:-right-10">
             <CrowdPot amount={coachTokens?.topPot ?? 0} />
           </span>
         )}
         {(coachTokens?.bottomPot ?? 0) > 0 && (
-          <span className="absolute -bottom-10 -left-10 z-30">
+          <span className="absolute -bottom-10 -left-1 z-30 sm:-left-10">
             <CrowdPot amount={coachTokens?.bottomPot ?? 0} />
           </span>
         )}
-        <div
-          className={`relative rounded-xl border-2 ${accent.tableBorder} bg-gradient-to-b ${accent.tableSurface} px-2.5 pb-3 pt-3.5 shadow-xl`}
+        <MatchTableSurface
+          theme={theme}
+          top={
+            <MatchTablePlace
+              lives={topLives}
+              cap={topCap}
+              theme={theme}
+              side="top"
+              hidden={outcome !== null}
+            />
+          }
+          bottom={
+            <MatchTablePlace
+              lives={bottomLives}
+              cap={bottomCap}
+              theme={theme}
+              side="bottom"
+              hidden={outcome !== null}
+            />
+          }
         >
-          <div
-            className={`absolute inset-x-2 top-1 h-px rounded-full ${accent.tableEdge}`}
-          />
-          <div className="grid grid-cols-3 gap-2">
-            {HIDING_SPOTS.map((spot) => {
-              const isReveal =
-                phase.kind === 'reveal' && phase.spot === spot.id;
-              const isHit = isReveal && phase.kind === 'reveal' && phase.hit;
-              // Where the nose says the glizzy is, while the hand is still
-              // deciding somewhere else
-              const isSensed = !isReveal && sniffSpot === spot.id;
-              return (
-                <div
-                  key={spot.id}
-                  className="relative flex flex-col items-center gap-1"
-                >
-                  {isSensed && (
-                    <SniffScent
-                      direction={sniff === 'top' ? 'up' : 'down'}
-                      className={`left-1/2 -translate-x-1/2 ${
-                        sniff === 'top' ? '-top-4' : '-bottom-4'
-                      }`}
-                    />
-                  )}
-                  <div
-                    className={`relative flex aspect-square w-full items-center justify-center rounded-lg border-2 transition-all duration-300 ${
-                      isReveal
-                        ? isHit
-                          ? 'border-red-500 bg-red-500/30 ring-2 ring-red-500/25'
-                          : 'border-green-400 bg-green-400/15'
-                        : isSensed
-                          ? 'border-lime-400 bg-lime-400/10 ring-2 ring-lime-300/30'
-                          : `${accent.tileBorder} bg-slate-900/80`
-                    }`}
-                  >
-                    <SpotIcon
-                      spot={spot.id}
-                      variant={spotVariants[spot.id]}
-                      className={`h-8 w-8 transition-all duration-500 sm:h-9 sm:w-9 ${
-                        isReveal ? '-translate-y-5 rotate-6 opacity-70' : ''
-                      } ${phase.kind === 'think' || phase.kind === 'place' ? 'animate-pulse' : ''}`}
-                    />
-                    <span
-                      className={`absolute inset-x-0 bottom-1 flex justify-center transition-all delay-150 duration-500 ${
-                        isHit
-                          ? 'translate-y-0 scale-100 opacity-100'
-                          : 'translate-y-2 scale-50 opacity-0'
-                      }`}
-                    >
-                      <GlizzyIcon variant={glizzyVariant} className="h-5 w-8" />
-                    </span>
-                  </div>
-                  <span
-                    className={`text-[8px] font-bold uppercase tracking-widest ${accent.spotLabel}`}
-                  >
-                    {hidingSpotLabel(spot.id)}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        <div className="flex justify-between px-6">
-          <div
-            className={`h-6 w-2.5 rounded-b-md bg-gradient-to-b ${accent.tableLeg}`}
-          />
-          <div
-            className={`h-6 w-2.5 rounded-b-md bg-gradient-to-b ${accent.tableLeg}`}
-          />
-        </div>
+          {HIDING_SPOTS.map((spot) => {
+            const isReveal = phase.kind === 'reveal' && phase.spot === spot.id;
+            return (
+              <MatchTableSpot
+                key={spot.id}
+                spot={spot}
+                variant={spotVariants[spot.id]}
+                glizzyVariant={glizzyVariant}
+                theme={theme}
+                reveal={
+                  isReveal && phase.kind === 'reveal'
+                    ? phase.hit
+                      ? 'hit'
+                      : 'miss'
+                    : null
+                }
+                sensedFrom={!isReveal && sniffSpot === spot.id ? sniff : null}
+                busy={phase.kind === 'think' || phase.kind === 'place'}
+              />
+            );
+          })}
+        </MatchTableSurface>
       </div>
 
       <div className="relative z-30 -mt-4">{seat('bottom')}</div>

@@ -10,7 +10,7 @@ export default function SeasonBackdropPreview() {
       {seasons.map((label, season) => (
         <section
           key={label}
-          className="group relative aspect-video overflow-hidden rounded-3xl border border-sky-200/20 bg-slate-900 shadow-2xl"
+          className="group relative aspect-video overflow-hidden rounded-2xl border border-sky-200/20 bg-slate-900 shadow-2xl"
         >
           <SeasonBackdrop season={season} />
           <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/5" />

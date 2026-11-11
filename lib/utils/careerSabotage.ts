@@ -9,6 +9,7 @@ import {
   POLICE_INDICTMENT_CHANCE,
   GUARD_TOP_POSITIONS,
   GUARD_TOP_SURCHARGE_STEP,
+  BLUE_GUARD_MAX_CHANCE,
   PROTECTION_COST,
   SABOTAGE_APPETITE_HIT,
   SABOTAGE_BOOST_STEP,
@@ -16,6 +17,7 @@ import {
   SABOTAGE_COSTS,
   SABOTAGE_FINE_BASE,
   SABOTAGE_FINE_GROWTH,
+  HUMAN_FINE_RECENCY_CUPS,
   SABOTAGE_MAX_CHANCE,
   SABOTAGE_REPEAT_SCALE,
   SABOTAGE_SUCCESS,
@@ -26,7 +28,11 @@ import {
 import { PUNISHMENT_PARTY_PENALTY } from '@/data/games/careerElections';
 import { partyConvictions } from '@/lib/utils/careerElections';
 import { RIVAL_SABOTAGE_WEIGHT_SCALE } from '@/data/games/careerRivals';
-import { personalityFor } from '@/data/games/careerPersonalities';
+import {
+  AI_PLOT_PILE_ON_SCALE,
+  AI_PLOT_REACH,
+  personalityFor,
+} from '@/data/games/careerPersonalities';
 import { TRAININGS_PER_LEVEL } from '@/data/games/careerTraining';
 import type {
   CharacterCareerState,
@@ -40,13 +46,18 @@ import { clampMeter } from '@/lib/utils/careerMeters';
 import {
   guardTaxScale,
   shieldedFromIndictment,
-  zidariBlockChance,
+  blueBlockChance,
 } from '@/lib/utils/careerElections';
 import { standingSecurityChance } from '@/lib/utils/careerInvestments';
+import {
+  punishmentsCostVotes,
+  sabotageLawChance,
+  standingLawBonus,
+} from '@/lib/utils/careerLaws';
 import { readAiSituation } from '@/lib/utils/careerAiSituation';
 import { isHumanSlug, rankBySeeding, seedingKey } from '@/lib/utils/careerPoints';
 import { seasonPriceScale } from '@/lib/utils/careerSeasonPrices';
-import { isOstrvoClient } from '@/lib/utils/careerSponsors';
+import { isGreenClient } from '@/lib/utils/careerSponsors';
 import type { MessageParams } from '@/lib/utils/message';
 import { weightedPick } from '@/lib/utils/weightedPick';
 
@@ -58,7 +69,7 @@ const FREEZEFRAME_BY_VARIANT: Record<string, string> = {
   'nutrition-bribed': 'nutrition-bribed',
   'fans-rumor': 'rumor',
   'catfish-date': 'heartbreak',
-  'catfish-zeka': 'zeka',
+  'catfish-beast': 'beast',
   'catfish-demons': 'demons',
   'police-tax': 'police-tax',
   'police-stash': 'police-stash',
@@ -70,7 +81,7 @@ const FREEZEFRAME_BY_VARIANT: Record<string, string> = {
 // surprise that only the news reveals
 const VARIANTS_BY_TIER: Record<number, string[]> = {
   1: ['poison-glizimaker', 'poison-kafana'],
-  2: ['catfish-date', 'catfish-zeka', 'catfish-demons'],
+  2: ['catfish-date', 'catfish-beast', 'catfish-demons'],
   3: ['police-tax', 'police-stash', 'police-island', 'police-smuggling'],
 };
 
@@ -161,7 +172,7 @@ export function sabotageCost(tier: SabotageTier, priceScale = 1): number {
   return Math.round(SABOTAGE_COSTS[tier - 1] * priceScale);
 }
 
-// The AI underworld works at a discount
+// One step up the funding ladder: a fixed share of the job's street price
 export function sabotageBoostStepCost(
   tier: SabotageTier,
   priceScale = 1,
@@ -218,12 +229,21 @@ export function guardMinSteps(): number {
   return -Math.round((GUARD_BLOCK_CHANCE - GUARD_MIN_CHANCE) / GUARD_STEP);
 }
 
-export function guardMaxSteps(): number {
-  return Math.round((GUARD_MAX_CHANCE - GUARD_BLOCK_CHANCE) / GUARD_STEP);
+export function guardMaxChance(ch?: CharacterCareerState): number {
+  return ch?.sponsor?.sponsorId === 'blue'
+    ? BLUE_GUARD_MAX_CHANCE
+    : GUARD_MAX_CHANCE;
 }
 
-export function guardChance(steps: number): number {
-  return Math.min(GUARD_MAX_CHANCE, GUARD_BLOCK_CHANCE + steps * GUARD_STEP);
+export function guardMaxSteps(maxChance = GUARD_MAX_CHANCE): number {
+  return Math.round((maxChance - GUARD_BLOCK_CHANCE) / GUARD_STEP);
+}
+
+export function guardChance(
+  steps: number,
+  maxChance = GUARD_MAX_CHANCE,
+): number {
+  return Math.min(maxChance, GUARD_BLOCK_CHANCE + steps * GUARD_STEP);
 }
 
 export function guardCost(steps: number, priceScale = 1): number {
@@ -273,8 +293,8 @@ export function indictmentChance(tier: SabotageTier, chance: number): number {
 
 // The chance a queued attack on this character gets stopped at the door:
 // the standing retainer, this window's bought coverage, the AI's standard
-// package, or the Zidari house crew, whichever watches that door
-// What the coach can see of a target's door before he plots. The Zidari crew
+// package, or the Blue Party house crew, whichever watches that door
+// What the coach can see of a target's door before he plots. The Blue Party crew
 // is public knowledge, the standing retainer only shows with an informant at
 // detail level, and a crew hired this window never shows in advance
 export type VisibleGuard = {
@@ -291,11 +311,14 @@ export function visibleGuardBlock(
 ): VisibleGuard {
   const character = state.characters[slug];
   const sponsor =
-    character?.sponsor?.sponsorId === 'zidari'
-      ? zidariBlockChance(character, state.parliament)
+    character?.sponsor?.sponsorId === 'blue'
+      ? blueBlockChance(character, state.parliament)
       : 0;
   const standing =
-    revealDetail && character ? standingSecurityChance(character) : null;
+    revealDetail && character
+      ? standingSecurityChance(character) +
+        standingLawBonus(character, state.parliament)
+      : null;
   return {
     sponsor,
     standing,
@@ -306,10 +329,13 @@ export function visibleGuardBlock(
 
 export function guardBlockChance(state: SavedCareer, slug: string): number {
   const character = state.characters[slug];
-  const standingGuard = character ? standingSecurityChance(character) : 0;
+  const standingGuard = character
+    ? standingSecurityChance(character) +
+      standingLawBonus(character, state.parliament)
+    : 0;
   const sponsorGuard =
-    character?.sponsor?.sponsorId === 'zidari'
-      ? zidariBlockChance(character, state.parliament)
+    character?.sponsor?.sponsorId === 'blue'
+      ? blueBlockChance(character, state.parliament)
       : 0;
   const hiredGuard =
     slug === state.playerSlug
@@ -377,7 +403,7 @@ export type SabotageResolution = {
 // Resolve every queued sabotage: successes hit the target's meters (or queue a
 // mid-match police pickup), failures cost a fine plus table points, doubled on
 // a repeat offense. Security blocks the share of landed attacks its funding
-// bought; Zidari clients have the builders on the door around the clock.
+// bought; Blue Party clients have the party crew on the door around the clock.
 export function resolveSabotages(state: SavedCareer): SavedCareer {
   return resolveSabotagesDetailed(state).state;
 }
@@ -408,7 +434,13 @@ export function resolveSabotagesDetailed(
     }
     const blockChance = guardBlockChance(state, sabotage.targetSlug);
     const lands =
-      Math.random() < (sabotage.chance ?? sabotageChance(sabotage.tier));
+      Math.random() <
+      sabotageLawChance(
+        sabotage.chance ?? sabotageChance(sabotage.tier),
+        state.parliament,
+      );
+    // The island's house terms
+    const hushed = isGreenClient(by);
     // Whoever came to the door is remembered, whether or not he got in
     if (lands) {
       characters[sabotage.targetSlug] = {
@@ -434,7 +466,7 @@ export function resolveSabotagesDetailed(
     outcomes.push({
       bySlug: sabotage.bySlug,
       targetSlug: sabotage.targetSlug,
-      outcome: lands ? 'landed' : isOstrvoClient(by) ? 'hushed' : 'caught',
+      outcome: lands ? 'landed' : hushed ? 'hushed' : 'caught',
     });
     if (lands) {
       let templateKey = rollVariant(sabotage.tier);
@@ -443,6 +475,10 @@ export function resolveSabotagesDetailed(
         ...characters[sabotage.targetSlug],
         hitRecency: HIT_RECENCY_CUPS,
       };
+      characters[sabotage.bySlug] = {
+        ...characters[sabotage.bySlug],
+        plotsLanded: (by.plotsLanded ?? 0) + 1,
+      };
       if (sabotage.tier === 1) {
         const hit = applyTierOne(characters[sabotage.targetSlug]);
         if (hit) {
@@ -450,10 +486,11 @@ export function resolveSabotagesDetailed(
           templateKey = hit.variant;
         } else {
           // Nothing left to ruin; the feast leaves them stuffed instead
+          const stuffed = characters[sabotage.targetSlug];
           characters[sabotage.targetSlug] = {
-            ...target,
+            ...stuffed,
             appetite: clampMeter(
-              target.appetite - rollSway(SABOTAGE_APPETITE_HIT),
+              stuffed.appetite - rollSway(SABOTAGE_APPETITE_HIT),
             ),
           };
         }
@@ -477,7 +514,7 @@ export function resolveSabotagesDetailed(
         slugs: [sabotage.targetSlug],
         freezeframe: FREEZEFRAME_BY_VARIANT[templateKey],
       });
-    } else if (isOstrvoClient(by)) {
+    } else if (hushed) {
       // The file goes to the island's archive: no fine, no points, no record
       news.push({
         kind: 'scandal',
@@ -488,26 +525,27 @@ export function resolveSabotagesDetailed(
       });
     } else {
       const fine = sabotageFine(by);
-      const humanPlotter =
-        sabotage.bySlug !== state.playerSlug &&
-        isHumanSlug(state, sabotage.bySlug);
+      const humanBy = isHumanSlug(state, sabotage.bySlug);
       if (sabotage.bySlug === state.playerSlug) {
         balance = Math.max(0, balance - fine);
-      } else if (humanPlotter) {
+      } else if (humanBy) {
         fines[sabotage.bySlug] = (fines[sabotage.bySlug] ?? 0) + fine;
       }
       const escalate = (by.fineRecency ?? 0) > 0;
       // The voters read the paper too: his party carries the conviction on
       // its rating from here on
-      if (convictions && by.sponsor) {
+      if (convictions && by.sponsor && punishmentsCostVotes(state.parliament)) {
         convictions[by.sponsor.sponsorId] += PUNISHMENT_PARTY_PENALTY;
       }
       characters[sabotage.bySlug] = {
         ...by,
-        fineRecency: 3,
+        // An AI lies low for as long as his temperament can stand it
+        fineRecency: humanBy
+          ? HUMAN_FINE_RECENCY_CUPS
+          : personalityFor(by.personality).lieLowCups,
         punishments: (by.punishments ?? 0) + 1,
         sabotageFails: (by.sabotageFails ?? 0) + 1,
-        ...(sabotage.bySlug === state.playerSlug || humanPlotter
+        ...(humanBy
           ? {}
           : { money: Math.max(0, (by.money ?? 0) - fine) }),
       };
@@ -540,24 +578,25 @@ export function resolveSabotagesDetailed(
   };
 }
 
-// The corporation's revenge for a declined offer: a tier 3 planted-evidence
+// The Yellow Party's revenge for a declined offer: a tier 3 planted-evidence
 // hit on the player, resolved with the usual chance, guard and judge rules,
 // and it always makes the papers, landed or not
-export function applyKorpVendetta(
+export function applyYellowVendetta(
   state: SavedCareer,
   slug: string = state.playerSlug,
 ): SavedCareer {
   const player = state.characters[slug];
   const blockChance = guardBlockChance(state, slug);
   const pendingPolice = [...(state.pendingPolice ?? [])];
-  const lands = Math.random() < sabotageChance(3);
-  let templateKey = 'korp-vendetta-failed';
+  const lands =
+    Math.random() < sabotageLawChance(sabotageChance(3), state.parliament);
+  let templateKey = 'yellow-vendetta-failed';
   let freezeframe = 'evidence-failed';
   if (lands && Math.random() < blockChance) {
     templateKey = 'sabotageBlocked';
     freezeframe = 'blocked';
   } else if (lands) {
-    templateKey = 'korp-vendetta';
+    templateKey = 'yellow-vendetta';
     freezeframe = 'police';
     if (
       !shieldedFromIndictment(player, state.parliament) &&
@@ -573,7 +612,7 @@ export function applyKorpVendetta(
       ...state.characters,
       [slug]: hit,
     },
-    korpVendetta: false,
+    yellowVendetta: false,
     pendingPolice,
     newsQueue: [
       ...state.newsQueue,
@@ -607,12 +646,40 @@ export function sabotageTargetWeight(
     state.characters[targetSlug].sponsor?.sponsorId === bySponsor;
   const scaled = sameSponsor ? weight * AI_SABOTAGE_SAME_SPONSOR_SCALE : weight;
   // The feud overrides discretion: the rival hunts the player first
-  const feud =
+  const feud = isFeudTarget(state, bySlug, targetSlug)
+    ? scaled * RIVAL_SABOTAGE_WEIGHT_SCALE
+    : scaled;
+  return feud * targetReactionScale(state, bySlug, targetSlug, seeding);
+}
+
+// The human coach an AI rival was handed to hunt
+function isFeudTarget(
+  state: SavedCareer,
+  bySlug: string,
+  targetSlug: string,
+): boolean {
+  return (
     (bySlug === state.rivalSlug && targetSlug === state.playerSlug) ||
     state.rivalOf?.[targetSlug] === bySlug
-      ? scaled * RIVAL_SABOTAGE_WEIGHT_SCALE
-      : scaled;
-  return feud * targetReactionScale(state, bySlug, targetSlug, seeding);
+  );
+}
+
+// The names worth a second or third job in one window: the open grudge, the
+// feud, and whoever sits a few places directly above on the table
+export function plotWorthTargets(
+  state: SavedCareer,
+  bySlug: string,
+  seeding: string[],
+): string[] {
+  const rank = Math.max(0, seeding.indexOf(bySlug));
+  const above = seeding.slice(Math.max(0, rank - AI_PLOT_REACH), rank);
+  const grudge = state.characters[bySlug].grudgeSlug;
+  const feud = Object.keys(state.characters).filter((t) =>
+    isFeudTarget(state, bySlug, t),
+  );
+  return [...new Set([...(grudge ? [grudge] : []), ...feud, ...above])].filter(
+    (t) => t !== bySlug && state.characters[t] !== undefined,
+  );
 }
 
 // What the coach's temperament adds to the pick: the grudge, the name he
@@ -631,18 +698,32 @@ function targetReactionScale(
   if (situation.grudgeSlug === targetSlug)
     scale *= 1 + GRUDGE_TARGET_SCALE * mind.reactions.revenge;
   if (situation.above === targetSlug)
-    scale *= 1 + ABOVE_TARGET_SCALE * mind.reactions.bubble;
+    scale *= 1 + ABOVE_TARGET_SCALE * mind.reactions.climb;
   return scale;
 }
+
+// How the AI desk narrows a pick: only these names when set, and the crews
+// already queued at each door this window, which cool that door
+export type PlotTargeting = {
+  only?: string[];
+  booked?: Record<string, number>;
+};
 
 export function pickSabotageTarget(
   state: SavedCareer,
   bySlug: string,
   seeding: string[],
-): string {
-  const targets = Object.keys(state.characters).filter((s) => s !== bySlug);
-  return weightedPick(targets, (t) =>
-    sabotageTargetWeight(state, bySlug, t, seeding),
+  targeting: PlotTargeting = {},
+): string | null {
+  const targets = (targeting.only ?? Object.keys(state.characters)).filter(
+    (s) => s !== bySlug,
+  );
+  if (targets.length === 0) return null;
+  return weightedPick(
+    targets,
+    (t) =>
+      sabotageTargetWeight(state, bySlug, t, seeding) *
+      AI_PLOT_PILE_ON_SCALE ** (targeting.booked?.[t] ?? 0),
   );
 }
 
@@ -701,11 +782,13 @@ export function bookAiSabotage(
   wanted: SabotageTier,
   money: number,
   priceScale = 1,
-): PendingSabotage | null {
+  targeting: PlotTargeting = {},
+): (PendingSabotage & { cost: number }) | null {
   const mind = personalityFor(state.characters[bySlug].personality);
   const patience = mind.reactions.plotPatience;
   if (!patientAiTier(money, wanted, patience, priceScale)) return null;
-  const targetSlug = pickSabotageTarget(state, bySlug, seeding);
+  const targetSlug = pickSabotageTarget(state, bySlug, seeding, targeting);
+  if (!targetSlug) return null;
   const job = patientAiTier(
     money,
     escalatedTier(state, bySlug, targetSlug, seeding, wanted),

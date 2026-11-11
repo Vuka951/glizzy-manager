@@ -1,17 +1,37 @@
+import type { OverlordPoints } from '@/data/games/careerEconomy';
+import type {
+  GlizzyBet,
+  GlizzyBetResult,
+} from '@/data/games/careerGlizzflationBets';
 import type { InvestmentId } from '@/data/games/careerInvestments';
 import type { CareerPersonalityId } from '@/data/games/careerPersonalities';
-import { CHARACTER_ROSTER } from '@/data/games/roster';
-import type { TrainingId } from '@/data/games/careerTraining';
-import type { MessageParams, MessageRefs } from '@/lib/utils/message';
+import type { CoalitionBallot } from '@/lib/utils/careerCoalition';
 import type {
-  CupMatch,
-  CupMatchBet,
-  MatchForfeitReason,
+  ConstitutionWin,
+  LawBallot,
+  LawInForce,
+} from '@/lib/utils/careerLaws';
+import {
+  currentLawMail,
+  currentParliament,
+} from '@/lib/utils/careerRetiredLaws';
+import {
+  withoutRetiredFeatures,
+  withoutRetiredStories,
+} from '@/lib/utils/careerRetiredFeatures';
+import type { TrainingId } from '@/data/games/careerTraining';
+import { isLeagueRoster, type LeagueEntry } from '@/lib/utils/leagueRoster';
+import type { MessageParams, MessageRefs } from '@/lib/utils/message';
+import {
+  CUP_BRACKET_SIZE,
+  type CupMatch,
+  type CupMatchBet,
+  type MatchForfeitReason,
 } from '@/lib/utils/tournamentSim';
 
 export type TrainedStat = { level: number; progress: number };
 
-export type SponsorId = 'zidari' | 'ostrvo' | 'korporacija' | 'stranka';
+export type SponsorId = 'blue' | 'green' | 'yellow' | 'red';
 
 export type SponsorContract = {
   sponsorId: SponsorId;
@@ -50,8 +70,23 @@ export type Parliament = {
     votes: Record<SponsorId, number>;
     seats: Record<SponsorId, number>;
     government: SponsorId[];
+    // The partner vote, open while the player still has to cast his
+    coalition?: CoalitionBallot;
   } | null;
   elections: number;
+  // The laws on the books, oldest first, and every closed law vote; absent
+  // on saves from before the chamber passed laws
+  laws?: LawInForce[];
+  lawVotes?: LawBallot[];
+  // The law vote while a human still has to pick or vote
+  lawBallot?: LawBallot | null;
+  // One-party rule, once the chamber passed it; the campaign is over
+  constitution?: ConstitutionWin | null;
+  // The lottery's takings this year, drawn when the next year opens
+  lotteryPot?: number;
+  // The prime minister, picked on election night and kept for the term;
+  // absent on saves from before the office, which pick him once
+  primeMinister?: string | null;
 };
 
 // A removal booked against one bracket match; the match is a walkover the
@@ -101,6 +136,8 @@ export type CharacterCareerState = {
   grudgeSlug?: string | null;
   // Cups since the last plot got through, counted down like fineRecency
   hitRecency?: number;
+  // Plots of his own that got through, blocked ones not counted
+  plotsLanded?: number;
   // How the last lost match ended, null after a win; the coach reads it
   lastForfeitReason?: MatchForfeitReason | null;
   money?: number;
@@ -112,6 +149,12 @@ export type CharacterCareerState = {
   // saves made before the league grew personalities
   personality?: CareerPersonalityId;
   partyStatus?: PartyStatus;
+  // Window openings in a row found owing, back to zero once nothing is;
+  // absent on saves from before the Yellow Party lent money
+  debtWindows?: number;
+  // What a human owes the bank's counter, interest included; absent until
+  // the first loan
+  loan?: number;
 };
 
 export type SlotAction = {
@@ -168,6 +211,7 @@ export type MailItem = {
     | 'donation'
     | 'campaign'
     | 'election'
+    | 'law'
     | 'favor'
     | 'tax'
     | 'tax-refund';
@@ -215,9 +259,19 @@ export type RivalCandidate = {
 export type CareerPhase =
   'offseason' | 'news' | 'cup' | 'podium' | 'recap' | 'standings';
 
+// Saves from before the league was generated carry version 1 and the old
+// fixed names; they are not read
+export const CAREER_SAVE_VERSION = 2;
+
 export type SavedCareer = {
-  version: 1;
+  version: typeof CAREER_SAVE_VERSION;
+  // Everyone the league was generated with, in seeding order: every slug
+  // in `characters` has its name here
+  league: LeagueEntry[];
   playerSlug: string;
+  // The crown's price in table points; only a shared room can pick the long
+  // campaign, so a solo save never records it
+  overlordPoints?: OverlordPoints;
   year: number;
   season: number;
   phase: CareerPhase;
@@ -229,6 +283,9 @@ export type SavedCareer = {
   // What the next match bet costs; absent on saves from before the bookie
   // took anything but the minimum
   betStake?: number;
+  // The call on this window's glizzflation story, and how the last one went
+  glizzyBet?: GlizzyBet;
+  lastGlizzyBet?: GlizzyBetResult;
   guarded?: boolean;
   // Block chance bought this window; old saves without it mean the base chance
   guardChance?: number;
@@ -240,8 +297,8 @@ export type SavedCareer = {
   overlordSlug?: string | null;
   // Saves from before the AI could win only recorded the player's crown
   overlordWon?: boolean;
-  // Korporacija does not forgive a declined offer: a tier 3 hit is coming
-  korpVendetta?: boolean;
+  // The Yellow Party does not forgive a declined offer: a tier 3 hit is coming
+  yellowVendetta?: boolean;
   // The year's rival; absent on old saves until the next new year offers one
   rivalSlug?: string | null;
   // Shortlist for the new-year rival pick, non-empty while the choice is open
@@ -259,6 +316,9 @@ export type SavedCareer = {
   cupRecap?: NewsItem[];
   // The most recent paper, kept on the desk until the next one prints
   lastIssue?: { news: NewsItem[]; year: number; season: number };
+  // The pre-cup paper the last cup's recap pushed off the desk, so the
+  // kiosk still has it; absent on older saves and when the cup made no news
+  prevIssue?: { news: NewsItem[]; year: number; season: number };
   mail: MailItem[];
   cup: SavedCareerCup | null;
   // Head-to-head wins per pairing, keyed by the two slugs sorted and joined
@@ -272,7 +332,7 @@ export type SavedCareer = {
   // Post-cup table order, snapshotted when the season advances so the podium,
   // recap, and final standings still diff against the previous cup's table
   lastCupRanks?: string[];
-  // Table order the moment the cup opens, before a single match of the
+  // Table order the moment the cup is seeded, before a single match of the
   // season is played. The table diffs against this while the cup is running so
   // its movement arrows can only ever describe results already watched; absent
   // on saves made before the arrows were rebased
@@ -282,7 +342,11 @@ export type SavedCareer = {
   parliament?: Parliament;
   // Every government the league has voted in, oldest first; absent on saves
   // from before the report printed them
-  governments?: { year: number; government: SponsorId[] }[];
+  governments?: {
+    year: number;
+    government: SponsorId[];
+    primeMinister?: string | null;
+  }[];
   // What every past window rolled, by year then season, so the calendar can
   // show the figure that actually applied instead of the range
   seasonPriceByYear?: Record<number, number[]>;
@@ -329,23 +393,42 @@ let cachedSlots: CareerSlots = EMPTY_SLOTS;
 let cacheInitialized = false;
 let legacyChecked = false;
 
-const ROSTER_SLUGS = new Set(CHARACTER_ROSTER.map((c) => c.slug));
-
-// A save whose league has a name the roster no longer carries is from before
-// the league settled on its sixteen and cannot be played on
+// A save from before the league was generated, one whose table has a name
+// its league does not carry, or one from the short-lived twenty-name league,
+// cannot be played on; its slot reads empty
 function parseSave(raw: string | null): SavedCareer | null {
   if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw) as SavedCareer;
+    let parsed = JSON.parse(raw) as SavedCareer;
     if (
       !parsed ||
-      parsed.version !== 1 ||
+      parsed.version !== CAREER_SAVE_VERSION ||
+      !isLeagueRoster(parsed.league) ||
       typeof parsed.playerSlug !== 'string' ||
       typeof parsed.characters !== 'object' ||
-      parsed.characters === null ||
-      !Object.keys(parsed.characters).every((slug) => ROSTER_SLUGS.has(slug))
+      parsed.characters === null
     ) {
       return null;
+    }
+    const slugs = new Set(parsed.league.map((entry) => entry.slug));
+    if (
+      !slugs.has(parsed.playerSlug) ||
+      Object.keys(parsed.characters).length !== CUP_BRACKET_SIZE ||
+      !Object.keys(parsed.characters).every((slug) => slugs.has(slug))
+    ) {
+      return null;
+    }
+    parsed = withoutRetiredFeatures(parsed);
+    // The coalition vote once mailed its result; the broadcast shows it now
+    if (Array.isArray(parsed.mail)) {
+      parsed.mail = currentLawMail(
+        withoutRetiredStories(
+          parsed.mail.filter((m) => m.templateKey !== 'coalition-vote'),
+        ),
+      );
+    }
+    if (parsed.parliament) {
+      parsed.parliament = currentParliament(parsed.parliament);
     }
     return parsed;
   } catch {

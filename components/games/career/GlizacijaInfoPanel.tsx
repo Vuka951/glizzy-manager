@@ -1,3 +1,4 @@
+import TypedNotice from '@/components/games/career/TypedNotice';
 import {
   GLIZI_PRICE_EVENT_CHANCE,
   GLIZI_PRICE_HIKE_RATING_SCALE,
@@ -8,7 +9,9 @@ import {
   GLIZI_PRICE_RATING_MAX,
   GLIZI_PRICE_RATING_MIN,
 } from '@/data/games/careerElections';
+import { GLIZZY_BET_PAYOUTS } from '@/data/games/careerGlizzflationBets';
 import { GAMES_UI } from '@/data/games/locale';
+import { NOTICE_TEXT } from '@/lib/constants/typedNotice';
 import type { SavedCareer } from '@/lib/utils/careerSave';
 import {
   GLIZI_PRICED_CATEGORIES,
@@ -44,23 +47,24 @@ export default function GlizacijaInfoPanel({ career }: { career: SavedCareer }) 
       dropMin: GLIZI_PRICE_RATING_MIN,
       dropMax: GLIZI_PRICE_RATING_MAX,
     }),
+    fmt(G.info.bet, GLIZZY_BET_PAYOUTS),
   ];
   return (
-    <div className="flex flex-col gap-3">
+    <TypedNotice className="flex flex-col gap-3">
       <div className="flex flex-col gap-2">
         {rows.map((text) => (
-          <span key={text} className="text-[10px] leading-relaxed text-slate-400">
+          <p key={text} className={NOTICE_TEXT}>
             {text}
-          </span>
+          </p>
         ))}
       </div>
       <span
-        className={`rounded-xl border px-3 py-2 font-mono text-[10px] font-bold tabular-nums ${
+        className={`self-start rounded-[3px] border-2 border-current px-2 py-0.5 font-sign text-[15px] font-bold tabular-nums tracking-[0.02em] ${
           pct > 0
-            ? 'border-red-400/40 bg-red-500/10 text-red-300'
+            ? 'text-red-300'
             : pct < 0
-              ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-300'
-              : 'border-slate-700 text-slate-300'
+              ? 'text-emerald-300'
+              : 'text-slate-300'
         }`}
       >
         {pct === 0
@@ -70,6 +74,6 @@ export default function GlizacijaInfoPanel({ career }: { career: SavedCareer }) 
               pct: signedPct(pct),
             })}
       </span>
-    </div>
+    </TypedNotice>
   );
 }

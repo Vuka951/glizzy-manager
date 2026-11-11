@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
-@custom-variant light (&:where(.light, .light *));
+@custom-variant light (&:where(.light:not(:has([data-dark-only])), .light:not(:has([data-dark-only])) *));
+@custom-variant fullscreen (&:is(:fullscreen, :-webkit-full-screen, [data-pseudo-fullscreen]));
+@custom-variant motion-lite (&:where([data-motion=lite] *));
+@custom-variant phone-landscape (@media (pointer: coarse) and (orientation: landscape) and (max-height: 540px));
 
 :root {
   --background: #0a0f16;
@@ -12,8 +15,10 @@
 
 /* Light theme: flips the semantic tokens and remaps the palette variables
    Tailwind utilities reference, so dark-first markup renders correctly on
-   a light background without per-class overrides. */
-.light {
+   a light background without per-class overrides. The games are dark
+   only: a page carrying [data-dark-only] keeps the dark palette whatever the
+   visitor picked for the rest of the site. */
+.light:not(:has([data-dark-only])) {
   --background: #dbe9f3;
   --foreground: #16283a;
   --frost-border: #4f88ad;
@@ -75,6 +80,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-app-sans);
   --font-mono: var(--font-app-mono);
+  --font-sign: var(--font-app-sign);
   --color-frost-border: var(--frost-border);
   --color-card-strong: var(--card-strong);
   --color-card-deep: var(--card-deep);
@@ -91,7 +97,7 @@ body {
   color: #fff;
 }
 
-.light ::selection {
+.light:not(:has([data-dark-only])) ::selection {
   color: #0a1826;
 }
 

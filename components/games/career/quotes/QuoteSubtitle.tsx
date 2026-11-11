@@ -11,7 +11,7 @@ export default function QuoteSubtitle({
 }) {
   return (
     <span className="flex flex-col gap-0.5 text-left animate-[bubblein_0.2s_ease-out]">
-      <span className="text-[9px] font-bold uppercase tracking-[0.35em] text-sky-400">
+      <span className="font-sign text-[13px] font-bold uppercase leading-tight tracking-[0.08em] text-amber-300">
         {speakerName}
       </span>
       <span className="text-sm font-bold leading-snug text-slate-100">

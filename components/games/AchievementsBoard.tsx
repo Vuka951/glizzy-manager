@@ -88,7 +88,7 @@ function GameSection({
   return (
     <section className="flex w-full flex-col gap-4 rounded-2xl border border-sky-200/10 bg-slate-900/30 p-5 text-left">
       <TrophyProgressBar done={done} total={items.length} className="h-6 w-full" />
-      <ul className="flex flex-col gap-2">
+      <ul className="grid gap-2 min-[120rem]:grid-cols-2">
         {items.map((achievement) => (
           <AchievementCard
             key={achievement.id}

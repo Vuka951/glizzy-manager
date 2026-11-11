@@ -7,13 +7,15 @@ const API = 'http://localhost:3000/api/career-mp';
 const api = async (path, opts = {}) => { const r = await fetch(`${API}${path}`, { method: opts.method ?? 'GET', headers: { 'content-type': 'application/json', ...(opts.token ? { 'x-coach-token': opts.token } : {}) }, body: opts.body ? JSON.stringify(opts.body) : undefined }); return r.json(); };
 const act = async (code, token, action) => { const v = await api(`/rooms/${code}`, { token }); return api(`/rooms/${code}/actions`, { method: 'POST', token, body: { action, expectVersion: v.version } }); };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const c = await api('/rooms', { method: 'POST', body: { coachName: 'Host', slug: 'vuka', settings: { windowSeconds: null, paperSeconds: null, matchBetSeconds: null, matchLingerSeconds: 0 } } });
+const c = await api('/rooms', { method: 'POST', body: { coachName: 'Host', settings: { windowSeconds: null, paperSeconds: null, matchBetSeconds: null, matchLingerSeconds: 0 } } });
 const code = c.code, ta = c.token;
-const j = await api(`/rooms/${code}/join`, { method: 'POST', body: { coachName: 'Cone', slug: 'cone' } });
+const j = await api(`/rooms/${code}/join`, { method: 'POST', body: { coachName: 'Bravo' } });
 const tb = j.token;
-const j2 = await api(`/rooms/${code}/join`, { method: 'POST', body: { coachName: 'Dax', slug: 'dax' } });
+const j2 = await api(`/rooms/${code}/join`, { method: 'POST', body: { coachName: 'Delta' } });
 const tc = j2.token;
 const all = [ta, tb, tc];
+// Each coach picks from the room's own league, as the lobby offers it
+for (const [i, t] of all.entries()) await act(code, t, { type: 'pickCharacter', slug: c.view.roster[i].slug });
 for (const t of [tb, tc]) await act(code, t, { type: 'ready', ready: true });
 await act(code, ta, { type: 'start' });
 for (const t of all) { const v = await api(`/rooms/${code}`, { token: t }); for (const m of v.career.mail) await act(code, t, { type: 'readMail', mailId: m.id }); }

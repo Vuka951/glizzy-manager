@@ -1,10 +1,16 @@
 import { GAMES_UI } from "@/data/games/locale";
+import { NEWSPRINT_PAINT } from "@/lib/utils/careerNewsprint";
 import { fmt } from "@/lib/utils/format";
 
 const R = GAMES_UI.career.report;
 
+function tone(value: number, up: string, down: string, flat: string): string {
+  return value > 0 ? up : value < 0 ? down : flat;
+}
+
 // The glizi price as change from the start, one point per transfer window,
-// with a percent axis, a year axis and the zero line
+// with a percent axis, a year axis and the zero line. Up is red, since up
+// means everything costs more
 export default function CampaignPriceChart({ index }: { index: number[] }) {
   if (index.length < 2) return null;
   const w = 640;
@@ -35,7 +41,11 @@ export default function CampaignPriceChart({ index }: { index: number[] }) {
   // Four windows make a year; the axis names the year at its first window
   const years = pct.map((_, i) => (i % 4 === 0 ? i / 4 + 1 : null));
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="h-auto w-full" role="img">
+    <svg
+      viewBox={`0 0 ${w} ${h}`}
+      className={`h-auto w-full ${NEWSPRINT_PAINT}`}
+      role="img"
+    >
       {ticks.map((t) => (
         <g key={t}>
           <line
@@ -50,7 +60,7 @@ export default function CampaignPriceChart({ index }: { index: number[] }) {
             x={pad.left - 8}
             y={y(t) + 3.5}
             textAnchor="end"
-            className={`font-mono text-[10px] ${t === 0 ? "fill-slate-900 font-bold" : "fill-slate-500"}`}
+            className={`font-sign text-[12px] font-semibold ${t === 0 ? "fill-slate-900" : "fill-slate-600"}`}
           >
             {signed(t)}
           </text>
@@ -72,7 +82,7 @@ export default function CampaignPriceChart({ index }: { index: number[] }) {
               x={x(i)}
               y={h - 8}
               textAnchor={i === 0 ? "start" : "middle"}
-              className="fill-slate-500 text-[10px] font-semibold uppercase tracking-widest"
+              className="fill-slate-600 font-sign text-[12px] font-semibold uppercase tracking-[0.06em]"
             >
               {fmt(R.yearShort, { year })}
             </text>
@@ -81,7 +91,7 @@ export default function CampaignPriceChart({ index }: { index: number[] }) {
       )}
       <path
         d={area}
-        className={last >= 0 ? "fill-emerald-700/15" : "fill-red-700/15"}
+        className={tone(last, "fill-red-700/15", "fill-emerald-700/15", "fill-slate-500/15")}
       />
       <path
         d={line}
@@ -96,14 +106,14 @@ export default function CampaignPriceChart({ index }: { index: number[] }) {
           cx={x(i)}
           cy={y(v)}
           r={3.5}
-          className={`${v >= 0 ? "fill-emerald-700" : "fill-red-700"} stroke-amber-50`}
+          className={`${tone(v, "fill-red-700", "fill-emerald-700", "fill-slate-500")} stroke-[#f1e8d3]`}
           strokeWidth={1.5}
         />
       ))}
       <text
         x={x(pct.length - 1) + 10}
         y={y(last) + 4}
-        className={`font-mono text-[12px] font-black ${last >= 0 ? "fill-emerald-800" : "fill-red-800"}`}
+        className={`font-sign text-[15px] font-bold ${tone(last, "fill-red-800", "fill-emerald-800", "fill-slate-600")}`}
       >
         {signed(last)}
       </text>

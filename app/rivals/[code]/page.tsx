@@ -20,7 +20,7 @@ export default async function RivalsRoomPage({
   const { code } = await params;
   const { careerMp } = await requestDictionary();
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col items-center gap-6 px-4 pb-10 pt-18 sm:px-6 lg:max-w-5xl">
+    <div className="mx-auto flex min-h-[calc(100vh/var(--game-zoom,1))] max-w-3xl flex-col items-center gap-6 px-4 pb-10 pt-18 sm:px-6 lg:max-w-5xl">
       <div className="w-full">
         <RivalsRoomMount code={code.toUpperCase()} />
       </div>

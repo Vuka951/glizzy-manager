@@ -1,7 +1,13 @@
+'use client';
+
 import { useEffect, type ReactNode } from 'react';
+import CareerIconButton from '@/components/games/career/CareerIconButton';
+import { useCareerFrames } from '@/components/games/career/careerFrames';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
+import TownBankScrews from '@/components/games/career/town/TownBankScrews';
 import Icon from '@/components/icons/Icon';
 import PortraitHead from '@/components/games/PortraitHead';
-import CoachTag from '@/components/games/career-mp/CoachTag';
+import SeatTag from '@/components/games/rooms/SeatTag';
 import type { CoachTagMap } from '@/lib/types/careerMp';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
@@ -53,13 +59,18 @@ const BADGE_TONES: Record<TapeBadge, string> = {
 };
 
 function BadgeStrip({ badges }: { badges: TapeBadge[] }) {
+  const street = useCareerFrames() === 'street';
   if (!badges.length) return null;
   return (
     <span className="flex flex-wrap justify-center gap-1">
       {badges.map((badge) => (
         <span
           key={badge}
-          className={`rounded-full border px-1.5 py-px text-[7px] font-bold uppercase tracking-[0.14em] ${BADGE_TONES[badge]}`}
+          className={
+            street
+              ? `-rotate-2 rounded-[2px] border-2 px-1.5 font-sign text-[12px] font-bold uppercase leading-tight tracking-[0.06em] ${BADGE_TONES[badge]}`
+              : `rounded-full border px-1.5 py-px text-[7px] font-bold uppercase tracking-[0.14em] ${BADGE_TONES[badge]}`
+          }
         >
           {B.badges[badge]}
         </span>
@@ -69,12 +80,17 @@ function BadgeStrip({ badges }: { badges: TapeBadge[] }) {
 }
 
 function FormDots({ results }: { results: ('w' | 'l')[] }) {
+  const street = useCareerFrames() === 'street';
   return (
     <span className="inline-flex gap-1 align-middle">
       {results.map((r, i) => (
         <span
           key={i}
-          className={`h-1.5 w-1.5 rounded-full ${r === 'w' ? 'bg-green-400' : 'bg-red-900'}`}
+          className={
+            street
+              ? `h-2 w-2 rounded-[1px] ${r === 'w' ? 'bg-[#15803d]' : 'bg-[#b91c1c]'}`
+              : `h-1.5 w-1.5 rounded-full ${r === 'w' ? 'bg-green-400' : 'bg-red-900'}`
+          }
         />
       ))}
     </span>
@@ -92,6 +108,7 @@ function SideCard({
   reverse?: boolean;
   coach?: CoachTagMap[string] | null;
 }) {
+  const street = useCareerFrames() === 'street';
   return (
     <div
       className={`flex min-w-0 flex-1 flex-col items-center gap-1 ${reverse ? 'sm:items-start' : 'sm:items-end'}`}
@@ -100,21 +117,43 @@ function SideCard({
       <span
         className={`flex max-w-full items-center gap-1.5 ${reverse ? 'flex-row-reverse sm:flex-row' : ''}`}
       >
-        <p className="min-w-0 truncate text-sm font-bold text-white">{character.name}</p>
+        <p
+          className={
+            street
+              ? 'min-w-0 truncate font-serif text-[15px] font-bold text-white'
+              : 'min-w-0 truncate text-sm font-bold text-white'
+          }
+        >
+          {character.name}
+        </p>
         {coach && (
-          <CoachTag name={coach.name} color={coach.color} connected={coach.connected} />
+          <SeatTag name={coach.name} color={coach.color} connected={coach.connected} />
         )}
       </span>
       <span
-        className={`h-0.5 w-10 rounded-full ${reverse ? 'bg-gradient-to-l from-red-400/80 to-rose-300/50' : 'bg-gradient-to-r from-cyan-300/50 to-sky-400/80'}`}
+        className={
+          street
+            ? `h-[3px] w-10 ${reverse ? 'bg-[#b91c1c]' : 'bg-[#1e3a8a]'}`
+            : `h-0.5 w-10 rounded-full ${reverse ? 'bg-gradient-to-l from-red-400/80 to-rose-300/50' : 'bg-gradient-to-r from-cyan-300/50 to-sky-400/80'}`
+        }
       />
       <p
-        className={`max-w-full truncate text-[8px] font-semibold uppercase tracking-widest text-slate-400 ${reverse ? 'sm:text-left' : 'sm:text-right'}`}
+        className={`max-w-full ${
+          street
+            ? 'text-balance font-sign text-[12px] font-semibold uppercase leading-tight tracking-[0.06em] text-slate-400'
+            : 'truncate text-[8px] font-semibold uppercase tracking-widest text-slate-400'
+        } ${reverse ? 'sm:text-left' : 'sm:text-right'}`}
       >
         {characterEpithet(character.slug)}
       </p>
       {side?.seed != null && (
-        <p className="text-[8px] font-bold uppercase tracking-widest text-slate-500">
+        <p
+          className={
+            street
+              ? 'font-sign text-[12px] font-bold uppercase tracking-[0.06em] text-slate-500'
+              : 'text-[8px] font-bold uppercase tracking-widest text-slate-500'
+          }
+        >
           {fmt(B.seed, { seed: ordinal(side.seed) })}
         </p>
       )}
@@ -174,6 +213,7 @@ export default function MatchIntroOverlay({
   coachA?: CoachTagMap[string] | null;
   coachB?: CoachTagMap[string] | null;
 }) {
+  const street = useCareerFrames() === 'street';
   useEffect(() => {
     if (!onClose) return;
     const onKey = (event: KeyboardEvent) => {
@@ -257,24 +297,33 @@ export default function MatchIntroOverlay({
     pushBar(B.tiebreaks, '💀', moodA.tiebreaks ?? 0, moodB.tiebreaks ?? 0);
   }
 
-  const card = (
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative flex max-h-[92vh] w-full max-w-md cursor-default flex-col items-center gap-2.5 overflow-y-auto rounded-2xl border border-frost-border/40 bg-slate-950/95 px-4 py-4 shadow-2xl sm:max-w-lg sm:px-6"
-      >
+  const figure = street
+    ? 'font-sign text-[16px] font-bold tabular-nums text-slate-100'
+    : 'text-[11px] font-semibold text-slate-100 [font-variant-numeric:tabular-nums]';
+  const rowLabel = street
+    ? 'font-sign text-[12px] font-semibold uppercase tracking-[0.06em] text-slate-400'
+    : 'text-[8px] font-bold uppercase tracking-[0.16em] text-slate-400';
+
+  const content = (
+    <>
         {onClose && (
-          <button
-            type="button"
+          <CareerIconButton
+            label={GAMES_UI.shared.close}
             onClick={onClose}
-            aria-label={GAMES_UI.shared.close}
-            className="absolute right-3 top-3 z-10 rounded-full border border-sky-200/15 bg-slate-800/60 p-1.5 text-slate-400 transition hover:border-sky-200/40 hover:text-white"
+            className="absolute right-3 top-3 z-10"
           >
             <Icon name="close" className="h-3.5 w-3.5" />
-          </button>
+          </CareerIconButton>
         )}
         <div className="flex w-full items-start justify-center gap-3">
           <SideCard character={a} side={tape?.a ?? null} coach={coachA} />
-          <span className="mt-3 shrink-0 bg-gradient-to-br from-sky-300 to-red-300 bg-clip-text text-lg font-black italic uppercase text-transparent">
+          <span
+            className={
+              street
+                ? 'mt-3 shrink-0 font-sign text-[28px] font-extrabold uppercase leading-none text-[#b91c1c]'
+                : 'mt-3 shrink-0 bg-gradient-to-br from-sky-300 to-red-300 bg-clip-text text-lg font-black italic uppercase text-transparent'
+            }
+          >
             vs
           </span>
           <SideCard character={b} side={tape?.b ?? null} reverse coach={coachB} />
@@ -284,15 +333,15 @@ export default function MatchIntroOverlay({
             {headline.map((row, i) => (
               <div
                 key={row.label}
-                className={`flex w-full items-center gap-2 opacity-0 animate-[bubblein_0.3s_ease-out_forwards] ${delayAt(i)}`}
+                className={`flex w-full items-center gap-2 opacity-0 animate-[bubblein_0.3s_ease-out_forwards] ${street ? 'border-b border-[#7d93a8]/35' : ''} ${delayAt(i)}`}
               >
-                <span className="flex flex-1 items-center justify-end text-[11px] font-semibold text-slate-100 [font-variant-numeric:tabular-nums]">
+                <span className={`flex flex-1 items-center justify-end ${figure}`}>
                   {row.left}
                 </span>
-                <span className="w-24 shrink-0 text-center text-[8px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                <span className={`w-24 shrink-0 text-center ${rowLabel}`}>
                   {row.label}
                 </span>
-                <span className="flex flex-1 items-center justify-start text-[11px] font-semibold text-slate-100 [font-variant-numeric:tabular-nums]">
+                <span className={`flex flex-1 items-center justify-start ${figure}`}>
                   {row.right}
                 </span>
               </div>
@@ -300,28 +349,43 @@ export default function MatchIntroOverlay({
           </div>
         )}
         {bars.length > 0 && (
-          <div className="flex w-full flex-col gap-1.5 border-t border-frost-border/20 pt-2">
+          <div
+            className={`flex w-full flex-col gap-1.5 pt-2 ${
+              street
+                ? 'border-t-[3px] border-double border-[#1c1408]/70'
+                : 'border-t border-frost-border/20'
+            }`}
+          >
             {bars.map((row, i) => (
               <div
                 key={row.label}
                 className={`flex w-full items-center gap-2 opacity-0 animate-[bubblein_0.3s_ease-out_forwards] ${delayAt(i + headline.length)}`}
               >
-                <span className="w-11 shrink-0 text-right text-[11px] font-semibold text-slate-100 [font-variant-numeric:tabular-nums]">
+                <span className={`w-11 shrink-0 text-right ${figure}`}>
                   {row.left}
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col items-center gap-[3px]">
-                  <span className="text-[8px] font-bold uppercase tracking-[0.16em] text-slate-400">
-                    <span className="mr-1">{row.emoji}</span>
+                  <span className={rowLabel}>
+                    {!street && <span className="mr-1">{row.emoji}</span>}
                     {row.label}
                   </span>
-                  <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-slate-800/70">
-                    <div
-                      className={`h-full shrink-0 rounded-l-full bg-gradient-to-r from-sky-400/90 to-cyan-300/90 ${BAR_STEPS[Math.round(row.share * (BAR_STEPS.length - 1))]}`}
-                    />
-                    <div className="h-full flex-1 rounded-r-full bg-gradient-to-r from-rose-300/90 to-red-400/90" />
-                  </div>
+                  {street ? (
+                    <div className="flex h-2 w-full gap-px">
+                      <div
+                        className={`h-full shrink-0 bg-[#1e3a8a] ${BAR_STEPS[Math.round(row.share * (BAR_STEPS.length - 1))]}`}
+                      />
+                      <div className="h-full flex-1 bg-[#b91c1c]" />
+                    </div>
+                  ) : (
+                    <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-slate-800/70">
+                      <div
+                        className={`h-full shrink-0 rounded-l-full bg-gradient-to-r from-sky-400/90 to-cyan-300/90 ${BAR_STEPS[Math.round(row.share * (BAR_STEPS.length - 1))]}`}
+                      />
+                      <div className="h-full flex-1 rounded-r-full bg-gradient-to-r from-rose-300/90 to-red-400/90" />
+                    </div>
+                  )}
                 </div>
-                <span className="w-11 shrink-0 text-left text-[11px] font-semibold text-slate-100 [font-variant-numeric:tabular-nums]">
+                <span className={`w-11 shrink-0 text-left ${figure}`}>
                   {row.right}
                 </span>
               </div>
@@ -329,13 +393,35 @@ export default function MatchIntroOverlay({
           </div>
         )}
         {footer && <div className="w-full pt-1">{footer}</div>}
-      </div>
+    </>
+  );
+  // The fight poster nailed up in the hall: printed names, figures and the
+  // two inks of the tug-of-war, on the town's paper
+  const card = street ? (
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="relative w-full max-w-md cursor-default sm:max-w-lg"
+    >
+      <PaperSheet className="flex max-h-[calc(92vh/var(--game-zoom,1))] w-full flex-col items-center gap-2.5 overflow-y-auto px-5 py-5 sm:px-7">
+        {content}
+      </PaperSheet>
+      <TownBankScrews brass />
+    </div>
+  ) : (
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="relative flex max-h-[calc(92vh/var(--game-zoom,1))] w-full max-w-md cursor-default flex-col items-center gap-2.5 overflow-y-auto rounded-2xl border border-frost-border/40 bg-slate-950/95 px-4 py-4 shadow-2xl sm:max-w-lg sm:px-6"
+    >
+      {content}
+    </div>
   );
   if (inline) return card;
   return (
     <div
       onClick={onClose}
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-3 backdrop-blur-md animate-[bubblein_0.3s_ease-out] ${onClose ? 'cursor-pointer' : ''}`}
+      className={`fixed inset-0 z-50 flex items-center justify-center p-3 animate-[bubblein_0.3s_ease-out] ${
+        street ? 'bg-[#060912]/75' : 'bg-slate-950/80 backdrop-blur-md'
+      } ${onClose ? 'cursor-pointer' : ''}`}
     >
       {card}
     </div>

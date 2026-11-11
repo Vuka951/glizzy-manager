@@ -25,23 +25,7 @@ export const RIVAL_SABOTAGE_WEIGHT_SCALE = 4;
 // shortlist
 export const RIVAL_MAX_PLACE_GAP = 5;
 
-// Year one grudges are preset: each playable character opens the comeback with
-// one of three old feuds, rolled at career start
-export const LORE_RIVALS: Record<string, string[]> = {
-  vuka: ['tax-inspector', 'dusan', 'tihomir'],
-  dax: ['kosta', 'jovan'],
-  kosta: ['dax', 'zeka', 'tihomir'],
-  cone: ['dusan', 'bane'],
-  dusan: ['nikola', 'cone', 'miki'],
-  nikola: ['dzamila', 'dusan'],
-  jovan: ['bane', 'cone', 'tax-inspector'],
-  bane: ['jovan', 'cone', 'nikola'],
-  'tax-inspector': ['vuka', 'cone', 'jovan'],
-  steva: ['dusan', 'bane', 'jovan'],
-  dzamila: ['nikola', 'dusan', 'bane'],
-  zeka: ['kosta', 'stojan', 'steva'],
-  halvard: ['dusan', 'bane', 'tax-inspector'],
-  stojan: ['cone', 'tax-inspector', 'miki'],
-  tihomir: ['dax', 'kosta', 'vuka'],
-  miki: ['tihomir', 'dusan', 'steva'],
-};
+// Year one grudges come from the name: each character holds old feuds with
+// this many others of his league, picked by hash, and opens the comeback
+// with one of them
+export const LORE_RIVAL_COUNTS: readonly number[] = [2, 3, 3, 3];

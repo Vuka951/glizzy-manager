@@ -1,5 +1,8 @@
 import PortraitHead from '@/components/games/PortraitHead';
-import CoachTag from '@/components/games/career-mp/CoachTag';
+import SeatTag from '@/components/games/rooms/SeatTag';
+import BracketGuideButton from '@/components/games/career/BracketGuideButton';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
+import PrimeMinisterTag from '@/components/games/career/PrimeMinisterTag';
 import SponsorBadge from '@/components/games/career/SponsorBadge';
 import { COACH_COLOR_CLASSES } from '@/lib/constants/careerMp';
 import type { CoachTagMap } from '@/lib/types/careerMp';
@@ -9,8 +12,10 @@ import { careerPoints, rankBySeeding } from '@/lib/utils/careerPoints';
 import { GAMES_UI } from '@/data/games/locale';
 
 const TABLE = GAMES_UI.career.table;
-const D = GAMES_UI.career.dossier;
 
+// The league's standings, kept by hand in the federation's ledger: ruled rows,
+// the place numbers in a margin behind a red line and the coach's row marked
+// with a highlighter
 export default function CareerTable({
   characters,
   characterBySlug,
@@ -19,6 +24,7 @@ export default function CareerTable({
   rivalSlug,
   onSelect,
   coaches,
+  primeMinisterSlug = null,
 }: {
   characters: Record<string, CharacterCareerState>;
   characterBySlug: Map<string, DuelCharacter>;
@@ -29,34 +35,44 @@ export default function CareerTable({
   onSelect?: (slug: string) => void;
   // A shared league: every human's character carries his coach's tag
   coaches?: CoachTagMap;
+  primeMinisterSlug?: string | null;
 }) {
   const order = rankBySeeding(
     characters,
     coaches ? new Set(Object.keys(coaches)) : playerSlug,
   );
   return (
-    <div className="w-full overflow-x-auto rounded-2xl border border-sky-200/10 bg-slate-900/40 p-4">
-      {rivalSlug && characters[rivalSlug] && (
-        <div className="mb-3 inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-400">
-          <span
-            className="h-3 w-3 rounded-sm border border-red-500/50 bg-red-500/20"
-            aria-hidden="true"
+    <PaperSheet className="w-full overflow-x-auto px-3 pb-4 pt-3 sm:px-4">
+      <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 font-sign text-[13px] font-semibold uppercase tracking-[0.06em] text-slate-400">
+        {rivalSlug && characters[rivalSlug] && (
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              className="h-3.5 w-3.5 border border-[#b91c1c]/60 bg-[#b91c1c]/20"
+              aria-hidden="true"
+            />
+            {TABLE.rival}
+          </span>
+        )}
+        <span className="ml-auto">
+          <BracketGuideButton
+            order={order}
+            characterBySlug={characterBySlug}
+            playerSlug={playerSlug}
           />
-          {TABLE.rival}
-        </div>
-      )}
+        </span>
+      </div>
       <table className="w-full min-w-96 text-left">
         <thead>
-          <tr className="border-b border-sky-200/10 text-[9px] font-bold uppercase tracking-widest text-slate-500">
-            <th className="pb-2 pl-3 pr-2">#</th>
-            <th className="pb-2 pr-2">{TABLE.headers.character}</th>
-            <th className="pb-2 pr-2 text-center">{TABLE.headers.points}</th>
-            <th className="pb-2 pr-2 text-center">{TABLE.headers.titles}</th>
-            <th className="pb-2 pr-2 text-center">{TABLE.headers.record}</th>
-            <th className="pb-2 pr-2 text-center">
+          <tr className="border-b-[3px] border-double border-[#1c1408]/70 font-sign text-[13px] font-bold uppercase tracking-[0.08em] text-slate-300">
+            <th className="w-11 border-r-2 border-r-[#b91c1c]/50 pb-1 pl-2.5 pr-2">#</th>
+            <th className="pb-1 pl-2.5 pr-2">{TABLE.headers.character}</th>
+            <th className="pb-1 pr-2 text-center">{TABLE.headers.points}</th>
+            <th className="pb-1 pr-2 text-center">{TABLE.headers.titles}</th>
+            <th className="pb-1 pr-2 text-center">{TABLE.headers.record}</th>
+            <th className="pb-1 pr-2 text-center">
               {TABLE.headers.punishments}
             </th>
-            <th className="pb-2 text-center">{TABLE.headers.sponsor}</th>
+            <th className="pb-1 text-center">{TABLE.headers.sponsor}</th>
           </tr>
         </thead>
         <tbody>
@@ -70,25 +86,25 @@ export default function CareerTable({
             const movement = prevRank >= 0 ? prevRank - i : 0;
             const coach = coaches?.[slug];
             const portraitClass = coach
-              ? `h-5 w-5 ring-2 ${COACH_COLOR_CLASSES[coach.color].ring}`
-              : 'h-5 w-5';
+              ? `h-6 w-6 ring-2 ${COACH_COLOR_CLASSES[coach.color].ring}`
+              : 'h-6 w-6 ring-1 ring-[#1c1408]/50';
             return (
               <tr
                 key={slug}
-                className={`border-b border-sky-200/5 text-[11px] ${
+                className={`border-b border-[#7d93a8]/35 font-serif text-[13px] ${
                   isPlayer
-                    ? 'bg-emerald-500/10 font-bold text-emerald-200'
+                    ? 'bg-[#fde047]/55 font-bold text-slate-100'
                     : slug === rivalSlug
-                      ? 'bg-red-500/10 text-slate-200'
-                      : 'text-slate-300'
+                      ? 'bg-[#b91c1c]/15 text-slate-100'
+                      : 'text-slate-200'
                 }`}
               >
-                <td className="relative py-1.5 pl-3 pr-2 font-mono text-slate-500">
+                <td className="border-r-2 border-r-[#b91c1c]/50 py-1 pl-2.5 pr-2 font-sign text-[15px] font-semibold tabular-nums text-slate-300">
                   <span className="inline-flex items-baseline gap-1">
                     {i + 1}
                     {movement !== 0 && (
                       <span
-                        className={`text-[8px] font-bold ${
+                        className={`text-[10px] font-bold ${
                           movement > 0 ? 'text-emerald-400' : 'text-red-400'
                         }`}
                       >
@@ -98,36 +114,38 @@ export default function CareerTable({
                     )}
                   </span>
                 </td>
-                <td className="py-1.5 pr-2">
+                <td className={`py-1 pl-2.5 pr-2 ${onSelect ? 'pointer-coarse:py-0' : ''}`}>
                   {onSelect ? (
                     <button
                       onClick={() => onSelect(slug)}
-                      className="flex w-full items-center gap-1.5 text-left transition hover:text-white"
+                      className="flex w-full items-center gap-2 text-left transition hover:text-[#1e3a8a] pointer-coarse:min-h-11"
                     >
                       <PortraitHead
                         character={character}
                         className={portraitClass}
                       />
-                      <span className="truncate underline decoration-sky-200/25 underline-offset-2">
+                      <span className="truncate underline decoration-[#1c1408]/30 decoration-dotted underline-offset-[3px]">
                         {character.name}
                       </span>
-                      {coach && <CoachTag name={coach.name} color={coach.color} connected={coach.connected} />}
+                      {slug === primeMinisterSlug && <PrimeMinisterTag />}
+                      {coach && <SeatTag name={coach.name} color={coach.color} connected={coach.connected} />}
                     </button>
                   ) : (
-                    <span className="flex items-center gap-1.5">
+                    <span className="flex items-center gap-2">
                       <PortraitHead
                         character={character}
                         className={portraitClass}
                       />
                       <span className="truncate">{character.name}</span>
-                      {coach && <CoachTag name={coach.name} color={coach.color} connected={coach.connected} />}
+                      {slug === primeMinisterSlug && <PrimeMinisterTag />}
+                      {coach && <SeatTag name={coach.name} color={coach.color} connected={coach.connected} />}
                     </span>
                   )}
                 </td>
-                <td className="py-1.5 pr-2 text-center font-mono font-bold text-sky-300">
+                <td className="py-1 pr-2 text-center font-sign text-[17px] font-bold tabular-nums text-sky-300">
                   {careerPoints(state)}
                 </td>
-                <td className="py-1.5 pr-2 text-center font-mono">
+                <td className="py-1 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums">
                   {state.titles > 0 ? state.titles : ''}
                   {state.titleStreak >= 2 && (
                     <span className="ml-1 text-amber-300">
@@ -135,19 +153,16 @@ export default function CareerTable({
                     </span>
                   )}
                 </td>
-                <td className="py-1.5 pr-2 text-center font-mono">
+                <td className="py-1 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums">
                   {state.wins}-{state.losses}
                 </td>
-                <td className="py-1.5 pr-2 text-center font-mono text-red-300/80">
+                <td className="py-1 pr-2 text-center font-sign text-[15px] font-semibold tabular-nums text-red-300">
                   {punishments > 0 ? punishments : ''}
                 </td>
-                <td className="py-1.5 text-center text-slate-500">
+                <td className="py-1 text-center text-slate-500">
                   {state.sponsor ? (
                     <span className="inline-flex justify-center">
-                      <SponsorBadge
-                        sponsorId={state.sponsor.sponsorId}
-                        compact
-                      />
+                      <SponsorBadge sponsorId={state.sponsor.sponsorId} />
                     </span>
                   ) : (
                     TABLE.noSponsor
@@ -158,10 +173,6 @@ export default function CareerTable({
           })}
         </tbody>
       </table>
-      <p className="mt-2 text-left text-[9px] leading-relaxed text-slate-500">
-        {TABLE.pointsHint}
-        {onSelect ? ` ${D.openHint}` : ''}
-      </p>
-    </div>
+    </PaperSheet>
   );
 }

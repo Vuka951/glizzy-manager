@@ -12,25 +12,28 @@ const overflow = (page) => page.evaluate(() => document.documentElement.scrollWi
 // The buttons are found by their English text
 const A = await browser.newPage(); await setLocale(A, BASE); await A.setViewport({ width: 1440, height: 1000 });
 await A.goto(`${BASE}/rivals`, { waitUntil: 'networkidle2' });
-await A.type('input[placeholder]', 'Vuka');
+await A.type('input[placeholder]', 'Alpha');
 await sleep(600); await shotCard(A, 'L1-create-1440');
 console.log('create overflow', await overflow(A));
 await click(A, 'Open room'); await A.waitForFunction(() => /[A-Z0-9]{6}$/.test(location.pathname), { timeout: 20000 });
 const code = A.url().split('/').pop();
 await A.waitForFunction(() => document.body.innerText.includes('Coach list'), { timeout: 20000 });
+// The room's own generated league, read off the host's view
+const hostToken = await A.evaluate((c) => localStorage.getItem(`glizzy-rivals:${c}`), code);
+const offer = (await fetch(`${BASE}/api/career-mp/rooms/${code}`, { headers: { 'x-coach-token': hostToken } }).then((r) => r.json())).roster;
 await click(A, 'Pick a character');
-await A.waitForFunction(() => document.body.innerText.includes('CLASSIFIEDS · COACH WANTED')); await click(A, 'The Wolf');
+await A.waitForFunction(() => document.body.innerText.includes('CLASSIFIEDS · COACH WANTED')); await click(A, offer[0].name);
 await A.waitForFunction(() => document.body.innerText.includes('Coach list'), { timeout: 20000 });
 const ctx = await browser.createBrowserContext(); const B = await ctx.newPage(); await setLocale(B, BASE); await B.setViewport({ width: 390, height: 844 });
 await B.goto(`${BASE}/rivals/${code}`, { waitUntil: 'networkidle2' });
 await sleep(800); await shotCard(B, 'L2-join-390');
 console.log('join overflow', await overflow(B));
-await B.type('input[placeholder]', 'Cone');
+await B.type('input[placeholder]', 'Bravo');
 await click(B, 'Join room');
 await B.waitForFunction(() => document.body.innerText.includes('Coach list'), { timeout: 20000 });
 await click(B, 'Pick a character'); await B.waitForFunction(() => document.body.innerText.includes('CLASSIFIEDS · COACH WANTED')); await sleep(700);
-await shotCard(B, 'L4b-pick-vuka-taken-390');
-await click(B, 'The Egg Man');
+await shotCard(B, 'L4b-pick-host-taken-390');
+await click(B, offer[2].name);
 await B.waitForFunction(() => document.body.innerText.includes('Coach list'), { timeout: 20000 });
 await sleep(2500);
 await shotCard(A, 'L3-room-1440'); await shotCard(B, 'L4-room-390');

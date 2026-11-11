@@ -7,15 +7,17 @@ import CampaignLineChart, {
   type LineTone,
 } from '@/components/games/career/CampaignLineChart';
 import PaperSection from '@/components/games/career/PaperSection';
-import { OVERLORD_POINTS } from '@/data/games/careerEconomy';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
+import { NEWSPRINT_PAINT } from '@/lib/utils/careerNewsprint';
+import { overlordGoal } from '@/lib/utils/careerPoints';
 import type { SavedCareer } from '@/lib/utils/careerSave';
 import { fmt, ordinal } from '@/lib/utils/format';
 import {
   hasRecordedTables,
   placeSeries,
   pointsSeries,
+  roundTicks,
   ticksBetween,
   yearLabels,
   type ChartSeries,
@@ -25,14 +27,15 @@ const R = GAMES_UI.career.report;
 
 type ChartMode = 'place' | 'points';
 // Eight seats on the chart, each with its own color; a seat keeps its color
-// for as long as the same character sits in it
+// for as long as the same character sits in it. The order keeps the reds apart
+// and passes the colorblind check on the paper
 const SEAT_TONES: LineTone[] = [
   'emerald',
   'amber',
-  'sky',
   'violet',
-  'rose',
   'orange',
+  'sky',
+  'rose',
   'teal',
   'fuchsia',
 ];
@@ -43,14 +46,16 @@ const PICK_RING: Record<LineTone, string> = {
   violet: 'border-violet-700 bg-violet-600/15',
   rose: 'border-rose-700 bg-rose-600/15',
   orange: 'border-orange-700 bg-orange-600/15',
-  teal: 'border-teal-700 bg-teal-600/15',
+  teal: 'border-teal-600 bg-teal-600/15',
   fuchsia: 'border-fuchsia-700 bg-fuchsia-600/15',
 };
 const MODES: ChartMode[] = ['place', 'points'];
+const LIVE_MAX_YEAR_LABELS = 6;
 
 // The campaign cup by cup: the table place or the points race, for up to
 // eight picked characters, printed on the paper. While the paper is being
-// saved both charts print, one under the other
+// saved both charts print, one under the other. A live campaign can be far
+// from the crown, so its points scale to the race
 export default function CampaignChart({
   career,
   characterBySlug,
@@ -58,6 +63,7 @@ export default function CampaignChart({
   overlordSlug,
   seeded,
   exporting = false,
+  live = false,
 }: {
   career: SavedCareer;
   characterBySlug: Map<string, DuelCharacter>;
@@ -67,6 +73,7 @@ export default function CampaignChart({
   // Who sits on the chart at first: the reader, the champion, the room
   seeded: string[];
   exporting?: boolean;
+  live?: boolean;
 }) {
   const [mode, setMode] = useState<ChartMode>('place');
   const [seats, setSeats] = useState<(string | null)[]>(() => {
@@ -77,7 +84,11 @@ export default function CampaignChart({
   const playerSlug = career.playerSlug;
   const nameOf = (slug: string) => characterBySlug.get(slug)?.name ?? slug;
   const charted = hasRecordedTables(history);
-  const xLabels = yearLabels(history, (year) => fmt(R.yearShort, { year }));
+  const xLabels = yearLabels(
+    history,
+    (year) => fmt(R.yearShort, { year }),
+    live ? LIVE_MAX_YEAR_LABELS : undefined,
+  );
   const tones: Record<string, LineTone> = {};
   seats.forEach((slug, i) => {
     if (slug) tones[slug] = SEAT_TONES[i];
@@ -113,10 +124,13 @@ export default function CampaignChart({
       gain,
     });
   };
-  const maxPoints = Math.max(
-    OVERLORD_POINTS,
-    ...history.flatMap((h) => Object.values(h.points ?? {})),
-  );
+  const goal = overlordGoal(career);
+  const allPoints = history.flatMap((h) => Object.values(h.points ?? {}));
+  const topPoints = Math.max(1, ...allPoints);
+  const pointTicks = live
+    ? roundTicks(topPoints, 5)
+    : ticksBetween(0, Math.max(goal, ...allPoints), 6);
+  const maxPoints = pointTicks[pointTicks.length - 1];
   const chartFor = (m: ChartMode) =>
     m === 'place' ? (
       <CampaignLineChart
@@ -129,38 +143,36 @@ export default function CampaignChart({
         invert
         tones={tones}
         caption={placeCaption}
-        paper
+        compact={live}
       />
     ) : (
       <CampaignLineChart
         key="points"
         series={pointsSeries(history, order, nameOf)}
         xLabels={xLabels}
-        yMin={Math.min(
-          0,
-          ...history.flatMap((h) => Object.values(h.points ?? {})),
-        )}
+        yMin={Math.min(0, ...allPoints)}
         yMax={maxPoints}
-        yTicks={ticksBetween(0, maxPoints, 6)}
-        goal={OVERLORD_POINTS}
+        yTicks={pointTicks}
+        goal={goal}
         tones={tones}
         caption={pointsCaption}
-        paper
+        compact={live}
       />
     );
   return (
+    <div className={`w-full ${NEWSPRINT_PAINT}`}>
     <PaperSection
       title={R.chartTitle}
       icon="bolt"
       aside={
         exporting ? undefined : (
-          <span className="flex items-center gap-4 text-[11px] font-bold">
+          <span className="flex items-center gap-4 font-sign text-[15px] font-bold uppercase tracking-[0.05em]">
           {MODES.map((m) => (
             <button
               key={m}
               onClick={() => setMode(m)}
               aria-pressed={mode === m}
-              className={`border-b-2 pb-0.5 transition ${
+              className={`min-h-11 border-b-2 px-1 transition focus-visible:outline-2 focus-visible:outline-red-700 sm:min-h-8 ${
                 mode === m
                   ? 'border-red-700 text-red-700'
                   : 'border-transparent text-slate-500 hover:text-slate-900'
@@ -173,23 +185,20 @@ export default function CampaignChart({
         )
       }
     >
-      <div className="flex w-full flex-col gap-3 rounded-sm border border-slate-900/20 bg-white/40 p-3 sm:p-4">
+      <div className="flex w-full flex-col gap-3 rounded-[2px] border border-slate-900/25 bg-white/40 p-3 sm:p-4">
         {!charted ? (
-          <p className="text-[10px] italic text-slate-600">{R.noCharts}</p>
+          <p className="font-serif text-[12px] italic text-slate-600">{R.noCharts}</p>
         ) : exporting ? (
           MODES.map((m) => (
             <div key={m} className="flex flex-col gap-2">
-              <span className="text-[11px] font-bold text-red-700">{R.modes[m]}</span>
+              <span className="font-sign text-[15px] font-bold uppercase tracking-[0.05em] text-red-700">{R.modes[m]}</span>
               {chartFor(m)}
             </div>
           ))
         ) : (
           chartFor(mode)
         )}
-        <div className="flex flex-col gap-2 border-t border-dotted border-slate-900/40 pt-3">
-          <span className="text-[10px] italic text-slate-600">
-            {fmt(R.pickHint, { max: SEAT_TONES.length })}
-          </span>
+        <div className="border-t border-dotted border-slate-900/40 pt-3">
           <div className="flex flex-wrap gap-1.5">
             {order.map((slug) => {
               const character = characterBySlug.get(slug);
@@ -201,7 +210,7 @@ export default function CampaignChart({
                   onClick={() => toggleSeat(slug)}
                   aria-pressed={Boolean(tone)}
                   title={character.name}
-                  className={`flex items-center gap-1.5 rounded-sm border py-0.5 pl-0.5 pr-2 text-[10px] font-semibold transition ${
+                  className={`flex min-h-11 items-center gap-1.5 rounded-[2px] border py-0.5 pl-0.5 pr-2 font-serif text-[12px] font-semibold transition focus-visible:outline-2 focus-visible:outline-red-700 sm:min-h-8 ${
                     tone
                       ? `${PICK_RING[tone]} text-slate-900`
                       : 'border-slate-900/25 bg-white/50 text-slate-600 hover:border-slate-900 hover:text-slate-900'
@@ -222,5 +231,6 @@ export default function CampaignChart({
         </div>
       </div>
     </PaperSection>
+    </div>
   );
 }

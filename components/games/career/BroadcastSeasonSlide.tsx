@@ -5,7 +5,6 @@ import { INTRO_STAGGER, WEATHER_EMOJI } from '@/lib/constants/broadcastWeather';
 import type { CharacterCareerState } from '@/lib/utils/careerSave';
 import { IN_FORM_GAIN_SCALE, IN_FORM_STRESS_DROP } from '@/lib/utils/cupSeason';
 import { fmt } from '@/lib/utils/format';
-import { seasonName } from '@/lib/utils/localeNames';
 
 const B = GAMES_UI.career.broadcast;
 
@@ -27,13 +26,10 @@ export default function BroadcastSeasonSlide({
   characterBySlug: Map<string, DuelCharacter>;
 }) {
   return (
-    <div className="flex min-h-56 flex-col items-center justify-center gap-4 rounded-xl border border-green-300/20 bg-green-300/5 p-5">
-      <p className="text-center text-[9px] font-bold uppercase tracking-widest text-green-300">
+    <div className="flex min-h-56 flex-col items-center justify-center gap-4 bg-[#0d2a1e] p-5">
+      <p className="text-center font-sign text-[15px] font-bold uppercase leading-tight tracking-[0.1em] text-green-300">
         <span className="mr-1">{WEATHER_EMOJI[themeIndex]}</span>
         {B.inForm}
-        <span className="mt-0.5 block text-[9px] font-semibold normal-case tracking-normal text-slate-400">
-          {fmt(B.inFormHint, { theme: seasonName(season) })}
-        </span>
       </p>
       <div className="flex flex-wrap justify-center gap-5">
         {slugs.map((slug, i) => {
@@ -59,23 +55,23 @@ export default function BroadcastSeasonSlide({
                 {character.name}
               </span>
               <span className="flex flex-col items-center gap-0.5 text-[9px] leading-tight">
-                <span className="font-bold uppercase tracking-widest text-slate-500">
+                <span className="font-sign text-[12px] font-semibold uppercase tracking-[0.08em] text-slate-400">
                   {B.editionRecord}
                 </span>
-                <span className="font-mono text-sm font-black text-green-200">
+                <span className="font-sign text-[17px] font-bold tabular-nums text-green-200">
                   {record ? `${record[0]}-${record[1]}` : B.editionNone}
                 </span>
-                <span className="font-mono text-[10px] font-bold text-amber-300">🏆 {pct}%</span>
+                <span className="font-sign text-[14px] font-bold tabular-nums text-amber-300">🏆 {pct}%</span>
               </span>
             </div>
           );
         })}
       </div>
       <div className="flex flex-wrap justify-center gap-1.5 opacity-0 animate-[bubblein_0.35s_ease-out_forwards] [animation-delay:700ms]">
-        <span className="rounded-full border border-green-300/30 bg-slate-950/50 px-2 py-0.5 font-mono text-[9px] font-bold text-green-200">
+        <span className="rounded-[3px] bg-[#071a12] px-2 py-0.5 font-sign text-[13px] font-semibold tabular-nums text-green-200">
           {fmt(B.buffStress, { drop: -IN_FORM_STRESS_DROP })}
         </span>
-        <span className="rounded-full border border-green-300/30 bg-slate-950/50 px-2 py-0.5 font-mono text-[9px] font-bold text-green-200">
+        <span className="rounded-[3px] bg-[#071a12] px-2 py-0.5 font-sign text-[13px] font-semibold tabular-nums text-green-200">
           {fmt(B.buffGain, { scale: IN_FORM_GAIN_SCALE })}
         </span>
       </div>

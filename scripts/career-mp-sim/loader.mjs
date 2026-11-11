@@ -33,7 +33,14 @@ export async function resolve(specifier, context, nextResolve) {
     const file = tryFile(target);
     if (file) return { url: pathToFileURL(file).href, shortCircuit: true };
   }
-  return nextResolve(specifier, context);
+  try {
+    return await nextResolve(specifier, context);
+  } catch (e) {
+    // Packages without an exports map (next/server) need the file extension
+    // under ESM resolution, which the bundler adds on its own
+    if (e?.code !== 'ERR_MODULE_NOT_FOUND' || path.extname(specifier)) throw e;
+    return nextResolve(`${specifier}.js`, context);
+  }
 }
 
 export async function load(url, context, nextLoad) {

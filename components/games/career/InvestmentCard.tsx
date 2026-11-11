@@ -70,7 +70,6 @@ export default function InvestmentCard({
   const affordable = cost !== null && balance >= cost;
   return (
     <ShopCard
-      tone="amber"
       icon={
         <ActionIcon
           kind={INVESTMENT_ICON_BY_ID[id]}
@@ -86,7 +85,6 @@ export default function InvestmentCard({
       note={
         atMax ? undefined : fmt(INV.next, { effect: effectAt(id, level + 1) })
       }
-      disabled={atMax}
       action={
         atMax
           ? undefined

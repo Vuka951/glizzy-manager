@@ -1,60 +1,59 @@
-import { useState } from 'react';
-import ActionButton from '@/components/games/career/ActionButton';
+import { useRef, useState } from 'react';
+import type { ActionReceiptToast } from '@/components/games/career/ActionReceipt';
 import ActionCutscene, {
   type ActionCutsceneState,
 } from '@/components/games/career/ActionCutscene';
-import ActionReceipt, {
-  type ActionReceiptToast,
-} from '@/components/games/career/ActionReceipt';
-import ActionIcon from '@/components/icons/ActionIcon';
-import BoltIcon from '@/components/icons/BoltIcon';
-import BowlIcon from '@/components/icons/BowlIcon';
-import Icon from '@/components/icons/Icon';
-import CalendarSeasonRow from '@/components/games/career/CalendarSeasonRow';
 import CareerMailbox from '@/components/games/career/CareerMailbox';
 import GlizacijaPanel from '@/components/games/career/GlizacijaPanel';
-import GlizacijaPill from '@/components/games/career/GlizacijaPill';
+import type { GlizzyBetTicket } from '@/components/games/career/GlizzflationBetDesk';
+import type { GlizzyCall } from '@/data/games/careerGlizzflationBets';
 import GuardDialog from '@/components/games/career/GuardDialog';
 import GovernmentEffectsInfoPanel from '@/components/games/career/GovernmentEffectsInfoPanel';
 import InfoButton from '@/components/games/career/InfoButton';
 import MetersInfoPanel from '@/components/games/career/MetersInfoPanel';
 import InvestmentCard from '@/components/games/career/InvestmentCard';
-import MailboxButton from '@/components/games/career/MailboxButton';
-import NewspaperSpread from '@/components/games/career/NewspaperSpread';
-import ShopCard from '@/components/games/career/ShopCard';
-import MetersSide from '@/components/games/career/MetersSide';
+import NewspaperSpread, {
+  headlineText,
+} from '@/components/games/career/NewspaperSpread';
 import SabotageDialog from '@/components/games/career/SabotageDialog';
-import SponsorEmblem from '@/components/games/career/SponsorEmblem';
 import SponsorModal from '@/components/games/career/SponsorModal';
-import ParliamentPanel from '@/components/games/career/ParliamentPanel';
+import ParliamentPanel, {
+  type ParliamentTab,
+} from '@/components/games/career/ParliamentPanel';
 import {
   campaignLetterOpen,
-  ostrvoWeekendEveryWindow,
+  greenWeekendEveryWindow,
   parliamentOpen,
   sabotageTaxScale,
-  strankaLeadMedia,
-  strankaLeadTrainingScale,
-  strankaMediaMultiplier,
+  redLeadMedia,
+  redLeadTrainingScale,
+  redMediaMultiplier,
 } from '@/lib/utils/careerElections';
 import TrainingCard from '@/components/games/career/TrainingCard';
-import TrainingScene from '@/components/games/career/TrainingScene';
+import TownBankOffice from '@/components/games/career/town/TownBankOffice';
+import TownBankPanel from '@/components/games/career/town/TownBankPanel';
+import TownLeagueStats from '@/components/games/career/town/TownLeagueStats';
+import TownMediaStudio from '@/components/games/career/town/TownMediaStudio';
+import TownMediaTape from '@/components/games/career/town/TownMediaTape';
+import TownKioskChooser, {
+  type TownKioskPaper,
+} from '@/components/games/career/town/TownKioskChooser';
+import TownDockChooser from '@/components/games/career/town/TownDockChooser';
+import TownHomeFridge from '@/components/games/career/town/TownHomeFridge';
+import TownTrainingBoard from '@/components/games/career/town/TownTrainingBoard';
+import TownHub, {
+  type TownBuildingState,
+  type TownRoom,
+} from '@/components/games/career/town/TownHub';
 import { useMoodAmbience } from '@/components/games/career/useMoodAmbience';
 import {
   APPETITE_REGROWTH,
-  FASTING_AMBITION_GAIN,
-  FASTING_APPETITE_GAIN,
-  FASTING_STRESS,
   MEDIA_AMBITION_GAIN,
   MEDIA_EGO_GAIN,
   MEDIA_SCANDAL_EGO_GAIN,
   MEDIA_SCANDAL_FAME_SCALE,
   MEDIA_SCANDAL_STRESS,
   MEDIA_STRESS,
-  REST_DRIFT,
-  REST_EGO_TARGET,
-  REST_FAME_DROP,
-  REST_SIDE_DRIFT,
-  REST_STRESS_DROP,
   OFFSEASON_SLOTS,
   SCANDAL_BACKFIRE_CHANCE,
   type MediaAppearanceKind,
@@ -68,10 +67,16 @@ import {
   standingSecurityChance,
 } from '@/lib/utils/careerInvestments';
 import { mediaFameRange, mediaPay } from '@/lib/utils/careerMeters';
+import { debtOf } from '@/lib/utils/careerCredit';
 import { careerMoodActivityFor } from '@/lib/utils/careerMood';
-import { rankBySeeding } from '@/lib/utils/careerPoints';
+import {
+  careerPoints,
+  rankBySeeding,
+  seedingKey,
+} from '@/lib/utils/careerPoints';
 import {
   guardCost,
+  guardMaxChance,
   guardMinSteps,
   guardPositionScale,
   guardPriceScale,
@@ -83,8 +88,7 @@ import {
   seasonPricePctFor,
   seasonPriceScale,
 } from '@/lib/utils/careerSeasonPrices';
-import { ostrvoSabotageScale } from '@/lib/utils/careerSponsors';
-import { SPONSOR_THEMES } from '@/lib/constants/sponsorThemes';
+import { greenSabotageScale } from '@/lib/utils/careerSponsors';
 import {
   fameStressTaxScale,
   mediaUsesFor,
@@ -102,19 +106,26 @@ import type {
   SponsorId,
 } from '@/lib/utils/careerSave';
 import type { CoachTagMap } from '@/lib/types/careerMp';
-import { fmt, plural, signedNumber } from '@/lib/utils/format';
+import type { TownBuildingId } from '@/lib/constants/townLayout';
+import type { TownBuildingMode, TownTrip } from '@/lib/types/town';
+import { trainingLawScale } from '@/lib/utils/careerLaws';
+import { fmt, plural, signedNumber, signedPct } from '@/lib/utils/format';
+import { seasonName } from '@/lib/utils/localeNames';
+import {
+  paperHeadlines,
+  townPapers,
+  type TownIssue,
+} from '@/lib/utils/townPapers';
 
 const OS = GAMES_UI.career.offseason;
-const T = GAMES_UI.career.trainings;
-const SPONSORS = GAMES_UI.career.sponsors;
 const SAB = GAMES_UI.career.sabotage;
 const A = GAMES_UI.career.actions;
 const M = GAMES_UI.career.meters;
 const NP = GAMES_UI.career.newspaper;
+const MASTHEAD = GAMES_UI.career.select.masthead;
 const MAIL = GAMES_UI.career.mail;
-const INV = GAMES_UI.career.investments;
-const TABLE = GAMES_UI.career.table;
 const PARL = GAMES_UI.career.parliament;
+const TOWN = GAMES_UI.career.town;
 
 const LEVEL_KEY = {
   stomach: 'livesCap',
@@ -131,9 +142,10 @@ type ModalKind =
   | 'media'
   | 'sabotage'
   | 'guard'
-  | 'invest'
   | 'parliament'
-  | 'glizacija'
+  | 'bank'
+  | 'dock'
+  | 'kiosk'
   | null;
 
 export default function OffseasonScreen({
@@ -155,6 +167,11 @@ export default function OffseasonScreen({
   onIsland,
   onGuard,
   onInvest,
+  onBorrow,
+  onRepay,
+  onGlizzyBet,
+  onCancelGlizzyBet,
+  otherGlizzyBets = [],
   onSabotage,
   onOpenNews,
   onToCup,
@@ -165,6 +182,9 @@ export default function OffseasonScreen({
   onDonate,
   hideCupGate = false,
   coaches,
+  room,
+  gate,
+  extraPapers = [],
 }: {
   career: SavedCareer;
   characters: DuelCharacter[];
@@ -186,6 +206,13 @@ export default function OffseasonScreen({
   onIsland: () => void;
   onGuard: (steps: number) => void;
   onInvest: (id: InvestmentId) => void;
+  // The bank's counter, for whoever the Yellow Party lends to
+  onBorrow: (amount: number) => void;
+  onRepay: (amount: number) => void;
+  onGlizzyBet: (call: GlizzyCall, stake: number) => void;
+  onCancelGlizzyBet: () => void;
+  // The other coaches' tickets in a shared room, open for everyone to read
+  otherGlizzyBets?: GlizzyBetTicket[];
   onSabotage: (
     targetSlug: string,
     tier: SabotageTier,
@@ -201,8 +228,29 @@ export default function OffseasonScreen({
   // A shared room closes the window from its coach bar, not from here
   hideCupGate?: boolean;
   coaches?: CoachTagMap;
+  // A shared room: its coaches light the home's windows, and its own gate
+  // takes the bottom of the town
+  room?: TownRoom;
+  gate?: React.ReactNode;
+  // Special issues the room keeps on the kiosk's counter besides the league's
+  // own papers, such as the issue that opened a shared league
+  extraPapers?: TownKioskPaper[];
 }) {
   const [modal, setModal] = useState<ModalKind>(null);
+  // The kiosk's stats sheet is open; closing the panel folds it again
+  const [kioskStats, setKioskStats] = useState(false);
+  const [parliamentTab, setParliamentTab] = useState<ParliamentTab>('chamber');
+  const [trip, setTrip] = useState<TownTrip | null>(null);
+  const [sailing, setSailing] = useState(false);
+  // The action runs on the click; the walk only stages it, so its receipt and
+  // scene wait until he is at the door, or back from the island
+  const [holding, setHolding] = useState(false);
+  const tripKeyRef = useRef(0);
+  // What runs once he reaches the door, for walks that open something there
+  const atDoorRef = useRef<(() => void) | null>(null);
+  const shownToast = holding ? null : toast;
+  const shownCutscene = holding ? null : cutscene;
+  const [reading, setReading] = useState<TownIssue | null>(null);
   const [info, setInfo] = useState<'government' | 'meters' | null>(
     null,
   );
@@ -210,7 +258,7 @@ export default function OffseasonScreen({
   // He keeps making the noise his mood makes, but not while a panel is over him
   useMoodAmbience(
     careerMoodActivityFor(ch),
-    modal === null && info === null && cutscene === null,
+    modal === null && info === null && shownCutscene === null,
   );
   const busy = pendingElection || pendingRival;
   const slotsFull = career.slotsUsed >= OFFSEASON_SLOTS;
@@ -218,12 +266,11 @@ export default function OffseasonScreen({
   const locked = slotsFull || busy;
   const plotsBooked = playerPlotsBooked(career);
   const contract = ch.sponsor;
-  const unreadMail = career.mail.filter((m) => !m.read).length;
-  const stateMedia = contract?.sponsorId === 'stranka';
-  const builderGuard = contract?.sponsorId === 'zidari';
+  const stateMedia = contract?.sponsorId === 'red';
+  const blueGuard = contract?.sponsorId === 'blue';
   const islandAvailable =
-    contract?.sponsorId === 'ostrvo' &&
-    (ostrvoWeekendEveryWindow(ch)
+    contract?.sponsorId === 'green' &&
+    (greenWeekendEveryWindow(ch)
       ? career.islandYear !== career.year ||
         career.islandSeason !== career.season
       : career.islandYear !== career.year);
@@ -239,12 +286,12 @@ export default function OffseasonScreen({
   const sabotageScale =
     seasonPriceScale(career, 'sabotage') *
     sabotageTaxScale(ch, career.parliament) *
-    ostrvoSabotageScale(ch) *
+    greenSabotageScale(ch) *
     sabotageRepeatScale(plotsBooked);
   const mediaMultiplier = stateMedia
-    ? strankaMediaMultiplier(ch.partyStatus)
+    ? redMediaMultiplier(ch.partyStatus)
     : 1;
-  const leadMedia = strankaLeadMedia(ch, career.parliament);
+  const leadMedia = redLeadMedia(ch, career.parliament);
   const interviewPay = Math.round(
     mediaPay(
       'interview',
@@ -288,266 +335,402 @@ export default function OffseasonScreen({
   // the shop stays open even when every slot is spent
   const standingGuardPct = Math.round(standingSecurityChance(ch) * 100);
 
+  const travel = (
+    building: TownBuildingId,
+    run: () => void,
+    island = false,
+  ) => {
+    run();
+    if (!playerCharacter) return;
+    tripKeyRef.current += 1;
+    setHolding(true);
+    setTrip({ key: tripKeyRef.current, building, island });
+  };
+  // He walks there first and the building opens once he is at the door
+  const visit = (building: TownBuildingId, open: () => void) => {
+    if (!playerCharacter) {
+      open();
+      return;
+    }
+    tripKeyRef.current += 1;
+    atDoorRef.current = open;
+    setTrip({ key: tripKeyRef.current, building });
+  };
+  const arrive = (t: TownTrip) => {
+    if (t.key !== tripKeyRef.current) return;
+    const atDoor = atDoorRef.current;
+    atDoorRef.current = null;
+    atDoor?.();
+    if (t.island) setSailing(true);
+    else setHolding(false);
+  };
+  const endTrip = (t: TownTrip) => {
+    if (t.key !== tripKeyRef.current) return;
+    setHolding(false);
+    setSailing(false);
+    setTrip(null);
+  };
+  const train = (id: TrainingId) => travel('training', () => onTrain(id));
+  const rest = (fasting: boolean) => travel('home', () => onRest(fasting));
+  const media = (kind: MediaAppearanceKind) =>
+    travel('media', () => onMedia(kind));
+  const guard = (steps: number) => travel('security', () => onGuard(steps));
+  const sabotage = (
+    targetSlug: string,
+    tier: SabotageTier,
+    boostSteps: number,
+  ) => travel('cafe', () => onSabotage(targetSlug, tier, boostSteps));
+  const island = () => travel('dock', onIsland, true);
+
+  const guarded = career.guarded === true || blueGuard;
+  // The pier stays as it was until the boat that already left is back
+  const dockTrip = trip?.building === 'dock';
+  const gliziPct = gliziPricePct(career);
+  const glizzyHistory = career.gliziPriceHistory ?? [];
+  const glizzyPrevious =
+    glizzyHistory.length > 1 ? glizzyHistory[glizzyHistory.length - 2] : 1;
+  const glizzyCurrent = career.gliziPriceIndex ?? 1;
+  const glizzyTrend =
+    glizzyCurrent > glizzyPrevious
+      ? 'up'
+      : glizzyCurrent < glizzyPrevious
+        ? 'down'
+        : 'flat';
+  const bankDebt = debtOf(ch, career.balance);
+  const glizzySub = `${
+    glizzyTrend === 'up' ? '\u25B2' : glizzyTrend === 'down' ? '\u25BC' : ''
+  }${signedPct(gliziPct)}`;
+  const pctSub = (pct: number) => (pct !== 0 ? signedPct(pct) : null);
+  // Single player reads the league paper at the kiosk once the month is spent
+  const newsReady = !hideCupGate && slotsFull && !busy;
+  const readNews = () => visit('kiosk', onOpenNews);
+  // The new rival is picked at the TV station, once the election is watched
+  const rivalReady = pendingRival && !pendingElection;
+  const meetRival = () => visit('media', onOpenRival);
+  // Every paper on the kiosk's counter; the league paper that is not out yet
+  // still prints at the kiosk after the walk
+  const papers: TownKioskPaper[] = [
+    ...townPapers(career, newsReady).map((paper) => {
+      const [headline = null, ...lines] = paperHeadlines(
+        paper.issue.news,
+        (item) => headlineText(item, characterBySlug),
+      );
+      return {
+        key: paper.key,
+        title: paper.recap ? NP.recapTitle : MASTHEAD,
+        cup: paper.recap,
+        season: paper.issue.season,
+        headline,
+        lines,
+        sub: fmt(NP.issue, {
+          theme: seasonName(paper.issue.season),
+          year: paper.issue.year,
+        }),
+        unread: !paper.printed,
+        onOpen: paper.printed
+          ? () => {
+              setReading(paper.issue);
+              setModal('paper');
+            }
+          : () => {
+              setModal(null);
+              readNews();
+            },
+      };
+    }),
+    ...extraPapers.map((paper) => ({
+      ...paper,
+      onOpen: () => {
+        setModal(null);
+        paper.onOpen();
+      },
+    })),
+  ];
+  // What is spent, as the town shows it: an action is paid on the click, but
+  // its building only shuts (and the town only closes) once he is back from
+  // the walk, so he never heads for a door that just rolled its shutter down
+  const spentNow = [slotsFull, islandAvailable, mediaSpent, guarded]
+    .map(Number)
+    .join('');
+  const [spentShown, setSpentShown] = useState(spentNow);
+  if (trip === null && spentShown !== spentNow) setSpentShown(spentNow);
+  const [
+    shownFull,
+    shownIsland,
+    shownMediaSpent,
+    shownGuarded,
+  ] = [...(trip === null ? spentNow : spentShown)].map((c) => c === '1');
+  // Nothing left that takes a slot, so the town closes for the night
+  const closing = shownFull && !busy && !shownIsland && !dockTrip;
+  const slotMode = (spent: boolean): TownBuildingMode =>
+    spent ? 'shut' : 'open';
+  const sabotageSub = plotsBooked > 0 ? fmt(SAB.booked, { n: plotsBooked }) : null;
+
+  // Every building with the same open and greyed rules the action rail had.
+  // Abandoned is what the career has not opened yet, shut is what is spent
+  // for this window
+  const buildings: Record<TownBuildingId, TownBuildingState> = {
+    training: {
+      mode: slotMode(shownFull),
+      disabled: locked,
+      sub: pctSub(trainingPct),
+      onOpen: () => setModal('training'),
+    },
+    home: {
+      mode: slotMode(shownFull && !shownIsland),
+      disabled: busy || (slotsFull && !islandAvailable),
+      sub: null,
+      onOpen: () => setModal('rest'),
+    },
+    // While a new rival waits, the TV station is where he is picked, in
+    // place of the usual appearance
+    media: rivalReady
+      ? {
+          mode: 'open',
+          disabled: false,
+          sub: null,
+          label: TOWN.rivalAlarm,
+          shortLabel: TOWN.rivalAlarm,
+          onOpen: meetRival,
+        }
+      : {
+          mode: slotMode(shownFull || shownMediaSpent),
+          disabled: mediaSpent || locked,
+          sub: mediaSpent
+            ? null
+            : `+${interviewPay}${mediaLeft > 1 ? ` ×${mediaLeft}` : ''}`,
+          onOpen: () => setModal('media'),
+        },
+    bank: {
+      mode: 'open',
+      disabled: false,
+      sub: glizzySub,
+      alert: bankDebt > 0,
+      onOpen: () => setModal('bank'),
+    },
+    cafe: {
+      mode: !mechanicsUnlocked ? 'abandoned' : slotMode(shownFull),
+      disabled: locked,
+      sub:
+        [sabotageSub, pctSub(sabotagePct)].filter(Boolean).join(' ') || null,
+      onOpen: () => setModal('sabotage'),
+    },
+    security: {
+      mode: !mechanicsUnlocked
+        ? 'abandoned'
+        : slotMode(shownFull || shownGuarded),
+      disabled:
+        locked ||
+        guarded ||
+        career.balance < guardFromCost,
+      label: guarded ? TOWN.labels.guarded : undefined,
+      shortLabel: guarded ? TOWN.short.guarded : undefined,
+      sub: guarded ? null : pctSub(guardPct),
+      onOpen: () => setModal('guard'),
+    },
+    parliament: {
+      mode: parliamentOpen(career) ? 'open' : 'abandoned',
+      disabled: false,
+      sub: null,
+      onOpen: () => {
+        setParliamentTab('chamber');
+        setModal('parliament');
+      },
+    },
+    post: {
+      mode: 'open',
+      disabled: false,
+      sub: null,
+      onOpen: () => setModal('mail'),
+    },
+    kiosk: {
+      mode: 'open',
+      disabled: busy,
+      sub: null,
+      onOpen: () => setModal('kiosk'),
+    },
+    billboard: {
+      mode: 'open',
+      disabled: false,
+      sub: null,
+      onOpen: onOpenTable,
+    },
+    // The party poll goes up with the chamber, an info board that never shuts
+    poll: {
+      mode: parliamentOpen(career) ? 'open' : 'abandoned',
+      disabled: false,
+      sub: null,
+      onOpen: () => {
+        setParliamentTab('popularity');
+        setModal('parliament');
+      },
+    },
+    dock: {
+      mode:
+        dockTrip || shownIsland
+          ? 'open'
+          : contract?.sponsorId === 'green'
+            ? 'shut'
+            : 'abandoned',
+      disabled: busy || (!dockTrip && !islandAvailable),
+      sub: null,
+      onOpen: () => setModal('dock'),
+    },
+  };
+
   return (
     <div className="w-full">
-      {playerCharacter && (
-        <TrainingScene
-          character={playerCharacter}
-          season={career.season}
-          sponsorId={contract?.sponsorId ?? null}
-          mood={ch}
-          className="h-[calc(100dvh-10rem)] min-h-[34rem] group-[:fullscreen]:h-dvh"
-        >
-          {/* everything lives inside the scene */}
-          <div className="absolute inset-x-2 top-2 z-40">{topBar}</div>
+      <TownHub
+        career={career}
+        characterBySlug={characterBySlug}
+        playerCharacter={playerCharacter}
+        coaches={coaches}
+        room={room}
+        topBar={topBar}
+        gate={gate}
+        hideCupGate={hideCupGate}
+        toast={shownToast}
+        onDismissToast={onDismissToast}
+        buildings={buildings}
+        trip={trip}
+        sailing={sailing}
+        onArrive={arrive}
+        onTripEnd={endTrip}
+        pendingElection={pendingElection}
+        pendingRival={pendingRival}
+        closing={closing}
+        paperFresh={papers.some((paper) => paper.unread)}
+        onOpenElection={onOpenElection}
+        onOpenRival={meetRival}
+        onOpenDossier={onOpenDossier}
+        onOpenNews={readNews}
+        onToCup={onToCup}
+      />
 
-          {/* the running quarter as a timeline, only where the rails leave room */}
-          <div className="pointer-events-none absolute left-1/2 top-14 z-20 hidden w-[34rem] max-w-[52%] -translate-x-1/2 rounded-2xl bg-slate-950/55 backdrop-blur-sm lg:block xl:w-[38rem]">
-            <CalendarSeasonRow
-              career={career}
-              year={career.year}
-              quarter={career.season}
-            />
-          </div>
-
-          {/* the left column: sponsor, table and parliament in a row, the action rail below */}
-          <div className="absolute left-2 top-14 z-30 flex flex-col items-start gap-2 sm:w-36 sm:items-stretch xl:w-56 xl:gap-2.5">
-            <div className="flex items-center gap-1.5 self-stretch xl:gap-2">
-              <button
-                onClick={() => onOpenDossier()}
-                title={SPONSORS.title}
-                className={`flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-2xl border px-2 backdrop-blur-sm transition xl:justify-start ${
-                  contract
-                    ? SPONSOR_THEMES[contract.sponsorId].chrome
-                    : 'border-sky-200/15 bg-slate-950/70 hover:border-sky-200/40'
-                }`}
-              >
-                {contract ? (
-                  <>
-                    <SponsorEmblem
-                      sponsorId={contract.sponsorId}
-                      className="h-5 w-5 shrink-0"
-                    />
-                    <span className="hidden min-w-0 text-left text-[9px] font-bold uppercase leading-[1.15] tracking-wider text-slate-200 xl:line-clamp-2">
-                      {
-                        (SPONSORS.names as Record<string, string>)[
-                          contract.sponsorId
-                        ]
-                      }
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span className="flex h-5 w-5 items-center justify-center text-[11px] font-bold text-slate-500">
-                      ?
-                    </span>
-                    <span className="hidden min-w-0 text-left text-[9px] font-bold uppercase leading-[1.15] tracking-wider text-slate-500 xl:line-clamp-2">
-                      {SPONSORS.none}
-                    </span>
-                  </>
-                )}
-              </button>
-              <button
-                onClick={onOpenTable}
-                title={TABLE.title}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-sky-200/15 bg-slate-950/70 text-sky-300 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-sky-200/40 hover:text-white"
-              >
-                <ActionIcon kind="table" className="h-5 w-5" />
-              </button>
-              {parliamentOpen(career) && (
-                <button
-                  onClick={() => setModal('parliament')}
-                  title={PARL.title}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-sky-200/15 bg-slate-950/70 text-sky-300 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-sky-200/40 hover:text-white"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-5 w-5"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M3 19a9 9 0 0 1 18 0"
-                      className="fill-none stroke-current"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M7 19a5 5 0 0 1 10 0"
-                      className="fill-none stroke-current"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <circle cx="12" cy="19" r="1.6" className="fill-current" />
-                  </svg>
-                </button>
-              )}
-            </div>
-
-            <GlizacijaPill
-              career={career}
-              onOpen={() => setModal('glizacija')}
-            />
-            <div
-              aria-hidden="true"
-              className="h-px w-full self-stretch bg-gradient-to-r from-sky-200/40 via-sky-200/15 to-transparent"
-            />
-
-            {/* the action rail */}
-            <div className="flex flex-col items-start gap-1.5 self-stretch sm:items-stretch xl:gap-2">
-              <ActionButton
-                icon="training"
-                label={A.training}
-                compact
-                disabled={locked}
-                onClick={() => setModal('training')}
-              />
-              <ActionButton
-                icon="rest"
-                label={T.rest.name}
-                tone="green"
-                compact
-                disabled={busy || (slotsFull && !islandAvailable)}
-                onClick={() => setModal('rest')}
-              />
-              <ActionButton
-                icon="media"
-                label={A.media}
-                sub={
-                  mediaSpent
-                    ? null
-                    : `+${interviewPay}${mediaLeft > 1 ? ` ×${mediaLeft}` : ''}`
-                }
-                tone="gold"
-                compact
-                disabled={mediaSpent || locked}
-                onClick={() => setModal('media')}
-              />
-              {contract && (
-                <ActionButton
-                  icon="invest"
-                  label={A.invest}
-                  tone="gold"
-                  compact
-                  onClick={() => setModal('invest')}
-                />
-              )}
-              {mechanicsUnlocked && (
-                <>
-                  <ActionButton
-                    icon="sabotage"
-                    label={SAB.action}
-                    sub={
-                      plotsBooked > 0
-                        ? fmt(SAB.booked, { n: plotsBooked })
-                        : null
-                    }
-                    tone="danger"
-                    compact
-                    disabled={locked}
-                    onClick={() => setModal('sabotage')}
-                  />
-                  <ActionButton
-                    icon="guard"
-                    label={career.guarded || builderGuard ? A.guarded : A.guard}
-                    tone="gold"
-                    compact
-                    disabled={
-                      locked ||
-                      builderGuard ||
-                      career.guarded === true ||
-                      career.balance < guardFromCost
-                    }
-                    onClick={() => setModal('guard')}
-                  />
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* the right column: mailbox, league news and the cup gate in a row, the meters below */}
-          <div className="absolute right-2 top-24 z-30 flex flex-col items-end gap-2 sm:top-14 sm:w-36 xl:w-44 xl:gap-2.5">
-            <div className="flex items-center justify-end gap-1.5 self-stretch xl:gap-2">
-              <MailboxButton
-                unread={unreadMail}
-                onOpen={() => setModal('mail')}
-              />
-              {busy && (
-                <button
-                  onClick={pendingElection ? onOpenElection : onOpenRival}
-                  className="flex h-10 min-w-0 flex-1 animate-pulse items-center justify-center gap-2 rounded-2xl border border-red-500/60 bg-red-950/80 px-3 text-[10px] font-bold uppercase tracking-widest text-red-200 backdrop-blur-sm transition hover:animate-none hover:border-red-400 hover:text-white"
-                >
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-300" />
-                  <span className="truncate">
-                    {pendingElection ? OS.electionButton : OS.rivalButton}
-                  </span>
-                </button>
-              )}
-              {career.lastIssue && !career.newsSeen && !busy && (
-                <button
-                  onClick={() => setModal('paper')}
-                  title={OS.lastPaper}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-sky-200/15 bg-slate-950/70 text-slate-400 opacity-70 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-sky-200/40 hover:text-white"
-                >
-                  <ActionIcon kind="news" className="h-5 w-5" />
-                </button>
-              )}
-              {slotsFull && !busy && !hideCupGate && (
-                <button
-                  onClick={onOpenNews}
-                  title={OS.newsButton}
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border backdrop-blur-sm transition hover:-translate-y-0.5 ${
-                    career.newsSeen
-                      ? 'border-sky-200/15 bg-slate-950/70 text-sky-300 hover:border-sky-200/40 hover:text-white'
-                      : 'animate-pulse border-red-500/60 bg-red-950/80 text-red-200 hover:animate-none hover:border-red-400 hover:text-white'
-                  }`}
-                >
-                  <ActionIcon kind="news" className="h-5 w-5" />
-                </button>
-              )}
-              {slotsFull && !busy && career.newsSeen && !hideCupGate && (
-                <button
-                  onClick={onToCup}
-                  title={OS.cupButton}
-                  className="flex h-10 w-10 shrink-0 animate-pulse items-center justify-center rounded-2xl border border-amber-400/60 bg-amber-950/80 text-amber-200 backdrop-blur-sm transition hover:-translate-y-0.5 hover:animate-none hover:border-amber-300 hover:text-white"
-                >
-                  <Icon name="trophy" className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-
-            <div
-              aria-hidden="true"
-              className="h-px w-full self-stretch bg-gradient-to-l from-sky-200/40 via-sky-200/15 to-transparent"
-            />
-
-            <MetersSide ch={ch} onOpen={() => onOpenDossier()} />
-          </div>
-
-          {/* the action receipt, bottom right */}
-          {toast && (
-            <div className="absolute bottom-4 right-4 z-40 animate-[bubblein_0.3s_ease-out]">
-              <ActionReceipt toast={toast} onDismiss={onDismissToast} />
-            </div>
-          )}
-        </TrainingScene>
-      )}
-
-      {modal === 'glizacija' && (
+      {modal === 'dock' && islandAvailable && (
         <SponsorModal
           sponsorId={contract?.sponsorId ?? null}
-          title={OS.glizacija.title}
+          title={TOWN.labels.dock}
+          flush
           onClose={() => setModal(null)}
         >
-          <GlizacijaPanel career={career} sponsorId={contract?.sponsorId ?? null} />
+          <TownDockChooser
+            islandDesc={
+              greenWeekendEveryWindow(ch)
+                ? A.islandDescEveryWindow
+                : A.islandDesc
+            }
+            disabled={busy}
+            onIsland={() => {
+              setModal(null);
+              island();
+            }}
+          />
         </SponsorModal>
       )}
-      {modal === 'paper' && career.lastIssue && (
+      {modal === 'bank' && (
+        <SponsorModal
+          sponsorId={contract?.sponsorId ?? null}
+          title={TOWN.bankTitle}
+          flush
+          wide
+          onClose={() => setModal(null)}
+        >
+          <TownBankPanel
+            trend={glizzyTrend}
+            glizzflationSub={glizzySub}
+            officeSub={
+              bankDebt > 0 ? `${TOWN.account.debt} ${bankDebt}` : null
+            }
+            glizzflation={
+              <GlizacijaPanel
+                career={career}
+                sponsorId={contract?.sponsorId ?? null}
+                onBet={onGlizzyBet}
+                onCancelBet={onCancelGlizzyBet}
+                otherBets={otherGlizzyBets}
+              />
+            }
+            invest={
+              contract ? (
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                  {INVESTMENT_ORDER.map((id) => (
+                    <InvestmentCard
+                      key={id}
+                      id={id}
+                      level={investmentLevel(ch, id)}
+                      balance={career.balance}
+                      priceScale={seasonPriceScale(career, 'investment')}
+                      gliziPct={gliziPricePct(career)}
+                      onBuy={() => {
+                        setModal(null);
+                        onInvest(id);
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : null
+            }
+            office={
+              <TownBankOffice
+                career={career}
+                onBorrow={onBorrow}
+                onRepay={onRepay}
+              />
+            }
+          />
+        </SponsorModal>
+      )}
+      {modal === 'kiosk' && (
+        <SponsorModal
+          sponsorId={contract?.sponsorId ?? null}
+          title={TOWN.signs.kiosk}
+          flush
+          wide
+          onClose={() => {
+            setKioskStats(false);
+            setModal(null);
+          }}
+        >
+          <TownKioskChooser
+            papers={papers}
+            reading={kioskStats}
+            onReadingChange={setKioskStats}
+            stats={{
+              sub: fmt(GAMES_UI.career.hud.year, { year: career.year }),
+              leaders: rankBySeeding(career.characters, seedingKey(career))
+                .slice(0, 3)
+                .flatMap((slug) => {
+                  const character = characterBySlug.get(slug);
+                  return character
+                    ? [
+                        {
+                          slug,
+                          name: character.name,
+                          points: careerPoints(career.characters[slug]),
+                        },
+                      ]
+                    : [];
+                }),
+              sheet: (
+                <TownLeagueStats
+                  career={career}
+                  characterBySlug={characterBySlug}
+                  coaches={coaches}
+                  shared={room !== undefined}
+                />
+              ),
+            }}
+          />
+        </SponsorModal>
+      )}
+      {modal === 'paper' && reading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3">
-          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-[#060912]/75" />
           <NewspaperSpread
-            news={career.lastIssue.news}
-            season={career.lastIssue.season}
-            year={career.lastIssue.year}
+            news={reading.news}
+            season={reading.season}
+            year={reading.year}
             characterBySlug={characterBySlug}
             cta={NP.close}
             onDone={() => setModal(null)}
@@ -559,6 +742,7 @@ export default function OffseasonScreen({
         <SponsorModal
           sponsorId={contract?.sponsorId ?? null}
           title={MAIL.title}
+          flush
           onClose={() => setModal(null)}
         >
           <CareerMailbox
@@ -580,6 +764,7 @@ export default function OffseasonScreen({
         <SponsorModal
           sponsorId={contract?.sponsorId ?? null}
           title={PARL.title}
+          board="tall"
           titleExtra={
             <InfoButton
               label={PARL.effects.infoTitle}
@@ -588,30 +773,34 @@ export default function OffseasonScreen({
           }
           onClose={() => setModal(null)}
         >
-          <ParliamentPanel career={career} characterBySlug={characterBySlug} />
+          <ParliamentPanel
+            career={career}
+            characterBySlug={characterBySlug}
+            coaches={coaches}
+            initialTab={parliamentTab}
+          />
         </SponsorModal>
       )}
       {modal === 'training' && (
         <SponsorModal
           sponsorId={contract?.sponsorId ?? null}
           title={OS.actionsTitle}
+          flush
           titleExtra={
             <InfoButton label={M.infoTitle} onClick={() => setInfo('meters')} />
           }
           wide
           onClose={() => setModal(null)}
         >
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          <TownTrainingBoard>
             {TRAINING_ORDER.map((id) => {
               const def = TRAINING_DEFS[id];
               const levelKey = LEVEL_KEY[id as keyof typeof LEVEL_KEY];
               const stat = levelKey ? ch[levelKey] : null;
               const streak = ch.lastTraining === id ? ch.sameTrainingStreak : 0;
-              const partyScale = strankaLeadTrainingScale(
-                ch,
-                career.parliament,
-                id,
-              );
+              const partyScale =
+                redLeadTrainingScale(ch, career.parliament, id) *
+                trainingLawScale(career.parliament);
               return (
                 <TrainingCard
                   key={id}
@@ -633,99 +822,47 @@ export default function OffseasonScreen({
                   }
                   disabled={locked}
                   onTrain={() => {
-                    onTrain(id);
                     setModal(null);
+                    train(id);
                   }}
                 />
               );
             })}
-          </div>
+          </TownTrainingBoard>
         </SponsorModal>
       )}
       {modal === 'rest' && (
         <SponsorModal
           sponsorId={contract?.sponsorId ?? null}
           title={A.restTitle}
+          flush
           onClose={() => setModal(null)}
         >
-          <div className="flex flex-col gap-2.5">
-            <ShopCard
-              icon={
-                <ActionIcon kind="rest" className="h-8 w-8 text-emerald-300" />
-              }
-              title={T.rest.name}
-              desc={fmt(A.restDesc, {
-                stressMin: REST_STRESS_DROP - REST_DRIFT,
-                stressMax: REST_STRESS_DROP + REST_DRIFT,
-                appetiteMin: APPETITE_REGROWTH - REST_SIDE_DRIFT,
-                appetiteMax: APPETITE_REGROWTH + REST_SIDE_DRIFT,
-                drift: REST_SIDE_DRIFT,
-                ego: REST_EGO_TARGET,
-                fame: REST_FAME_DROP,
-              })}
-              action={{
-                label: OS.spendMonth,
-                tone: 'neutral',
-                disabled: slotsFull,
-                onClick: () => {
-                  setModal(null);
-                  onRest(false);
-                },
-              }}
-            />
-            <ShopCard
-              icon={<BowlIcon className="h-8 w-8" />}
-              title={A.fast}
-              desc={fmt(A.fastDesc, {
-                gain: FASTING_APPETITE_GAIN,
-                amb: FASTING_AMBITION_GAIN,
-                stress: FASTING_STRESS,
-              })}
-              action={{
-                label: OS.spendMonth,
-                tone: 'neutral',
-                disabled: slotsFull,
-                onClick: () => {
-                  setModal(null);
-                  onRest(true);
-                },
-              }}
-            />
-            {islandAvailable && (
-              <ShopCard
-                icon={
-                  <ActionIcon kind="island" className="h-8 w-8 text-cyan-300" />
-                }
-                title={A.island}
-                desc={
-                  ostrvoWeekendEveryWindow(ch)
-                    ? A.islandDescEveryWindow
-                    : A.islandDesc
-                }
-                action={{
-                  label: A.islandFree,
-                  tone: 'neutral',
-                  onClick: () => {
-                    setModal(null);
-                    onIsland();
-                  },
-                }}
-              />
-            )}
-          </div>
+          <TownHomeFridge
+            ch={ch}
+            islandAvailable={islandAvailable}
+            slotsFull={slotsFull}
+            onRest={(fasting) => {
+              setModal(null);
+              rest(fasting);
+            }}
+            onIsland={() => {
+              setModal(null);
+              island();
+            }}
+          />
         </SponsorModal>
       )}
       {modal === 'media' && (
         <SponsorModal
           sponsorId={contract?.sponsorId ?? null}
           title={A.mediaTitle}
+          flush
           onClose={() => setModal(null)}
         >
-          <div className="flex flex-col gap-2.5">
-            <ShopCard
-              icon={
-                <ActionIcon kind="media" className="h-8 w-8 text-sky-300" />
-              }
+          <TownMediaStudio>
+            <TownMediaTape
+              kind="interview"
               title={A.mediaInterview}
               desc={plural(A.mediaInterviewDesc, interviewPay, {
                 pay: interviewPay,
@@ -736,19 +873,15 @@ export default function OffseasonScreen({
                 appetite: APPETITE_REGROWTH,
                 stress: Math.round(MEDIA_STRESS * mediaTax),
               })}
-              earn={interviewPay}
-              action={{
-                label: OS.spendMonth,
-                tone: 'neutral',
-                onClick: () => {
-                  setModal(null);
-                  onMedia('interview');
-                },
+              pay={interviewPay}
+              label={OS.spendMonth}
+              onPlay={() => {
+                setModal(null);
+                media('interview');
               }}
             />
-            <ShopCard
-              tone="red"
-              icon={<BoltIcon className="h-8 w-8 text-red-300" />}
+            <TownMediaTape
+              kind="scandal"
               title={A.mediaScandal}
               desc={plural(A.mediaScandalDesc, scandalPay, {
                 pay: scandalPay,
@@ -763,17 +896,14 @@ export default function OffseasonScreen({
                 backfireFameMax: signedNumber(leadFame(-scandalFameMin)),
                 backfireStress: Math.round(MEDIA_SCANDAL_STRESS * mediaTax * 2),
               })}
-              earn={scandalPay}
-              action={{
-                label: OS.spendMonth,
-                tone: 'danger',
-                onClick: () => {
-                  setModal(null);
-                  onMedia('scandal');
-                },
+              pay={scandalPay}
+              label={OS.spendMonth}
+              onPlay={() => {
+                setModal(null);
+                media('scandal');
               }}
             />
-          </div>
+          </TownMediaStudio>
         </SponsorModal>
       )}
       {modal === 'guard' && (
@@ -790,39 +920,13 @@ export default function OffseasonScreen({
             gliziPct={gliziPricePct(career)}
             place={playerPlace}
             positionPct={guardPositionPct}
+            maxChance={guardMaxChance(ch)}
             onConfirm={(steps) => {
               setModal(null);
-              onGuard(steps);
+              guard(steps);
             }}
             onCancel={() => setModal(null)}
           />
-        </SponsorModal>
-      )}
-      {modal === 'invest' && (
-        <SponsorModal
-          sponsorId={contract?.sponsorId ?? null}
-          title={INV.title}
-          wide
-          onClose={() => setModal(null)}
-        >
-          <div className="flex flex-col gap-2.5">
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              {INVESTMENT_ORDER.map((id) => (
-                <InvestmentCard
-                  key={id}
-                  id={id}
-                  level={investmentLevel(ch, id)}
-                  balance={career.balance}
-                  priceScale={seasonPriceScale(career, 'investment')}
-                  gliziPct={gliziPricePct(career)}
-                  onBuy={() => {
-                    setModal(null);
-                    onInvest(id);
-                  }}
-                />
-              ))}
-            </div>
-          </div>
         </SponsorModal>
       )}
       {modal === 'sabotage' && (
@@ -841,7 +945,7 @@ export default function OffseasonScreen({
             gliziPct={gliziPricePct(career)}
             onConfirm={(targetSlug, tier, boostSteps) => {
               setModal(null);
-              onSabotage(targetSlug, tier, boostSteps);
+              sabotage(targetSlug, tier, boostSteps);
             }}
             onCancel={() => setModal(null)}
           />
@@ -867,12 +971,12 @@ export default function OffseasonScreen({
           />
         </SponsorModal>
       )}
-      {cutscene && playerCharacter && (
+      {shownCutscene && playerCharacter && (
         <ActionCutscene
-          key={cutscene.key}
-          scene={cutscene.scene}
-          outcome={cutscene.outcome}
-          toast={cutscene.toast}
+          key={shownCutscene.key}
+          scene={shownCutscene.scene}
+          outcome={shownCutscene.outcome}
+          toast={shownCutscene.toast}
           character={playerCharacter}
           season={career.season}
           onClose={onCloseCutscene}

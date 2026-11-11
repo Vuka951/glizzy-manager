@@ -7,9 +7,13 @@ const OUT = process.env.SHOTS_DIR ?? `${import.meta.dirname}/output`;
 mkdirSync(OUT, { recursive: true });
 const B = 'http://localhost:3000/api/career-mp';
 const post = (url, body, token) => fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', ...(token ? { 'x-coach-token': token } : {}) }, body: JSON.stringify(body) }).then((r) => r.json());
-const host = await post(`${B}/rooms`, { coachName: 'Host', slug: 'nikola' });
-const guest = await post(`${B}/rooms/${host.code}/join`, { coachName: 'Guest', slug: 'vuka' });
-await post(`${B}/rooms/${host.code}/actions`, { action: { type: 'ready', ready: true }, expectVersion: guest.view.version }, guest.token);
+const host = await post(`${B}/rooms`, { coachName: 'Host' });
+const guest = await post(`${B}/rooms/${host.code}/join`, { coachName: 'Guest' });
+// Each coach picks from the room's own league, as the lobby offers it
+const offer = guest.view.roster.map((e) => e.slug);
+const hostPick = await post(`${B}/rooms/${host.code}/actions`, { action: { type: 'pickCharacter', slug: offer[0] }, expectVersion: guest.view.version }, host.token);
+const guestPick = await post(`${B}/rooms/${host.code}/actions`, { action: { type: 'pickCharacter', slug: offer[1] }, expectVersion: hostPick.view.version }, guest.token);
+await post(`${B}/rooms/${host.code}/actions`, { action: { type: 'ready', ready: true }, expectVersion: guestPick.view.version }, guest.token);
 const v = (await fetch(`${B}/rooms/${host.code}`, { headers: { 'x-coach-token': host.token } }).then((r) => r.json())).version;
 await post(`${B}/rooms/${host.code}/actions`, { action: { type: 'start' }, expectVersion: v }, host.token);
 const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true });

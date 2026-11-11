@@ -1,5 +1,8 @@
 import ActionIcon from '@/components/icons/ActionIcon';
+import CatIcon from '@/components/icons/CatIcon';
 import CrownIcon from '@/components/icons/CrownIcon';
+import DogIcon from '@/components/icons/DogIcon';
+import TrendIcon from '@/components/icons/TrendIcon';
 import type { AchievementId } from '@/data/games/achievements';
 
 type Props = { className?: string };
@@ -164,6 +167,78 @@ export default function AchievementIcon({
           />
         </Svg>
       );
+    case 'career-constitution':
+      return (
+        <Svg className={className}>
+          <rect
+            x="4"
+            y="2.5"
+            width="13"
+            height="17"
+            rx="1.5"
+            className="fill-current"
+          />
+          <path
+            d="M7 6.5h7M7 9.5h7M7 12.5h4"
+            className="fill-none stroke-slate-900"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+          />
+          <path
+            d="M15.2 20.4 14.4 23l2.6-1.2 2.6 1.2-.8-2.6"
+            className="fill-current opacity-60"
+          />
+          <circle
+            cx="17"
+            cy="17.5"
+            r="3.6"
+            className="fill-current stroke-slate-900"
+            strokeWidth="1.2"
+          />
+        </Svg>
+      );
+    case 'career-prime-minister':
+      return (
+        <Svg className={className}>
+          <circle cx="12" cy="7" r="4" className="fill-current" />
+          <path d="M4 21.5a8 8 0 0 1 16 0z" className="fill-current" />
+          <path
+            d="M12 14.6l.9 1.9 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z"
+            className="fill-slate-900 opacity-70"
+          />
+        </Svg>
+      );
+    case 'career-law-passed':
+      return (
+        <Svg className={className}>
+          <g transform="rotate(-40 10 9)">
+            <rect
+              x="5"
+              y="6"
+              width="10"
+              height="5"
+              rx="1.2"
+              className="fill-current"
+            />
+            <rect
+              x="9"
+              y="11"
+              width="2"
+              height="9"
+              rx="1"
+              className="fill-current"
+            />
+          </g>
+          <rect
+            x="12"
+            y="19"
+            width="9"
+            height="2.5"
+            rx="1"
+            className="fill-current"
+          />
+        </Svg>
+      );
     case 'career-favor':
       return (
         <Svg className={className}>
@@ -228,6 +303,8 @@ export default function AchievementIcon({
           />
         </Svg>
       );
+    case 'career-glizzy-call':
+      return <TrendIcon direction="up" className={className} />;
     case 'career-maxed':
       return <ActionIcon kind="training" className={className} />;
     case 'career-media-payday':
@@ -262,5 +339,9 @@ export default function AchievementIcon({
           <path d="M9 19.5h6l-3-4z" className="fill-slate-900 opacity-60" />
         </Svg>
       );
+    case 'career-cat':
+      return <CatIcon className={className} />;
+    case 'career-dog':
+      return <DogIcon className={className} />;
   }
 }

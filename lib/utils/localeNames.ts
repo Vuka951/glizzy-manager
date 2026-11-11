@@ -1,19 +1,20 @@
 import { seasonThemeIndex } from '@/lib/utils/cupSeason';
 import type { HidingSpotId } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
-import { CHARACTER_ROSTER } from '@/data/games/roster';
+import { characterBySlug, leagueEntryBySlug } from '@/lib/utils/duelCharacters';
+import { textHash } from '@/lib/utils/seededRandom';
 
 // Ids to words, read from the locale at call time. Screens only: the server
 // stores and sends the ids
 
-const CHARACTER_NAMES = new Map(CHARACTER_ROSTER.map((c) => [c.slug, c.name]));
-
 export function characterName(slug: string): string {
-  return CHARACTER_NAMES.get(slug) ?? slug;
+  return characterBySlug(slug).name;
 }
 
 export function characterEpithet(slug: string): string {
-  return (GAMES_UI.roster.epithets as Record<string, string>)[slug] ?? '';
+  const pool = GAMES_UI.roster.epithets;
+  const index = leagueEntryBySlug(slug)?.epithet ?? textHash(`epithet|${slug}`);
+  return pool[index % pool.length] ?? '';
 }
 
 export function sponsorName(id: string): string {

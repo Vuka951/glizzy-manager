@@ -1,5 +1,5 @@
 // Two-browser playtest against the running dev server (BASE, default :3000).
-// Browser A (Vuka) and B (Cone) click through the UI; a third coach (Dax)
+// Browser A (Alpha) and B (Bravo) click through the UI; a third coach (Delta)
 // only speaks to the API. Screenshots land in SHOTS_DIR.
 import { setLocale } from './setLocale.mjs';
 const puppeteer = (await import(process.env.PUPPETEER_CORE ?? 'puppeteer-core')).default;
@@ -57,7 +57,10 @@ async function clickText(page, text, { exact = false, nth = 0, regex = false } =
   const ok = await page.evaluate(
     (t, exact, nth, regex) => {
       const buttons = [...document.querySelectorAll('button')].filter((b) => {
-        const s = (b.textContent || '').replace(/\s+/g, ' ').trim();
+        // Creature avatars print sign words in their SVG; only the label counts
+        const label = b.cloneNode(true);
+        label.querySelectorAll('svg').forEach((svg) => svg.remove());
+        const s = (label.textContent || '').replace(/\s+/g, ' ').trim();
         if (regex) return new RegExp(t).test(s);
         return exact ? s === t : s.includes(t);
       });
@@ -163,11 +166,13 @@ const B = await launch('b', 820);
 let code = '';
 let tokens = {};
 let slugs = {};
+// The room's own generated league, read off the view once the room exists
+let offer = [];
 
 try {
   // 1. Lobby: A creates through the form, name only, and picks inside the room
   await A.page.goto(`${BASE}/rivals`, { waitUntil: 'networkidle2' });
-  await A.page.type('input[placeholder]', 'Vuka');
+  await A.page.type('input[placeholder]', 'Alpha');
   await clickText(A.page, 'None', { exact: true });
   note('create form has no character select', !(await hasButton(A.page, 'Pick a character')) && !(await hasText(A.page, 'Classifieds · Coach wanted')));
   await shot(A.page, '01-lobby-form-a');
@@ -178,58 +183,64 @@ try {
   tokens.a = await tokenOf(A.page, code);
   note('room created through the form', Boolean(code && tokens.a), code);
   note('host joined without a character', (await view(code, tokens.a)).coaches[0].slug === null);
+  offer = (await view(code, tokens.a)).roster;
+  note('the lobby offers the room league', offer.length >= 16, offer.map((e) => e.name).join(', '));
   note('start blocked until the host picks', await stampDisabled(A.page, 'Start the league'));
   await clickText(A.page, 'Pick a character');
   await waitText(A.page, 'Classifieds · Coach wanted');
-  await clickText(A.page, 'The Wolf', { exact: true });
+  await clickText(A.page, offer[0].name, { exact: true });
   await A.page.waitForFunction(() => !document.body.innerText.includes('CLASSIFIEDS · COACH WANTED'), { timeout: 20000 });
-  note('host picked Vuka in the lobby', await waitSlug(code, tokens.a, 0, 'vuka'));
+  note(`host picked ${offer[0].name} in the lobby`, await waitSlug(code, tokens.a, 0, offer[0].slug));
 
-  // 2. B joins through the room link by name, then picks with Vuka taken
+  // 2. B joins through the room link by name, then picks with the host's man taken
   await B.page.goto(`${BASE}/rivals/${code}`, { waitUntil: 'networkidle2' });
   await waitText(B.page, code);
-  await B.page.type('input[placeholder]', 'Cone');
+  await B.page.type('input[placeholder]', 'Bravo');
   note('join form has no character select', !(await hasButton(B.page, 'Pick a character')));
   await shot(B.page, '01-join-form-b');
   await clickText(B.page, 'Join room', { exact: true });
   await waitText(B.page, 'Not everyone has picked a character');
   tokens.b = await tokenOf(B.page, code);
   note('second browser joined', Boolean(tokens.b));
-  await waitText(A.page, 'Cone');
+  await waitText(A.page, 'Bravo');
   await waitText(A.page, 'Not everyone has picked a character');
-  note('host start blocked while Cone has not picked', await stampDisabled(A.page, 'Start the league'));
+  note('host start blocked while Bravo has not picked', await stampDisabled(A.page, 'Start the league'));
   await shot(A.page, '02-lobby-a-waiting-pick');
   await clickText(B.page, 'Pick a character');
   await waitText(B.page, 'Classifieds · Coach wanted');
-  const vukaTaken = await B.page.evaluate(() =>
-    [...document.querySelectorAll('button')].some((b) => (b.textContent || '').trim() === 'The Wolf' && b.disabled),
-  );
-  note('Vuka shown as taken in the lobby picker', vukaTaken);
+  const hostTaken = await B.page.evaluate((name) =>
+    [...document.querySelectorAll('button')].some((b) => {
+      const label = b.cloneNode(true);
+      label.querySelectorAll('svg').forEach((svg) => svg.remove());
+      return (label.textContent || '').trim() === name && b.disabled;
+    }),
+  offer[0].name);
+  note('the host pick shown as taken in the lobby picker', hostTaken);
   await sleep(700);
   await shot(B.page, '02-lobby-pick-b-taken');
-  await clickText(B.page, 'Daniel', { exact: true });
+  await clickText(B.page, offer[1].name, { exact: true });
   await waitText(B.page, 'Change character');
   await clickText(B.page, 'Change character');
   await waitText(B.page, 'Classifieds · Coach wanted');
-  await clickText(B.page, 'The Egg Man', { exact: true });
+  await clickText(B.page, offer[2].name, { exact: true });
   await waitText(B.page, 'Waiting for every coach to be ready');
-  note('host start blocked while Cone is not ready', await stampDisabled(A.page, 'Start the league'));
+  note('host start blocked while Bravo is not ready', await stampDisabled(A.page, 'Start the league'));
   await clickText(B.page, '^Ready(?! for)', { regex: true });
   await waitText(B.page, 'Waiting for the host');
-  note('B changed the pick from Dax to Cone', await waitSlug(code, tokens.b, 1, 'cone'));
+  note('B changed the pick', await waitSlug(code, tokens.b, 1, offer[2].slug));
   await waitText(A.page, 'Coaches (2/');
   await shot(A.page, '02-lobby-a');
   await shot(B.page, '02-lobby-b');
   await checkOverflow(B.page, 'lobby 820');
 
   // 3. A third coach over the API only: join by name, pick in the lobby
-  const joinC = await api(`/rooms/${code}/join`, { method: 'POST', body: { coachName: 'Dax' } });
+  const joinC = await api(`/rooms/${code}/join`, { method: 'POST', body: { coachName: 'Delta' } });
   tokens.c = joinC.json.token;
   note('third coach joined over the API', joinC.status === 200, String(joinC.status));
-  const takenPick = await act(code, tokens.c, { type: 'pickCharacter', slug: 'vuka' });
+  const takenPick = await act(code, tokens.c, { type: 'pickCharacter', slug: offer[0].slug });
   note('taken pick refused over the API', takenPick.status === 409 && takenPick.json.error === 'character-taken', JSON.stringify(takenPick.json.error));
-  const pickC = await act(code, tokens.c, { type: 'pickCharacter', slug: 'dax' });
-  note('third coach picked Dax', pickC.status === 200, String(pickC.status));
+  const pickC = await act(code, tokens.c, { type: 'pickCharacter', slug: offer[3].slug });
+  note('third coach picked over the API', pickC.status === 200, String(pickC.status));
   const readyC = await act(code, tokens.c, { type: 'ready', ready: true });
   note('third coach is ready', readyC.status === 200, String(readyC.status));
   const settings = await act(code, tokens.a, {
@@ -239,7 +250,7 @@ try {
   note('host settings: 60 s window, no other countdowns, no linger', settings.status === 200, JSON.stringify(settings.json.view?.settings));
 
   // 4. Start
-  await waitText(A.page, 'Dax');
+  await waitText(A.page, 'Delta');
   await A.page.waitForFunction(() => [...document.querySelectorAll('button')].some((b) => (b.textContent || '').trim() === 'Start the league' && !b.disabled), { timeout: 20000 });
   await clickText(A.page, 'Start the league', { exact: true });
   await waitText(A.page, 'Done 0 of 3', 30000);
@@ -260,7 +271,7 @@ try {
   await checkOverflow(A.page, 'window 1440');
   await checkOverflow(B.page, 'window 820');
   // Coach names live in the tooltips of the bar and the table, not as pills
-  note('coach names on the window screen (A, tooltips included)', await A.page.evaluate(() => ['Vuka', 'Cone', 'Dax'].every((n) => document.body.innerHTML.includes(n))));
+  note('coach names on the window screen (A, tooltips included)', await A.page.evaluate(() => ['Alpha', 'Bravo', 'Delta'].every((n) => document.body.innerHTML.includes(n))));
 
   // 5. Window actions: mail, training, Done toggled off and used again
   for (const t of [tokens.a, tokens.b, tokens.c]) {
@@ -271,13 +282,13 @@ try {
   const trainA = await act(code, tokens.a, { type: 'train', trainingId: 'fans' });
   note('train over the API returns a receipt', Boolean(trainA.json.receipt), trainA.json.receipt?.title);
   await clickText(A.page, 'Done', { exact: true });
-  await waitText(A.page, 'Not done');
+  await waitText(A.page, 'Not done yet');
   await waitText(B.page, 'Done 1 of 3');
-  await clickText(A.page, 'Not done', { exact: true });
+  await clickText(A.page, 'Not done yet', { exact: true });
   await waitText(A.page, 'Done 0 of 3');
   const restA = await act(code, tokens.a, { type: 'rest', fasting: false });
   const afterUndo = await view(code, tokens.a);
-  note('Done toggled off then another action taken', restA.status === 200 && afterUndo.coaches.find((c) => c.name === 'Vuka').done === false, `slots ${afterUndo.career.slotsUsed}`);
+  note('Done toggled off then another action taken', restA.status === 200 && afterUndo.coaches.find((c) => c.name === 'Alpha').done === false, `slots ${afterUndo.career.slotsUsed}`);
   await shot(A.page, '04-window-a-after-actions');
   await clickText(A.page, 'Done', { exact: true });
   await clickText(B.page, 'Done', { exact: true });
@@ -311,18 +322,18 @@ try {
   note('coach tags on the bracket', tagsInBracket.length === inRound0.length, tagsInBracket.join(', '));
 
   // 7. Withdrawal by a human in round 0 (through the UI when it is A or B)
-  if (inRound0.includes('Vuka')) {
+  if (inRound0.includes('Alpha')) {
     await clickText(A.page, 'Withdraw from the cup');
     await clickText(A.page, 'Yes, withdraw');
     await sleep(1500);
     const w = await view(code, tokens.a);
-    note('withdrawal through the UI', w.coaches.find((c) => c.name === 'Vuka').withdrawn);
-  } else if (inRound0.includes('Cone')) {
+    note('withdrawal through the UI', w.coaches.find((c) => c.name === 'Alpha').withdrawn);
+  } else if (inRound0.includes('Bravo')) {
     await clickText(B.page, 'Withdraw from the cup');
     await clickText(B.page, 'Yes, withdraw');
     await sleep(1500);
     const w = await view(code, tokens.b);
-    note('withdrawal through the UI', w.coaches.find((c) => c.name === 'Cone').withdrawn);
+    note('withdrawal through the UI', w.coaches.find((c) => c.name === 'Bravo').withdrawn);
   } else {
     const w = await act(code, tokens.c, { type: 'withdraw' });
     note('withdrawal over the API', w.status === 200);
@@ -404,7 +415,7 @@ try {
   await sleep(500);
   await shot(A.page, '15-standings-a');
   await checkOverflow(A.page, 'standings 1440');
-  note('coach tags in the table', (await hasText(A.page, 'VUKA')) && (await hasText(A.page, 'CONE')));
+  note('coach tags in the table', (await hasText(A.page, 'ALPHA')) && (await hasText(A.page, 'BRAVO')));
   await clickText(A.page, 'Ready for next season');
   await act(code, tokens.b, { type: 'setDone', done: true });
   await act(code, tokens.c, { type: 'setDone', done: true });
@@ -420,24 +431,24 @@ try {
     for (const m of mail) await act(code, t, { type: 'readMail', mailId: m.id });
   }
   for (const t of [tokens.b, tokens.c]) await act(code, t, { type: 'media', kind: 'interview' });
-  const plot = await act(code, tokens.b, { type: 'sabotage', targetSlug: slugs.Vuka, tier: 1, boostSteps: 0 });
+  const plot = await act(code, tokens.b, { type: 'sabotage', targetSlug: slugs.Alpha, tier: 1, boostSteps: 0 });
   note('B plots against A', plot.status === 200, plot.json.error ?? plot.json.receipt?.title);
   const guard = await act(code, tokens.a, { type: 'guard', steps: 0 });
   note('A hires a crew', guard.status === 200, guard.json.error ?? guard.json.receipt?.title);
-  const plot2 = await act(code, tokens.c, { type: 'sabotage', targetSlug: slugs.Cone, tier: 1, boostSteps: 0 });
+  const plot2 = await act(code, tokens.c, { type: 'sabotage', targetSlug: slugs.Bravo, tier: 1, boostSteps: 0 });
   note('C plots against B', plot2.status === 200, plot2.json.error ?? '');
   const bView = await view(code, tokens.b);
-  note('other coaches plots are redacted', bView.career.pendingSabotages.every((p) => p.bySlug === slugs.Cone), JSON.stringify(bView.career.pendingSabotages.map((p) => p.bySlug)));
+  note('other coaches plots are redacted', bView.career.pendingSabotages.every((p) => p.bySlug === slugs.Bravo), JSON.stringify(bView.career.pendingSabotages.map((p) => p.bySlug)));
   const offers = [];
-  for (const [name, t] of Object.entries({ Vuka: tokens.a, Cone: tokens.b, Dax: tokens.c })) {
+  for (const [name, t] of Object.entries({ Alpha: tokens.a, Bravo: tokens.b, Delta: tokens.c })) {
     const v = await view(code, t);
     v.career.mail.filter((m) => m.kind === 'sponsor-offer' && !m.read).forEach((m) => offers.push({ name, t, m }));
   }
   note('sponsor offers this window', true, offers.map((o) => `${o.name}:${o.m.sponsorId}`).join(', ') || 'none');
-  const ostrvo = offers.find((o) => o.m.sponsorId === 'ostrvo');
-  if (ostrvo) {
-    await act(code, ostrvo.t, { type: 'acceptSponsor', mailId: ostrvo.m.id, sponsorId: 'ostrvo' });
-    const island = await act(code, ostrvo.t, { type: 'island' });
+  const green = offers.find((o) => o.m.sponsorId === 'green');
+  if (green) {
+    await act(code, green.t, { type: 'acceptSponsor', mailId: green.m.id, sponsorId: 'green' });
+    const island = await act(code, green.t, { type: 'island' });
     note('island weekend', island.status === 200, island.json.receipt?.title ?? island.json.error);
   } else if (offers[0]) {
     await act(code, offers[0].t, { type: 'acceptSponsor', mailId: offers[0].m.id, sponsorId: offers[0].m.sponsorId });
@@ -522,7 +533,7 @@ try {
   note('live bet tokens from three coaches on one match', betsView.publicBets.length === 3, JSON.stringify(betsView.publicBets));
   let tokensOnScreen = false;
   try {
-    await A.page.waitForFunction(() => ['VUKA', 'CONE', 'DAX'].every((n) => document.body.innerText.includes(n)), { timeout: 10000 });
+    await A.page.waitForFunction(() => ['ALPHA', 'BRAVO', 'DELTA'].every((n) => document.body.innerText.includes(n)), { timeout: 10000 });
     tokensOnScreen = true;
   } catch {}
   note('tokens show the coach names in the stands preview', tokensOnScreen);
@@ -576,17 +587,22 @@ try {
     }
     const vy3 = await view(code, tokens.a);
     note('election counted at the year 2 wrap', vy3.lastElection?.year === 2 && (vy3.career.parliament?.government.length ?? 0) > 0, JSON.stringify(vy3.lastElection?.result.government));
+    // The count opens by itself once the window's scenes are through; the
+    // town pill only matters when it was dismissed first
     await waitText(A.page, 'Election night', 30000);
-    await clickText(A.page, 'Election night');
+    if (await hasButton(A.page, 'Election night')) await clickText(A.page, 'Election night');
     await waitText(A.page, 'Leskovac Assembly', 30000);
     await sleep(7000);
     await shot(A.page, '22-election-night-a');
-    await A.page.waitForFunction(
-      () => [...document.querySelectorAll('button')].some((b) => b.textContent.trim() === 'Continue' && !b.disabled),
-      { timeout: 40000 },
-    );
-    await clickText(A.page, 'Continue', { exact: true });
-    await sleep(800);
+    // The broadcast runs the count, then its scenes, each closed by Continue
+    for (let step = 0; step < 8 && (await hasText(A.page, 'Leskovac Assembly')); step++) {
+      await A.page.waitForFunction(
+        () => [...document.querySelectorAll('button')].some((b) => b.textContent.trim() === 'Continue' && !b.disabled),
+        { timeout: 40000 },
+      );
+      await clickText(A.page, 'Continue', { exact: true });
+      await sleep(1500);
+    }
     note('election night cutscene shown and closed', !(await hasText(A.page, 'Leskovac Assembly')));
 
     // 16. Overlord: run seasons until the room finishes
@@ -627,7 +643,7 @@ try {
       await sleep(800);
       await shot(B.page, '28-dossier-b-390');
       note('dossier opened from the table', dossierOpened);
-      note('coach tag in the dossier', await hasText(B.page, 'VUKA') || await hasText(B.page, 'CONE') || await hasText(B.page, 'DAX'));
+      note('coach tag in the dossier', await hasText(B.page, 'ALPHA') || await hasText(B.page, 'BRAVO') || await hasText(B.page, 'DELTA'));
       await checkOverflow(B.page, 'dossier 390');
     }
   }

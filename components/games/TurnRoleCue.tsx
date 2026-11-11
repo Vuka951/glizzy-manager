@@ -1,5 +1,6 @@
 import type { Ref } from 'react';
 import BubbleTail from '@/components/games/BubbleTail';
+import { useCareerFrames } from '@/components/games/career/careerFrames';
 import GlizzyIcon from '@/components/icons/GlizzyIcon';
 import { GAMES_UI } from '@/data/games/locale';
 
@@ -24,6 +25,7 @@ export default function TurnRoleCue({
   className?: string;
 }) {
   const placing = role === 'placing';
+  const street = useCareerFrames() === 'street';
 
   return (
     <div
@@ -32,7 +34,7 @@ export default function TurnRoleCue({
       aria-label={placing ? GAMES_UI.duel.roles.placing : GAMES_UI.duel.roles.guessing}
     >
       <span
-        className={`relative flex items-center justify-center gap-0.5 rounded-full border shadow-md backdrop-blur-sm ${
+        className={`relative flex items-center justify-center gap-0.5 rounded-full border shadow-md ${street ? '' : 'backdrop-blur-sm'} ${
           compact
             ? glizzies === 2
               ? 'h-6 w-12'

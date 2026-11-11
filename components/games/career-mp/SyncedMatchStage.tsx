@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import CareerIconButton from '@/components/games/career/CareerIconButton';
 import ActionIcon from '@/components/icons/ActionIcon';
 import MatchIntroOverlay from '@/components/games/match/MatchIntroOverlay';
 import MatchViewer from '@/components/games/match/MatchViewer';
+import BrassPlate from '@/components/games/career/street/BrassPlate';
+import RoomSign from '@/components/games/career-mp/RoomSign';
 import SkipVotes from '@/components/games/career-mp/SkipVotes';
 import {
   matchAtCursor,
@@ -153,21 +156,15 @@ export default function SyncedMatchStage({
   return (
     <div className="flex w-full max-w-3xl flex-col items-center gap-3">
       <div className="flex flex-wrap items-center justify-center gap-2">
-        <span className="rounded-full border border-sky-200/20 bg-slate-950/70 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-sky-200 backdrop-blur-sm">
-          {stageLabel(view)}
-        </span>
+        <RoomSign>{stageLabel(view)}</RoomSign>
         {tape && (
-          <button
+          <CareerIconButton
+            label={GAMES_UI.career.broadcast.tape}
+            active={tapeOpen}
             onClick={() => setTapeOpen((open) => !open)}
-            title={GAMES_UI.career.broadcast.tape}
-            className={`rounded-full border p-2 backdrop-blur-sm transition ${
-              tapeOpen
-                ? 'border-sky-200/50 bg-sky-200/10 text-white'
-                : 'border-sky-200/15 bg-slate-950/70 text-sky-300 hover:border-sky-200/40 hover:text-white'
-            }`}
           >
             <ActionIcon kind="stats" className="h-3.5 w-3.5" />
-          </button>
+          </CareerIconButton>
         )}
       </div>
       {startOffset === null ? (
@@ -182,9 +179,9 @@ export default function SyncedMatchStage({
             coachA={coaches[match.a] ?? null}
             coachB={coaches[match.b] ?? null}
           />
-          <span className="rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-amber-200">
+          <BrassPlate className="tabular-nums">
             {fmt(CL.startsIn, { seconds: startsIn })}
-          </span>
+          </BrassPlate>
         </div>
       ) : (
         <MatchViewer

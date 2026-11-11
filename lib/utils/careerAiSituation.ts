@@ -105,12 +105,10 @@ export type ReactionContext = {
   doorCovered: boolean;
 };
 
-// Per-action multipliers on the base weights, re-read every action because
-// the body changes between them
+// Per-action multipliers on the base weights
 export function reactionWeights(
   mind: CareerPersonality,
   situation: AiSituation,
-  ch: CharacterCareerState,
   context: ReactionContext,
 ): Record<CareerActionKind, number> {
   const r = mind.reactions;
@@ -130,11 +128,21 @@ export function reactionWeights(
       priceReaction(mind, situation, 'guard') *
       (threat ? 1 + r.threatGuard : 1) *
       (context.doorCovered ? 0.1 : 1),
-    sabotage:
-      priceReaction(mind, situation, 'sabotage') *
-      (situation.grudgeSlug ? 1 + r.revenge : 1),
     invest: 1,
   };
+}
+
+// The situation's bend on the plot drive: the season's street price and an
+// open grudge
+export function plotReaction(
+  mind: CareerPersonality,
+  situation: AiSituation,
+): number {
+  const r = mind.reactions;
+  return (
+    priceReaction(mind, situation, 'sabotage') *
+    (situation.grudgeSlug ? 1 + r.revenge : 1)
+  );
 }
 
 // Which session to book: the favourite list, bent toward the skill that is

@@ -237,3 +237,12 @@ export const SCENE_ANIMATIONS: Record<string, SceneAnimationSpec> = {
     options: { duration: 900, iterations: Infinity, easing: 'ease-in-out' },
   },
 };
+
+// The ink running out of the pen left to right, as long as the stroke takes
+export const SIGNATURE_INK: SceneAnimationSpec = {
+  keyframes: [
+    { clipPath: 'inset(0 100% 0 0)' },
+    { clipPath: 'inset(0 0 0 0)' },
+  ],
+  options: { duration: 450, easing: 'linear', fill: 'both' },
+};

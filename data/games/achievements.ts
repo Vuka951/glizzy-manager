@@ -10,18 +10,24 @@ export type AchievementId =
   | 'career-rival-down'
   | 'career-sponsored'
   | 'career-leader'
+  | 'career-constitution'
+  | 'career-prime-minister'
+  | 'career-law-passed'
   | 'career-favor'
   | 'career-donor'
   | 'career-lost-cause'
   | 'career-investor'
   | 'career-rich'
+  | 'career-glizzy-call'
   | 'career-maxed'
   | 'career-media-payday'
   | 'career-plot-hit'
   | 'career-guard'
   | 'career-island'
   | 'career-meltdown'
-  | 'career-decade';
+  | 'career-decade'
+  | 'career-cat'
+  | 'career-dog';
 
 export type Achievement = {
   id: AchievementId;
@@ -34,6 +40,8 @@ export const CAREER_RICH_BALANCE = 1000;
 export const CAREER_LONG_YEAR = 10;
 export const CAREER_MEDIA_PAYDAY = 100;
 export const CAREER_LOST_CAUSE_DONATION = 500;
+export const CAREER_CAT_POKES = 10;
+export const CAREER_DOG_POKES = 10;
 
 const ORDER: { id: AchievementId; game: AchievementGame }[] = [
   { id: 'career-first-title', game: 'manager' },
@@ -43,11 +51,15 @@ const ORDER: { id: AchievementId; game: AchievementGame }[] = [
   { id: 'career-rival-down', game: 'manager' },
   { id: 'career-sponsored', game: 'manager' },
   { id: 'career-leader', game: 'manager' },
+  { id: 'career-constitution', game: 'manager' },
+  { id: 'career-prime-minister', game: 'manager' },
+  { id: 'career-law-passed', game: 'manager' },
   { id: 'career-favor', game: 'manager' },
   { id: 'career-donor', game: 'manager' },
   { id: 'career-lost-cause', game: 'manager' },
   { id: 'career-investor', game: 'manager' },
   { id: 'career-rich', game: 'manager' },
+  { id: 'career-glizzy-call', game: 'manager' },
   { id: 'career-maxed', game: 'manager' },
   { id: 'career-media-payday', game: 'manager' },
   { id: 'career-plot-hit', game: 'manager' },
@@ -55,6 +67,8 @@ const ORDER: { id: AchievementId; game: AchievementGame }[] = [
   { id: 'career-island', game: 'manager' },
   { id: 'career-meltdown', game: 'manager' },
   { id: 'career-decade', game: 'manager' },
+  { id: 'career-cat', game: 'manager' },
+  { id: 'career-dog', game: 'manager' },
 ];
 
 const ITEMS = GAMES_UI.achievements.items as Record<

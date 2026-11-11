@@ -2,10 +2,11 @@ import type {
   CoachState,
   LeagueState,
 } from '@/lib/server/career-mp/room';
-import type {
-  CareerPhase,
-  SavedCareer,
-  SeasonRecord,
+import {
+  CAREER_SAVE_VERSION,
+  type CareerPhase,
+  type SavedCareer,
+  type SeasonRecord,
 } from '@/lib/utils/careerSave';
 
 // The slug the shared league plays under when no coach is in the chair
@@ -43,13 +44,16 @@ function standingsFor(
 
 function sharedFields(league: LeagueState) {
   return {
-    version: 1 as const,
+    version: CAREER_SAVE_VERSION as typeof CAREER_SAVE_VERSION,
+    league: league.roster,
     year: league.year,
     season: league.season,
+    overlordPoints: league.overlordPoints,
     characters: league.characters,
     pendingSabotages: league.pendingSabotages,
     newsQueue: league.newsQueue,
     lastIssue: league.lastIssue,
+    prevIssue: league.prevIssue,
     h2h: league.h2h,
     pendingPolice: league.pendingPolice,
     aiGuarded: league.aiGuarded,
@@ -132,9 +136,11 @@ export function careerFor(
     guarded: cs.guarded,
     guardChance: cs.guardChance,
     betStake: cs.betStake,
+    glizzyBet: cs.glizzyBet,
+    lastGlizzyBet: cs.lastGlizzyBet,
     islandYear: cs.islandYear,
     islandSeason: cs.islandSeason,
-    korpVendetta: cs.korpVendetta,
+    yellowVendetta: cs.yellowVendetta,
     rivalSlug: cs.rivalSlug,
     rivalChoice: cs.rivalChoice,
     saboteursThisYear: cs.saboteursThisYear,
@@ -211,16 +217,20 @@ export function mergeBack(
     guarded: career.guarded ?? false,
     guardChance: career.guardChance,
     betStake: career.betStake,
+    glizzyBet: career.glizzyBet,
+    lastGlizzyBet: career.lastGlizzyBet,
     islandYear: career.islandYear,
     islandSeason: career.islandSeason,
-    korpVendetta: career.korpVendetta,
+    yellowVendetta: career.yellowVendetta,
     rivalSlug: career.rivalSlug ?? null,
     rivalChoice: career.rivalChoice ?? null,
     saboteursThisYear: career.saboteursThisYear ?? [],
     matchBets: career.cup?.matchBets ?? cs.matchBets,
     withdrawn: career.cup?.withdrawn ?? cs.withdrawn,
   };
-  const shared = mergeShared(league, career);
+  // No window action prints a paper, and the coach's lens carries his own
+  // copy of the morning-after one, so the league's issue stays as it was
+  const shared = mergeShared(league, { ...career, lastIssue: league.lastIssue });
   return {
     ...shared,
     coachStates: { ...shared.coachStates, [coachId]: next },

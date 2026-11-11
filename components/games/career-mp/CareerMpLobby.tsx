@@ -2,10 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import ColorPicker from '@/components/games/career-mp/ColorPicker';
-import CountdownPicker from '@/components/games/career-mp/CountdownPicker';
+import CareerToggle from '@/components/games/career/CareerToggle';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
+import CorkBoard from '@/components/games/career-mp/CorkBoard';
+import NoticePin from '@/components/games/career-mp/NoticePin';
+import OverlordPointsRow from '@/components/games/career-mp/OverlordPointsRow';
 import PaperStamp from '@/components/games/career-mp/PaperStamp';
 import RoomBrowser from '@/components/games/career-mp/RoomBrowser';
+import ColorPicker from '@/components/games/rooms/ColorPicker';
+import CountdownPicker from '@/components/games/rooms/CountdownPicker';
+import { OVERLORD_POINTS } from '@/data/games/careerEconomy';
 import { GAMES_UI } from '@/data/games/locale';
 import { createRoom, joinRoom, storeToken } from '@/lib/queries/careerMp';
 import { roomErrorCode, roomErrorText } from '@/lib/utils/roomErrorText';
@@ -21,6 +27,7 @@ import {
 } from '@/lib/constants/careerMp';
 import { rivalsRoomPath } from '@/lib/constants/routes';
 import type { RoomSettings } from '@/lib/types/careerMp';
+import { queueGameFullscreen } from '@/lib/utils/fullscreen';
 import { playPaperSound } from '@/lib/utils/gameSounds';
 
 const L = GAMES_UI.careerMp.lobby;
@@ -32,6 +39,7 @@ const DEFAULTS: RoomSettings = {
   matchBetSeconds: DEFAULT_MATCH_BET_SECONDS,
   seasonEndSeconds: DEFAULT_SEASON_END_SECONDS,
   matchLingerSeconds: DEFAULT_MATCH_LINGER_SECONDS,
+  overlordPoints: OVERLORD_POINTS,
 };
 
 // One countdown for every decision phase
@@ -49,12 +57,14 @@ export function withCountdown(
   };
 }
 
+const LABEL =
+  'font-sign text-[14px] font-semibold uppercase tracking-[0.04em] text-slate-300';
 const FIELD =
-  'w-full border-b-2 border-slate-900 bg-transparent px-1 py-1 text-base font-semibold text-slate-900 placeholder:font-normal placeholder:text-slate-500 focus:border-red-700 focus:outline-none';
+  'min-h-11 w-full border-b-2 border-[#1c1408] bg-transparent px-1 text-slate-100 placeholder:text-slate-500 focus:border-[#b91c1c] focus:outline-none';
 
-// The league entry form, printed on the same paper the career opens with:
-// a line for the name, ink dots for the color, the house rules on the
-// right, the red stamp to send it in. The face is picked inside the room
+// The league's noticeboard, the entry form pinned to it: a line for the name,
+// ink dots for the color, the house rules on a sheet beside it, the red stamp
+// to send it in. The face is picked inside the room
 export default function CareerMpLobby({
   code: presetCode = null,
   onJoined,
@@ -79,6 +89,7 @@ export default function CareerMpLobby({
   }, []);
 
   const submit = async () => {
+    queueGameFullscreen({ fresh: true, gesture: true });
     setBusy(true);
     setError(null);
     try {
@@ -118,112 +129,126 @@ export default function CareerMpLobby({
   };
 
   return (
-    <div className="w-full rotate-[-0.4deg] rounded-sm bg-amber-50/80 p-5 text-left text-slate-900 shadow-2xl animate-[bubblein_0.4s_ease-out] sm:p-7">
-      <div className="flex flex-wrap items-end justify-between gap-3 border-y-2 border-slate-900 py-2">
-        <div>
-          <p className="text-lg font-black uppercase leading-none tracking-[0.15em]">
-            {L.masthead}
-          </p>
-          <p className="mt-1 text-xs font-semibold text-slate-600">
-            {L.formTitle}
-          </p>
-        </div>
-        {!presetCode && (
-          <div className="flex gap-4 text-[11px] font-bold">
-            {(['create', 'join'] as const).map((m) => (
-              <button
-                key={m}
-                onClick={() => setMode(m)}
-                className={`border-b-2 pb-0.5 transition ${
-                  mode === m
-                    ? 'border-red-700 text-red-700'
-                    : 'border-transparent text-slate-500 hover:text-slate-900'
-                }`}
+    <>
+      <CorkBoard
+        title={L.formTitle}
+        rail={
+          !presetCode && (
+            <div className="ml-auto flex flex-wrap items-center gap-1.5">
+              {(['create', 'join'] as const).map((m) => (
+                <CareerToggle
+                  key={m}
+                  selected={mode === m}
+                  onClick={() => setMode(m)}
+                  className="min-h-11 font-sign uppercase tracking-[0.06em]"
+                >
+                  {m === 'create' ? L.create : L.join}
+                </CareerToggle>
+              ))}
+              <CareerToggle
+                selected={false}
+                tone="amber"
+                onClick={() => setBrowsing(true)}
+                className="min-h-11 font-sign uppercase tracking-[0.06em]"
               >
-                {m === 'create' ? L.create : L.join}
-              </button>
-            ))}
-            <button
-              onClick={() => setBrowsing(true)}
-              className="border-b-2 border-transparent pb-0.5 text-slate-500 transition hover:text-slate-900"
-            >
-              {GAMES_UI.careerMp.browser.title}
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_1.1fr] lg:gap-10">
-        <div className="flex flex-col gap-5">
-          {mode === 'join' && (
-            <label className="flex flex-col gap-1">
-              <span className="text-[11px] font-bold text-slate-800">
-                {L.roomNumber}
-              </span>
-              {presetCode ? (
-                <span className="px-1 font-mono text-2xl font-black tracking-[0.3em]">
-                  {presetCode}
-                </span>
-              ) : (
-                <input
-                  value={code}
-                  maxLength={6}
-                  onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  placeholder={L.codePlaceholder}
-                  className={`${FIELD} font-mono uppercase tracking-[0.3em] placeholder:tracking-normal`}
-                />
-              )}
+                {GAMES_UI.careerMp.browser.title}
+              </CareerToggle>
+            </div>
+          )
+        }
+      >
+        <div
+          className={`grid items-start gap-5 ${
+            mode === 'create' ? 'lg:grid-cols-[1fr_1.15fr]' : ''
+          }`}
+        >
+          <PaperSheet
+            className={`flex rotate-[-0.4deg] flex-col gap-4 px-4 pb-4 pt-6 sm:px-6 ${
+              mode === 'join' ? 'mx-auto w-full max-w-md' : ''
+            }`}
+          >
+            <NoticePin />
+            <p className="border-y-[3px] border-double border-[#1c1408]/70 py-1 text-center font-serif text-2xl font-black uppercase tracking-[0.06em] text-slate-100">
+              {L.masthead}
+            </p>
+            {mode === 'join' && (
+              <label className="flex flex-col gap-0.5">
+                <span className={LABEL}>{L.roomNumber}</span>
+                {presetCode ? (
+                  <span className="px-1 font-sign text-3xl font-bold tabular-nums tracking-[0.2em] text-slate-100">
+                    {presetCode}
+                  </span>
+                ) : (
+                  <input
+                    value={code}
+                    maxLength={6}
+                    onChange={(e) => setCode(e.target.value.toUpperCase())}
+                    placeholder={L.codePlaceholder}
+                    className={`${FIELD} font-sign text-xl uppercase tracking-[0.2em] placeholder:font-serif placeholder:text-base placeholder:normal-case placeholder:tracking-normal`}
+                  />
+                )}
+              </label>
+            )}
+            <label className="flex flex-col gap-0.5">
+              <span className={LABEL}>{L.nameLabel}</span>
+              <input
+                value={name}
+                maxLength={COACH_NAME_MAX}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={L.namePlaceholder}
+                className={`${FIELD} font-serif text-base font-semibold placeholder:font-normal`}
+              />
             </label>
-          )}
-          <label className="flex flex-col gap-1">
-            <span className="text-[11px] font-bold text-slate-800">
-              {L.nameLabel}
-            </span>
-            <input
-              value={name}
-              maxLength={COACH_NAME_MAX}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={L.namePlaceholder}
-              className={FIELD}
-            />
-          </label>
-          <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold text-slate-800">
-              {L.colorLabel}
-            </span>
-            <ColorPicker value={color} taken={new Set()} onPick={setColor} />
-          </div>
-        </div>
+            <div className="flex flex-col gap-0.5">
+              <span className={LABEL}>{L.colorLabel}</span>
+              <ColorPicker value={color} taken={new Set()} onPick={setColor} />
+            </div>
+            <div className="flex flex-col gap-1 border-t border-[#7d93a8]/35 pt-3">
+              {error && (
+                <p className="font-serif text-[13px] font-semibold text-red-300">
+                  {error}
+                </p>
+              )}
+              <div className="flex flex-wrap items-center justify-end gap-3">
+                <PaperStamp
+                  label={
+                    busy ? L.sending : mode === 'create' ? L.createStamp : L.joinStamp
+                  }
+                  disabled={!ready}
+                  onClick={submit}
+                />
+              </div>
+            </div>
+          </PaperSheet>
 
-        <div className="flex flex-col">
-          <p className="border-b-2 border-slate-900 pb-1 text-xs font-black uppercase tracking-[0.12em]">
-            {L.rulesTitle}
-          </p>
-          <p className="mt-1.5 text-[11px] italic text-slate-600">
-            {mode === 'create' ? L.rulesHint : L.rulesLater}
-          </p>
           {mode === 'create' && (
-            <div className="mt-1">
+            <PaperSheet className="rotate-[0.5deg] px-4 pb-3 pt-6 sm:px-5">
+              <NoticePin tone="brass" />
+              <p className="border-b-[3px] border-double border-[#1c1408]/70 pb-1 font-serif text-[17px] font-bold text-slate-100">
+                {L.rulesTitle}
+              </p>
               <CountdownPicker
                 label={L.countdown}
                 value={settings.windowSeconds}
                 disabled={false}
-                onPick={(seconds) => setSettings((s) => withCountdown(s, seconds))}
+                onPick={(seconds) =>
+                  setSettings((s) => withCountdown(s, seconds))
+                }
               />
-            </div>
+              <OverlordPointsRow
+                value={settings.overlordPoints ?? OVERLORD_POINTS}
+                disabled={false}
+                onPick={(overlordPoints) =>
+                  setSettings((s) => ({ ...s, overlordPoints }))
+                }
+              />
+            </PaperSheet>
           )}
         </div>
-      </div>
-
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-slate-900/30 pt-4">
-        <p className="min-h-4 text-xs font-semibold text-red-700">{error}</p>
-        <PaperStamp
-          label={busy ? L.sending : mode === 'create' ? L.createStamp : L.joinStamp}
-          disabled={!ready}
-          onClick={submit}
-        />
-      </div>
-      {browsing && <RoomBrowser onJoin={pickRoom} onClose={() => setBrowsing(false)} />}
-    </div>
+      </CorkBoard>
+      {browsing && (
+        <RoomBrowser onJoin={pickRoom} onClose={() => setBrowsing(false)} />
+      )}
+    </>
   );
 }

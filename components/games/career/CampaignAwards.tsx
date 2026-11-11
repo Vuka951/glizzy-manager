@@ -2,17 +2,19 @@ import ActionIcon, { type ActionIconKind } from '@/components/icons/ActionIcon';
 import Icon from '@/components/icons/Icon';
 import PortraitHead from '@/components/games/PortraitHead';
 import PaperSection from '@/components/games/career/PaperSection';
-import CoachTag from '@/components/games/career-mp/CoachTag';
+import SeatTag from '@/components/games/rooms/SeatTag';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
 import type { IconName } from '@/lib/constants/icons';
 import type { CoachTagMap } from '@/lib/types/careerMp';
 import { h2hFor } from '@/lib/utils/careerMatch';
+import { NEWSPRINT_PAINT } from '@/lib/utils/careerNewsprint';
 import type { CharacterCareerState, SavedCareer } from '@/lib/utils/careerSave';
 import { fmt, plural } from '@/lib/utils/format';
+import { longestTitleStreak } from '@/lib/utils/reportCharts';
 
 const R = GAMES_UI.career.report;
-const MIN_MATCHES_FOR_RATE = 8;
+export const MIN_MATCHES_FOR_RATE = 8;
 
 type AwardKey = keyof typeof R.awards;
 type Award = { key: AwardKey; slug: string; value: string };
@@ -50,7 +52,7 @@ function best(slugs: string[], score: (slug: string) => number): string | null {
 }
 
 // Who stood out at what across the campaign, read off the final state and
-// the cups themselves; the reader's own awards are shaded
+// the cups themselves; the reader's own awards sit under a highlighter
 export default function CampaignAwards({
   career,
   characterBySlug,
@@ -76,25 +78,17 @@ export default function CampaignAwards({
     slug: string | null,
     value: (ch: CharacterCareerState, slug: string) => string,
   ) => {
-    if (slug) awards.push({ key, slug, value: value(st(slug), slug) });
+    if (slug) {
+      awards.push({ key, slug, value: value(st(slug), slug) });
+    }
   };
   push(
     'titles',
     best(order, (s) => st(s).titles),
     (ch) => fmt(R.awardValues.titles, { n: ch.titles }),
   );
-  // The longest run of titles anyone put together, read off the cups
-  // themselves; a save without history falls back to the streak it ended on
-  const longestStreak = (slug: string) => {
-    if (history.length === 0) return st(slug).titleStreak;
-    let longest = 0;
-    let run = 0;
-    history.forEach((record) => {
-      run = record.champion === slug ? run + 1 : 0;
-      longest = Math.max(longest, run);
-    });
-    return longest;
-  };
+  const longestStreak = (slug: string) =>
+    longestTitleStreak(history, slug, st(slug).titleStreak);
   push(
     'streak',
     best(order, (s) => (longestStreak(s) >= 2 ? longestStreak(s) : 0)),
@@ -160,58 +154,64 @@ export default function CampaignAwards({
   );
 
   return (
+    <div className={`w-full ${NEWSPRINT_PAINT}`}>
     <PaperSection title={R.awardsTitle} icon="star">
-      <div className="grid w-full gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
-        {awards.map((award) => {
-          const character = characterBySlug.get(award.slug);
-          if (!character) return null;
-          const mine = award.slug === playerSlug;
-          const glyph = AWARD_ICONS[award.key];
-          const coach = coaches?.[award.slug];
-          return (
-            <div
-              key={award.key}
-              className={`flex items-center gap-3 border-b border-slate-900/20 pb-2.5 ${
-                mine ? 'bg-red-700/5' : ''
-              }`}
-            >
-              <PortraitHead
-                character={character}
-                className="h-11 w-11 shrink-0 rounded-sm ring-1 ring-slate-900/30"
-              />
-              <span className="flex min-w-0 flex-col">
-                <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase leading-tight tracking-[0.2em] text-red-800">
-                  {glyph.icon && (
-                    <Icon name={glyph.icon} className="h-3 w-3 shrink-0" />
-                  )}
-                  {glyph.action && (
-                    <ActionIcon
-                      kind={glyph.action}
-                      className="h-3 w-3 shrink-0"
-                    />
-                  )}
-                  {R.awards[award.key]}
+      <div className="@container w-full">
+        <div className="grid w-full gap-x-6 gap-y-3 @md:grid-cols-2 @3xl:grid-cols-3">
+          {awards.map((award) => {
+            const character = characterBySlug.get(award.slug);
+            if (!character) return null;
+            const mine = award.slug === playerSlug;
+            const glyph = AWARD_ICONS[award.key];
+            const coach = coaches?.[award.slug];
+            return (
+              <div
+                key={award.key}
+                className={`flex items-center gap-3 border-b border-[#7d93a8]/40 pb-2.5 ${
+                  mine ? 'bg-[#fde047]/45' : ''
+                }`}
+              >
+                <PortraitHead
+                  character={character}
+                  className="h-11 w-11 shrink-0 rounded-[2px]! border-0! shadow-none! ring-1 ring-slate-900/30"
+                />
+                <span className="flex min-w-0 flex-col">
+                  <span className="flex min-w-0 items-center gap-1 font-sign text-[13px] font-bold uppercase leading-tight tracking-[0.06em] text-red-800">
+                    {glyph.icon && (
+                      <Icon name={glyph.icon} className="h-3 w-3 shrink-0" />
+                    )}
+                    {glyph.action && (
+                      <ActionIcon
+                        kind={glyph.action}
+                        className="h-3 w-3 shrink-0"
+                      />
+                    )}
+                    <span className="truncate">{R.awards[award.key]}</span>
+                  </span>
+                  <span className="flex min-w-0 items-center gap-1.5 font-serif text-[15px] font-bold leading-tight text-slate-900">
+                    <span className="truncate" title={character.name}>
+                      {character.name}
+                    </span>
+                    {coach ? (
+                      <SeatTag name={coach.name} color={coach.color} onPaper />
+                    ) : (
+                      mine && (
+                        <span className="shrink-0 rounded-[2px] bg-red-700 px-1 font-sign text-[11px] font-bold uppercase tracking-[0.06em] text-amber-50">
+                          {R.you}
+                        </span>
+                      )
+                    )}
+                  </span>
+                  <span className="truncate font-serif text-[12px] italic text-slate-600">
+                    {award.value}
+                  </span>
                 </span>
-                <span className="flex items-center gap-1.5 truncate text-sm font-black uppercase leading-tight">
-                  {character.name}
-                  {coach ? (
-                    <CoachTag name={coach.name} color={coach.color} onPaper />
-                  ) : (
-                    mine && (
-                      <span className="shrink-0 rounded-sm bg-red-700 px-1 text-[8px] font-black uppercase tracking-widest text-amber-50">
-                        {R.you}
-                      </span>
-                    )
-                  )}
-                </span>
-                <span className="truncate text-[11px] italic text-slate-600">
-                  {award.value}
-                </span>
-              </span>
-            </div>
-          );
-        })}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </PaperSection>
+    </div>
   );
 }

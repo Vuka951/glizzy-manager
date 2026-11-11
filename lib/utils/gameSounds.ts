@@ -14,6 +14,12 @@ const PLACE_SOUNDS = [
   '/games/audio/sfx/place-3.mp3',
 ];
 
+const SPLASH_SOUNDS = [
+  '/games/audio/sfx/splash-1.mp3',
+  '/games/audio/sfx/splash-2.mp3',
+  '/games/audio/sfx/splash-3.mp3',
+];
+
 const LIFT_SOUNDS: Record<HidingSpotId, string[]> = {
   hat: [
     '/games/audio/sfx/lift-hat-1.mp3',
@@ -97,25 +103,42 @@ const WITHDRAW_SOUNDS = [
   '/games/audio/sfx/withdraw-3.mp3',
 ];
 
-function play(sources: string[], baseVolume: number): void {
-  if (typeof window === 'undefined') return;
+function play(sources: string[], baseVolume: number): HTMLAudioElement | null {
+  if (typeof window === 'undefined') return null;
   const volume = gameAudio.scaled(baseVolume, 'sfx');
-  if (volume <= 0.01) return;
+  if (volume <= 0.01) return null;
   const audio = new Audio(sources[Math.floor(Math.random() * sources.length)]);
   audio.volume = volume;
   audio.play().catch(() => {});
+  return audio;
+}
+
+const HOVER_SOUNDS = Array.from(
+  { length: 4 },
+  (_, i) => `/games/audio/sfx/hover-${i + 1}.mp3`,
+);
+
+// Every file in the sfx folder sits at one loudness, so the hover is kept
+// about 25 dB under every other cue by its base volume alone. A town tap
+// plays it a little louder so the click stands out from the hover before it
+export function playHoverSound(volume = 0.025): void {
+  play(HOVER_SOUNDS, volume);
 }
 
 export function playChompSound(volume = 0.5): void {
   play(CHOMP_SOUNDS, volume);
 }
 
-export function playPlaceSound(): void {
-  play(PLACE_SOUNDS, 0.45);
+export function playPlaceSound(volume = 0.45): void {
+  play(PLACE_SOUNDS, volume);
 }
 
-export function playLiftSound(spot: HidingSpotId): void {
-  play(LIFT_SOUNDS[spot], 0.45);
+export function playLiftSound(spot: HidingSpotId, volume = 0.45): void {
+  play(LIFT_SOUNDS[spot], volume);
+}
+
+export function playSplashSound(volume = 0.4): void {
+  play(SPLASH_SOUNDS, volume);
 }
 
 // Intensity carries the crowd's fame reading: 1 is the ordinary room
@@ -153,8 +176,8 @@ export function playLetterSound(): void {
   play(LETTER_SOUNDS, 0.45);
 }
 
-export function playPukeSound(): void {
-  play(PUKE_SOUNDS, 0.5);
+export function playPukeSound(volume = 0.5): void {
+  play(PUKE_SOUNDS, volume);
 }
 
 export function playMeltdownSound(): void {
@@ -174,10 +197,36 @@ export function playShutterSound(volume = 0.3): void {
   play(SHUTTER_SOUNDS, volume);
 }
 
-export function playTrophySound(): void {
-  play(TROPHY_SOUNDS, 0.6);
+export function playDogSound(): void {
+  play(['/games/audio/sfx/dog-woof.mp3'], 0.5);
+}
+
+// The cup bus engine is long enough to outlive its scene, so the caller keeps
+// the element and cuts it off when the bus goes away early
+export function playBusArriveSound(): HTMLAudioElement | null {
+  return play(['/games/audio/sfx/bus-arrive.mp3'], 0.2);
+}
+
+export function playBusLeaveSound(): HTMLAudioElement | null {
+  return play(['/games/audio/sfx/bus-leave.mp3'], 0.4);
+}
+
+export function playTrophySound(volume = 0.6): void {
+  play(TROPHY_SOUNDS, volume);
 }
 
 export function playCharacterSelectSound(): void {
   play(CHARACTER_SELECT_SOUNDS, 0.6);
+}
+
+// One recorded line on the voice channel; the caller keeps the element so a
+// skipped scene can cut it off
+export function playQuoteClip(src: string): HTMLAudioElement | null {
+  if (typeof window === 'undefined') return null;
+  const volume = gameAudio.scaled(0.9, 'voice');
+  if (volume <= 0.01) return null;
+  const audio = new Audio(src);
+  audio.volume = volume;
+  audio.play().catch(() => {});
+  return audio;
 }

@@ -1,12 +1,13 @@
 import PortraitHead from '@/components/games/PortraitHead';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
+import { PAPER_PAINT } from '@/lib/utils/careerFrameClasses';
 import type { RivalReason } from '@/lib/utils/careerSave';
 
 const RIVAL = GAMES_UI.career.rival;
 
-// One name in the pick-a-rival modal: a row on a phone, a card once there is
-// room to stand them side by side
+// One name on the shortlist, a paper slip with a red stamp to bring down on it:
+// a row on a phone, a slip standing up once there is room for them side by side
 export default function RivalChoiceOption({
   character,
   reason,
@@ -19,21 +20,21 @@ export default function RivalChoiceOption({
   return (
     <button
       onClick={onChoose}
-      className="group flex w-full items-center gap-2 rounded-xl border border-frost-border/25 bg-card-strong/50 p-1.5 text-left transition hover:border-red-300/60 hover:bg-card-strong/90 focus-visible:border-red-300/60 sm:w-auto sm:flex-1 sm:flex-col sm:gap-0.5 sm:px-0.5 sm:pb-1 sm:pt-1 sm:text-center sm:hover:-translate-y-0.5"
+      className={`group flex min-h-11 w-full items-center gap-2 rounded-[2px] bg-[#f1e8d3] p-1.5 text-left shadow-[0_2px_0_rgb(0_0_0/0.6)] transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#fdf0c8] enabled:active:translate-y-px sm:w-auto sm:flex-1 sm:flex-col sm:gap-0.5 sm:px-1 sm:text-center sm:hover:-translate-y-0.5 motion-reduce:sm:hover:translate-y-0 ${PAPER_PAINT}`}
     >
       <PortraitHead
         character={character}
-        className="aspect-square w-10 shrink-0 sm:w-8"
+        className="aspect-square w-10 shrink-0 sm:w-9"
       />
       <span className="min-w-0 flex-1 sm:flex-none">
-        <span className="block truncate text-xs font-bold text-slate-100 sm:line-clamp-2 sm:whitespace-normal sm:text-[10px] sm:leading-tight">
+        <span className="block truncate font-serif text-[13px] font-bold leading-tight text-slate-100 sm:line-clamp-2 sm:whitespace-normal">
           {character.name}
         </span>
-        <span className="block truncate text-[9px] uppercase tracking-wide text-sky-200/70 sm:line-clamp-2 sm:whitespace-normal sm:text-[8px] sm:leading-tight">
+        <span className="block truncate font-sign text-[12px] font-semibold uppercase leading-tight tracking-[0.04em] text-slate-400 sm:line-clamp-2 sm:whitespace-normal">
           {RIVAL.reasons[reason]}
         </span>
       </span>
-      <span className="shrink-0 rounded-full border border-red-300/40 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-red-300 transition group-hover:bg-red-400/20 sm:mt-auto sm:px-1.5 sm:py-0 sm:text-[8px]">
+      <span className="shrink-0 -rotate-3 rounded-[2px] border-2 border-red-300 px-1.5 font-sign text-[13px] font-extrabold uppercase leading-tight tracking-[0.06em] text-red-300 transition group-hover:bg-[#a11919] group-hover:text-[#fdf6e3] sm:mt-auto">
         {RIVAL.choose}
       </span>
     </button>

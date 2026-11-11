@@ -4,8 +4,6 @@ import {
 } from '@/data/games/careerElections';
 import {
   COACH_COLOR_ORDER,
-  COACH_NAME_MAX,
-  COACH_NAME_MIN,
   MAX_COACHES,
   MIN_COACHES,
   type CoachColor,
@@ -24,7 +22,17 @@ import {
   SPONSOR_FAME_BONUS,
   type MediaAppearanceKind,
 } from '@/data/games/careerEconomy';
-import type { InvestmentId } from '@/data/games/careerInvestments';
+import {
+  INVESTMENT_DEFS,
+  type InvestmentId,
+} from '@/data/games/careerInvestments';
+import {
+  cancelGlizzyBet,
+  glizzyMarketOpen,
+  isGlizzyBetStake,
+  isGlizzyCall,
+  placeGlizzyBet,
+} from '@/lib/utils/careerGlizzflationBets';
 import {
   fameStressTaxScale,
   mediaUsesFor,
@@ -32,10 +40,12 @@ import {
   trainingCost,
   type TrainingId,
 } from '@/data/games/careerTraining';
-import { ActionError } from '@/lib/server/career-mp/errors';
 import { withLedger } from '@/lib/server/career-mp/ledger';
 import { careerFor, mergeBack } from '@/lib/server/career-mp/lens';
-import { ROSTER_SLUGS } from '@/lib/server/career-mp/roster';
+import {
+  namedRoster,
+  rerolledRoster,
+} from '@/lib/server/career-mp/lobbyRoster';
 import {
   bookFavor,
   passBet,
@@ -48,10 +58,15 @@ import {
   voteSkipRound,
   withdraw,
 } from '@/lib/server/career-mp/cup';
+import { castCoalitionVote } from '@/lib/server/career-mp/coalition';
+import { castLawPick, castLawVote } from '@/lib/server/career-mp/laws';
 import { attachQuotes, cueQuotes } from '@/lib/server/career-mp/quotes';
 import { startGame } from '@/lib/server/career-mp/resolve';
-import { logEvent, normalizeSettings } from '@/lib/server/career-mp/roomOps';
+import { normalizeSettings } from '@/lib/server/career-mp/roomOps';
 import type { Room } from '@/lib/server/career-mp/room';
+import { ActionError } from '@/lib/server/rooms/errors';
+import { cleanSeatName, seatNameTaken } from '@/lib/server/rooms/identity';
+import { logEvent } from '@/lib/server/rooms/log';
 import type {
   LedgerCategory,
   Receipt,
@@ -59,22 +74,24 @@ import type {
 } from '@/lib/types/careerMp';
 import {
   campaignLetterOpen,
-  ostrvoWeekendEveryWindow,
+  greenWeekendEveryWindow,
   partyStatusOf,
   recordDonation,
   sabotageTaxScale,
-  strankaLeadMedia,
-  strankaLeadTrainingScale,
-  strankaMediaMultiplier,
+  redLeadMedia,
+  redLeadTrainingScale,
+  redMediaMultiplier,
   outsiderOfferChance,
   recordOutsiderDonation,
 } from '@/lib/utils/careerElections';
+import { borrowLoan, repayLoan } from '@/lib/utils/careerCredit';
 import {
   buyInvestment,
   investmentLevel,
   investmentNews,
   nextInvestmentCost,
 } from '@/lib/utils/careerInvestments';
+import { trainingLawScale } from '@/lib/utils/careerLaws';
 import { rivalTauntLetter, stipendCutLetter, investmentsLetter,
   sponsorOfferLetter,
   campaignDeclinedLetter,
@@ -92,6 +109,9 @@ import {
 import { rivalChosenNews } from '@/lib/utils/careerRivals';
 import {
   guardChance,
+  guardMaxChance,
+  guardMaxSteps,
+  guardMinSteps,
   guardCost,
   guardPriceScale,
   playerPlotsBooked,
@@ -106,13 +126,9 @@ import type {
   SponsorId,
 } from '@/lib/utils/careerSave';
 import { seasonPriceScale } from '@/lib/utils/careerSeasonPrices';
-import { newContract, ostrvoSabotageScale } from '@/lib/utils/careerSponsors';
+import { newContract, greenSabotageScale } from '@/lib/utils/careerSponsors';
 import { message } from '@/lib/utils/message';
-
-const MEDIA_FREEZEFRAMES: Record<string, string> = {
-  'media-interview': 'interview',
-  'media-scandal': 'scandal-flash',
-};
+import { randomSeed } from '@/lib/utils/seededRandom';
 
 export type Applied = {
   room: Room;
@@ -142,7 +158,8 @@ function train(career: SavedCareer, id: TrainingId): WindowResult {
     def,
     statKey ? ch[statKey].level : 0,
     seasonPriceScale(career, 'training') *
-      strankaLeadTrainingScale(ch, career.parliament, id),
+      redLeadTrainingScale(ch, career.parliament, id) *
+      trainingLawScale(career.parliament),
   );
   if (career.balance < cost) throw new ActionError('no-funds');
   if (def.leveled && statKey && ch[statKey].level >= def.maxLevel)
@@ -216,9 +233,9 @@ function rest(career: SavedCareer, fasting: boolean): WindowResult {
 function media(career: SavedCareer, kind: MediaAppearanceKind): WindowResult {
   if (career.slotsUsed >= OFFSEASON_SLOTS) throw new ActionError('no-slot');
   const ch = career.characters[career.playerSlug];
-  const stateMedia = ch.sponsor?.sponsorId === 'stranka';
+  const stateMedia = ch.sponsor?.sponsorId === 'red';
   const fanLevel = ch.fanSkill.level;
-  const leadMedia = strankaLeadMedia(ch, career.parliament);
+  const leadMedia = redLeadMedia(ch, career.parliament);
   if (
     !stateMedia &&
     (career.mediaUses ?? 0) >=
@@ -230,7 +247,7 @@ function media(career: SavedCareer, kind: MediaAppearanceKind): WindowResult {
     mediaPay(
       kind,
       fanLevel,
-      stateMedia ? strankaMediaMultiplier(ch.partyStatus) : 1,
+      stateMedia ? redMediaMultiplier(ch.partyStatus) : 1,
       seasonPriceScale(career, 'media'),
     ) * leadMedia.payScale,
   );
@@ -268,7 +285,8 @@ function media(career: SavedCareer, kind: MediaAppearanceKind): WindowResult {
           ego: clampMeter(ch.ego + MEDIA_EGO_GAIN + fanLevel),
           ambition: clampMeter(ch.ambition + MEDIA_AMBITION_GAIN + fanLevel),
         };
-  const templateKey = kind === 'scandal' ? 'media-scandal' : 'media-interview';
+  // A full room on air every window would fill the paper with the same story,
+  // so the paper leaves media out; the window's random statement still prints
   return {
     career: {
       ...career,
@@ -277,16 +295,6 @@ function media(career: SavedCareer, kind: MediaAppearanceKind): WindowResult {
       slotLog: [...career.slotLog, { kind: 'media' }],
       balance: career.balance + pay,
       characters: { ...career.characters, [career.playerSlug]: after },
-      newsQueue: [
-        ...career.newsQueue,
-        {
-          kind: 'media',
-          templateKey,
-          params: {},
-          slugs: [career.playerSlug],
-          freezeframe: MEDIA_FREEZEFRAMES[templateKey],
-        },
-      ],
     },
     receipt: {
       title: message(
@@ -309,9 +317,9 @@ function media(career: SavedCareer, kind: MediaAppearanceKind): WindowResult {
 
 function island(career: SavedCareer): WindowResult {
   const ch = career.characters[career.playerSlug];
-  const everyWindow = ostrvoWeekendEveryWindow(ch);
+  const everyWindow = greenWeekendEveryWindow(ch);
   if (
-    ch.sponsor?.sponsorId !== 'ostrvo' ||
+    ch.sponsor?.sponsorId !== 'green' ||
     (everyWindow
       ? career.islandYear === career.year &&
         career.islandSeason === career.season
@@ -348,10 +356,12 @@ function guard(career: SavedCareer, steps: number): WindowResult {
   if (career.slotsUsed >= OFFSEASON_SLOTS) throw new ActionError('no-slot');
   if (career.guarded) throw new ActionError('guarded');
   if (career.standingsHistory.length === 0) throw new ActionError('locked');
+  const ch = career.characters[career.playerSlug];
+  if (steps < guardMinSteps() || steps > guardMaxSteps(guardMaxChance(ch)))
+    throw new ActionError('bad-amount');
   const cost = guardCost(steps, guardPriceScale(career, career.playerSlug));
   if (career.balance < cost) throw new ActionError('no-funds');
-  const chance = guardChance(steps);
-  const ch = career.characters[career.playerSlug];
+  const chance = guardChance(steps, guardMaxChance(ch));
   const after = applyGuardHire(ch);
   // Hired muscle is booked like a plot: it costs money, not the month
   return {
@@ -375,10 +385,49 @@ function guard(career: SavedCareer, steps: number): WindowResult {
   };
 }
 
+// The glizzflation ticket comes out of the wallet and goes back in on a
+// cancel; the ledger only sees it once the story settles it
+function glizzyBet(career: SavedCareer, call: unknown, stake: number): WindowResult {
+  if (!glizzyMarketOpen(career)) throw new ActionError('locked');
+  if (!isGlizzyCall(call) || !isGlizzyBetStake(stake)) {
+    throw new ActionError('bad-bet');
+  }
+  const next = placeGlizzyBet(career, { call, stake });
+  if (!next) throw new ActionError('no-funds');
+  return { career: next };
+}
+
+// The bank's counter: the loan moves the wallet, the ledger only sees the
+// interest once a window opens on it
+function loan(
+  career: SavedCareer,
+  kind: 'borrow' | 'repay',
+  amount: number,
+): WindowResult {
+  const ch = career.characters[career.playerSlug];
+  const move =
+    kind === 'borrow'
+      ? borrowLoan(ch, career.balance, amount, career.parliament)
+      : repayLoan(ch, career.balance, amount);
+  if (!move) throw new ActionError('bad-amount');
+  return {
+    career: {
+      ...career,
+      balance: move.wallet,
+      characters: { ...career.characters, [career.playerSlug]: move.ch },
+    },
+  };
+}
+
 function invest(career: SavedCareer, id: InvestmentId): WindowResult {
+  if (!Object.hasOwn(INVESTMENT_DEFS, id)) throw new ActionError('bad-option');
   const ch = career.characters[career.playerSlug];
   if (!ch.sponsor) throw new ActionError('no-sponsor');
-  const cost = nextInvestmentCost(ch, id, seasonPriceScale(career, 'investment'));
+  const cost = nextInvestmentCost(
+    ch,
+    id,
+    seasonPriceScale(career, 'investment'),
+  );
   if (cost === null) throw new ActionError('maxed');
   if (career.balance < cost) throw new ActionError('no-funds');
   const after = buyInvestment(ch, id);
@@ -417,7 +466,7 @@ function sabotage(
 ): WindowResult {
   if (career.slotsUsed >= OFFSEASON_SLOTS) throw new ActionError('no-slot');
   if (career.standingsHistory.length === 0) throw new ActionError('locked');
-  if (!career.characters[targetSlug] || targetSlug === career.playerSlug)
+  if (!Object.hasOwn(career.characters, targetSlug) || targetSlug === career.playerSlug)
     throw new ActionError('bad-target');
   if (![1, 2, 3].includes(tier)) throw new ActionError('bad-tier');
   const steps = Math.max(0, Math.floor(boostSteps));
@@ -427,7 +476,7 @@ function sabotage(
     steps,
     seasonPriceScale(career, 'sabotage') *
       sabotageTaxScale(ch, career.parliament) *
-      ostrvoSabotageScale(ch) *
+      greenSabotageScale(ch) *
       sabotageRepeatScale(playerPlotsBooked(career)),
   );
   if (career.balance < cost) throw new ActionError('no-funds');
@@ -464,9 +513,9 @@ function sabotage(
 function readMail(career: SavedCareer, id: string): WindowResult {
   const item = career.mail.find((m) => m.id === id);
   if (!item) throw new ActionError('no-mail');
-  const declinedKorp =
+  const declinedYellow =
     item.kind === 'sponsor-offer' &&
-    item.sponsorId === 'korporacija' &&
+    item.sponsorId === 'yellow' &&
     !item.read &&
     !career.characters[career.playerSlug].sponsor;
   const claimed = !item.read ? (item.amount ?? 0) : 0;
@@ -474,7 +523,7 @@ function readMail(career: SavedCareer, id: string): WindowResult {
     career: {
       ...career,
       balance: career.balance + claimed,
-      korpVendetta: career.korpVendetta || declinedKorp,
+      yellowVendetta: career.yellowVendetta || declinedYellow,
       mail: career.mail.map((m) => (m.id === id ? { ...m, read: true } : m)),
     },
     ledger:
@@ -503,18 +552,18 @@ function acceptSponsor(
     (m) => m.id === mailId && m.kind === 'sponsor-offer' && m.sponsorId === sponsorId,
   );
   if (!offer) throw new ActionError('no-offer');
-  const spurnedKorp =
-    sponsorId !== 'korporacija' &&
+  const spurnedYellow =
+    sponsorId !== 'yellow' &&
     career.mail.some(
       (m) =>
-        m.kind === 'sponsor-offer' && m.sponsorId === 'korporacija' && !m.read,
+        m.kind === 'sponsor-offer' && m.sponsorId === 'yellow' && !m.read,
     );
   const status = partyStatusOf(career.parliament?.government ?? [], sponsorId);
   return {
     career: {
       ...career,
-      korpVendetta:
-        sponsorId === 'korporacija' ? false : career.korpVendetta || spurnedKorp,
+      yellowVendetta:
+        sponsorId === 'yellow' ? false : career.yellowVendetta || spurnedYellow,
       characters: {
         ...career.characters,
         [career.playerSlug]: {
@@ -664,6 +713,13 @@ function windowAction(career: SavedCareer, action: RoomAction): WindowResult {
       return guard(career, Math.round(Number(action.steps) || 0));
     case 'invest':
       return invest(career, action.investmentId);
+    case 'glizzyBet':
+      return glizzyBet(career, action.call, Number(action.stake));
+    case 'cancelGlizzyBet':
+      return { career: cancelGlizzyBet(career) };
+    case 'borrow':
+    case 'repay':
+      return loan(career, action.type, Number(action.amount));
     case 'sabotage':
       return sabotage(
         career,
@@ -703,7 +759,8 @@ function lobbyAction(room: Room, coachId: string, action: RoomAction, now: numbe
       };
     }
     case 'pickCharacter': {
-      if (!ROSTER_SLUGS.includes(action.slug)) throw new ActionError('bad-slug');
+      if (!room.roster.some((e) => e.slug === action.slug))
+        throw new ActionError('bad-slug');
       const taken = Object.values(room.coaches).some(
         (c) => c.id !== coachId && c.slug === action.slug,
       );
@@ -713,6 +770,19 @@ function lobbyAction(room: Room, coachId: string, action: RoomAction, now: numbe
         coaches: {
           ...room.coaches,
           [coachId]: { ...coach, slug: action.slug, ready: false },
+        },
+      };
+    }
+    case 'rerollLeague':
+      return { ...room, roster: rerolledRoster(room, randomSeed()) };
+    case 'nameCharacter': {
+      const { roster, slug } = namedRoster(room, coachId, action.name);
+      return {
+        ...room,
+        roster,
+        coaches: {
+          ...room.coaches,
+          [coachId]: { ...coach, slug, ready: false },
         },
       };
     }
@@ -732,11 +802,9 @@ function lobbyAction(room: Room, coachId: string, action: RoomAction, now: numbe
       };
     }
     case 'rename': {
-      const name = cleanName(action.name);
-      const taken = Object.values(room.coaches).some(
-        (c) => c.id !== coachId && c.name.toLowerCase() === name.toLowerCase(),
-      );
-      if (taken) throw new ActionError('name-taken', 409);
+      const name = cleanSeatName(action.name);
+      if (seatNameTaken(room.coaches, name, coachId))
+        throw new ActionError('name-taken', 409);
       return {
         ...room,
         coaches: { ...room.coaches, [coachId]: { ...coach, name } },
@@ -780,15 +848,6 @@ function lobbyAction(room: Room, coachId: string, action: RoomAction, now: numbe
   }
 }
 
-export function cleanName(raw: unknown): string {
-  const name = String(raw ?? '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, COACH_NAME_MAX);
-  if (name.length < COACH_NAME_MIN) throw new ActionError('bad-name');
-  return name;
-}
-
 // Cup and end-phase actions live in the cup module; the window and the lobby
 // are handled here
 export function applyAction(
@@ -803,12 +862,28 @@ export function applyAction(
     return { room: logEvent({ ...room, status: 'closed' }, now, 'closed') };
   }
   if (room.status === 'closed') throw new ActionError('closed', 410);
-  if (action.type === 'pickCharacter' && room.status !== 'lobby')
+  if (
+    (action.type === 'pickCharacter' ||
+      action.type === 'rerollLeague' ||
+      action.type === 'nameCharacter') &&
+    room.status !== 'lobby'
+  )
     throw new ActionError('league-started', 409);
   if (room.status === 'lobby') {
     return { room: lobbyAction(room, coachId, action, now) };
   }
   if (!room.league) throw new ActionError('bad-room');
+  if (action.type === 'voteCoalition') {
+    return {
+      room: castCoalitionVote(room, coachId, String(action.key), now),
+    };
+  }
+  if (action.type === 'pickLaw') {
+    return { room: castLawPick(room, coachId, Number(action.index), now) };
+  }
+  if (action.type === 'voteLaw') {
+    return { room: castLawVote(room, coachId, action.vote, now) };
+  }
   if (room.phase.kind === 'window') {
     if (action.type === 'setDone') {
       return { room: setDone(room, coachId, Boolean(action.done), now) };

@@ -1,5 +1,4 @@
 import {
-  LORE_RIVALS,
   RIVAL_LOSS_EGO,
   RIVAL_LOSS_STRESS,
   RIVAL_MAX_PLACE_GAP,
@@ -7,6 +6,7 @@ import {
   RIVAL_WIN_FAME,
 } from '@/data/games/careerRivals';
 import { rankBySeeding, seedingKey } from '@/lib/utils/careerPoints';
+import { loreRivals } from '@/lib/utils/characterTraits';
 import type {
   CharacterCareerState,
   NewsItem,
@@ -19,9 +19,7 @@ import { cupMatchWinner, type CupMatch } from '@/lib/utils/tournamentSim';
 
 // The comeback opens with an old grudge from the chronicles
 export function firstYearRival(playerSlug: string, roster: string[]): string {
-  const pool = (LORE_RIVALS[playerSlug] ?? []).filter((slug) =>
-    roster.includes(slug),
-  );
+  const pool = loreRivals(playerSlug, roster);
   if (pool.length > 0) return pool[Math.floor(Math.random() * pool.length)];
   const others = roster.filter((slug) => slug !== playerSlug);
   return others[Math.floor(Math.random() * others.length)];
@@ -69,7 +67,9 @@ export function rivalCandidates(state: SavedCareer): RivalCandidate[] {
   if (playerIndex > 0) add(seeding[playerIndex - 1], 'table');
   else add(seeding[1] ?? null, 'chaser');
 
-  for (const slug of shuffleArray(LORE_RIVALS[state.playerSlug] ?? [])) {
+  for (const slug of shuffleArray(
+    loreRivals(state.playerSlug, Object.keys(state.characters)),
+  )) {
     add(slug, 'lore');
   }
   for (const slug of seeding) add(slug, 'lore');

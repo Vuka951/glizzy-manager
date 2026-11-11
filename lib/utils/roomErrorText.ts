@@ -1,9 +1,19 @@
 import { GAMES_UI } from '@/data/games/locale';
-import type { RoomErrorCode } from '@/lib/constants/careerMp';
-import { CareerMpApiError } from '@/lib/queries/careerMp';
+import {
+  ROOM_ERROR_CODES,
+  type RoomErrorCode,
+} from '@/lib/constants/careerMp';
+import { RoomApiError } from '@/lib/queries/rooms';
 
+function isRoomErrorCode(code: string): code is RoomErrorCode {
+  return (ROOM_ERROR_CODES as readonly string[]).includes(code);
+}
+
+// The room API answers a refusal with its code as the error's message
 export function roomErrorCode(error: unknown): RoomErrorCode {
-  return error instanceof CareerMpApiError ? error.code : 'generic';
+  return error instanceof RoomApiError && isRoomErrorCode(error.message)
+    ? error.message
+    : 'generic';
 }
 
 // The server answers a refusal with a code; the sentence is the screen's

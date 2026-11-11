@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import CareerToggle from '@/components/games/career/CareerToggle';
+import TelevisionSet from '@/components/games/career/TelevisionSet';
 import GlizzyIcon from '@/components/icons/GlizzyIcon';
 import CommentaryCaption from '@/components/games/CommentaryCaption';
 import IntroHoldControls from '@/components/games/IntroHoldControls';
@@ -27,6 +29,7 @@ import {
   COMMENTARY_VOICE_VOLUME,
 } from '@/lib/constants/careerCommentary';
 import {
+  CAPTION_ONLY_LINES,
   COMMENTARY_CLIP_BASE,
   COMMENTARY_VOICED,
 } from '@/lib/constants/careerCommentaryVoice';
@@ -133,8 +136,8 @@ export default function BroadcastOpenPanel({
       }
       const text = commentaryCopy(line.id).text;
       setCaption(text);
-      // No clip to time the line (a language without a voice bank, a file
-      // not rendered yet, autoplay refused): the caption stays up long
+      // No clip to time the line (a language without a voice bank, a
+      // caption-only line, autoplay refused): the caption stays up long
       // enough to be read, then the segment moves on
       const hold = () => {
         if (cancelled || holdTimer !== null) return;
@@ -144,7 +147,7 @@ export default function BroadcastOpenPanel({
           playNext();
         }, captionHoldMs(text));
       };
-      if (!COMMENTARY_VOICED) {
+      if (!COMMENTARY_VOICED || CAPTION_ONLY_LINES.has(line.id)) {
         hold();
         return;
       }
@@ -188,9 +191,7 @@ export default function BroadcastOpenPanel({
       slug,
       pct: Math.max(1, Math.round(chance * 100)),
     }));
-  const inForm = [...buffedSlugsForSeason(career.season)].filter((slug) =>
-    slugs.includes(slug),
-  );
+  const inForm = [...buffedSlugsForSeason(career.season, slugs)];
   const champions: PastChampion[] = career.standingsHistory
     .filter((entry) => entry.season === career.season)
     .slice(-PAST_CHAMPIONS)
@@ -297,58 +298,54 @@ export default function BroadcastOpenPanel({
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-slate-950/85 p-4 backdrop-blur-sm animate-[bubblein_0.3s_ease-out]">
-      <div className="flex w-full max-w-xl flex-col gap-4 rounded-2xl border border-frost-border/40 bg-gradient-to-br from-card-strong/90 via-card-deep/95 to-card-strong/90 p-5 shadow-2xl">
-        <div className="flex items-center justify-center gap-2.5">
-          <GlizzyIcon variant={1} className="h-4 w-7" />
-          <p className="text-[10px] font-bold uppercase tracking-widest text-sky-300">
+    <div className="fixed inset-0 z-40 flex justify-center overflow-y-auto bg-[#060912]/75 p-1 animate-[bubblein_0.3s_ease-out] sm:p-4 phone-landscape:p-1">
+      <TelevisionSet
+        live={B.live}
+        channel={
+          <>
+            <GlizzyIcon variant={1} className="h-3.5 w-6 shrink-0" />
             {B.title}
-          </p>
-          <span className="flex items-center gap-1 rounded-full border border-red-500/40 bg-red-500/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest text-red-300">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-400" />
-            {B.live}
-          </span>
-        </div>
-        <div className="flex gap-1.5">
-          {slides.map((s, i) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => jump(i)}
-              className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-lg border px-1 py-1.5 text-[8px] font-bold uppercase tracking-widest transition ${
-                i === index
-                  ? 'border-sky-200/50 bg-sky-200/10 text-sky-100'
-                  : i < index
-                    ? 'border-sky-200/10 bg-slate-900/40 text-slate-500 hover:text-slate-300'
-                    : 'border-sky-200/10 bg-slate-900/40 text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <span className="text-sm">{s.emoji}</span>
-              <span className="max-w-full truncate">{s.title}</span>
-              <span className="h-0.5 w-full overflow-hidden rounded-full bg-slate-800/80">
-                <span
-                  className={`block h-full origin-left bg-sky-300 ${
-                    i < index || (i === index && (!auto || last))
-                      ? 'scale-x-100'
-                      : i === index
-                        ? SLIDE_PROGRESS
-                        : 'scale-x-0'
-                  }`}
-                />
-              </span>
-            </button>
-          ))}
-        </div>
-        <div key={slide.id} className="animate-[introslide_0.4s_ease-out]">
+          </>
+        }
+        className="my-auto w-full max-w-[37.375rem] phone-landscape:max-w-[48rem]"
+        channelKeys={slides.map((s, i) => (
+          <CareerToggle
+            selected={i === index}
+            size="sm"
+            key={s.id}
+            onClick={() => jump(i)}
+            className="flex min-h-11 min-w-0 flex-1 flex-col items-center gap-1 px-1 py-1.5 font-sign text-[11px] uppercase leading-none tracking-[0.02em] sm:text-[12px]"
+          >
+            <span className="text-sm leading-none">{s.emoji}</span>
+            <span className="max-w-full">{s.title}</span>
+            <span className="h-0.5 w-full overflow-hidden bg-slate-950">
+              <span
+                className={`block h-full origin-left bg-amber-300 ${
+                  i < index || (i === index && (!auto || last))
+                    ? 'scale-x-100'
+                    : i === index
+                      ? SLIDE_PROGRESS
+                      : 'scale-x-0'
+                }`}
+              />
+            </span>
+          </CareerToggle>
+        ))}
+        controls={
+          <div className="flex-1 [&_button]:min-h-11">
+            <IntroHoldControls
+              onContinue={handleContinue}
+              paused={!last}
+              onStay={() => setAuto(false)}
+            />
+          </div>
+        }
+      >
+        <div key={slide.id} className="grid min-h-[17rem] animate-[introslide_0.4s_ease-out] *:min-w-0 phone-landscape:min-h-[12rem]">
           {slide.body}
         </div>
         <CommentaryCaption line={caption} viewport />
-        <IntroHoldControls
-          onContinue={handleContinue}
-          paused={!last}
-          onStay={() => setAuto(false)}
-        />
-      </div>
+      </TelevisionSet>
     </div>
   );
 }

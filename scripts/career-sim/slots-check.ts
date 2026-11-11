@@ -4,7 +4,7 @@
 // cache start clean.
 import { deepStrictEqual, strictEqual, ok } from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { CHARACTER_ROSTER } from '@/data/games/roster';
+import { previewRoster } from '@/components/preview/previewRoster';
 import { sampleCareer } from '@/components/preview/sampleCareer';
 import { simulateOffseason } from '@/lib/utils/careerOffseason';
 import type { SavedCareer } from '@/lib/utils/careerSave';
@@ -32,7 +32,8 @@ class MemoryStorage {
 const storage = new MemoryStorage();
 (globalThis as unknown as { window: unknown }).window = { localStorage: storage };
 
-const slugs = CHARACTER_ROSTER.map((c) => c.slug);
+const slugs = previewRoster().map((c) => c.slug);
+const [FIRST, SECOND, THIRD] = [slugs[0], slugs[1], slugs[9]];
 
 // What a browser actually holds: JSON has no undefined fields
 function sample(playerSlug: string, year: number): SavedCareer {
@@ -63,7 +64,7 @@ async function load() {
 
 const scenarios: Record<string, () => Promise<void>> = {
   async migrate() {
-    const old = sample('vuka', 4);
+    const old = sample(FIRST, 4);
     const raw = JSON.stringify(old);
     storage.data.set(LEGACY, raw);
     const careerSave = await load();
@@ -83,8 +84,8 @@ const scenarios: Record<string, () => Promise<void>> = {
     ok(!storage.data.has(LEGACY), 'autosave never writes the old key');
 
     // Three independent careers
-    const two = sample('dax', 2);
-    const three = sample('steva', 7);
+    const two = sample(SECOND, 2);
+    const three = sample(THIRD, 7);
     careerSave.save(2, two);
     careerSave.save(3, three);
     const raw1 = storage.data.get(key(1));
@@ -94,8 +95,8 @@ const scenarios: Record<string, () => Promise<void>> = {
     strictEqual(storage.data.get(key(1)), raw1, 'slot 2 write leaves slot 1');
     strictEqual(storage.data.get(key(3)), raw3, 'slot 2 write leaves slot 3');
     deepStrictEqual(careerSave.load(2), twoNext);
-    strictEqual(careerSave.load(1)?.playerSlug, 'vuka');
-    strictEqual(careerSave.load(3)?.playerSlug, 'steva');
+    strictEqual(careerSave.load(1)?.playerSlug, FIRST);
+    strictEqual(careerSave.load(3)?.playerSlug, THIRD);
 
     // Delete one slot
     careerSave.clear(2);
@@ -109,6 +110,9 @@ const scenarios: Record<string, () => Promise<void>> = {
     deepStrictEqual(careerSave.load(1), next);
     storage.data.set(key(2), JSON.stringify({ version: 2, playerSlug: 'x' }));
     strictEqual(careerSave.load(2), null);
+    storage.data.set(key(2), JSON.stringify({ ...two, league: two.league.slice(1) }));
+    strictEqual(careerSave.load(2), null, 'a table name missing from the league');
+    strictEqual(careerSave.load(2), null);
     storage.data.set(key(2), 'null');
     strictEqual(careerSave.load(2), null);
     careerSave.save(3, three);
@@ -120,8 +124,8 @@ const scenarios: Record<string, () => Promise<void>> = {
   },
 
   async migrateIntoFirstEmpty() {
-    const taken = sample('dax', 2);
-    const old = sample('vuka', 5);
+    const taken = sample(SECOND, 2);
+    const old = sample(FIRST, 5);
     storage.data.set(key(1), JSON.stringify(taken));
     storage.data.set(LEGACY, JSON.stringify(old));
     const careerSave = await load();
@@ -131,14 +135,28 @@ const scenarios: Record<string, () => Promise<void>> = {
   },
 
   async allFullKeepsLegacy() {
-    const old = sample('vuka', 5);
+    const old = sample(FIRST, 5);
     [1, 2, 3].forEach((s) =>
-      storage.data.set(key(s), JSON.stringify(sample('dax', s)))
+      storage.data.set(key(s), JSON.stringify(sample(SECOND, s)))
     );
     storage.data.set(LEGACY, JSON.stringify(old));
     const careerSave = await load();
     careerSave.loadSlots();
     strictEqual(storage.data.get(LEGACY), JSON.stringify(old), 'kept, not lost');
+  },
+
+  // A career from the fixed roster: version 1, no league of its own. Its
+  // slot reads empty and can take a new career
+  async oldRosterDropped() {
+    const current = sample(FIRST, 4);
+    const rest: Partial<SavedCareer> = { ...current };
+    delete rest.league;
+    storage.data.set(key(1), JSON.stringify({ ...rest, version: 1, playerSlug: 'old-name' }));
+    storage.data.set(key(2), JSON.stringify({ ...rest, version: 1 }));
+    const careerSave = await load();
+    deepStrictEqual([...careerSave.loadSlots()], [null, null, null]);
+    careerSave.save(1, current);
+    deepStrictEqual(careerSave.load(1), current);
   },
 
   async fresh() {
@@ -148,11 +166,11 @@ const scenarios: Record<string, () => Promise<void>> = {
   },
 
   async storageBlocked() {
-    storage.data.set(LEGACY, JSON.stringify(sample('vuka', 2)));
+    storage.data.set(LEGACY, JSON.stringify(sample(FIRST, 2)));
     storage.throwing = true;
     const careerSave = await load();
     deepStrictEqual([...careerSave.loadSlots()], [null, null, null]);
-    careerSave.save(1, sample('vuka', 2));
+    careerSave.save(1, sample(FIRST, 2));
     careerSave.clear(1);
     careerSave.clearAll();
     storage.throwing = false;

@@ -5,7 +5,8 @@
 
 // How the renderer turns a raw parameter into words: a roster slug, a
 // sponsor id, a comma separated list of sponsor ids, a training or an
-// investment id, a position that prints as an ordinal. `count` names the
+// investment id, a law id or a comma separated list of them, a season
+// number, a position that prints as an ordinal. `count` names the
 // number that picks the form when the template is a { one, few, other }
 // group. A parameter without a ref prints as it is
 export const MESSAGE_REF_KINDS = [
@@ -15,6 +16,9 @@ export const MESSAGE_REF_KINDS = [
   'sponsorCoalition',
   'training',
   'investment',
+  'law',
+  'lawList',
+  'season',
   'ordinal',
   'count',
 ] as const;

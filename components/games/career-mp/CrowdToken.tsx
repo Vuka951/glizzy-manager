@@ -4,6 +4,7 @@ import CrowdTokenEffect, {
 } from '@/components/games/career-mp/CrowdTokenEffect';
 import { CAREER_BET_STAKES } from '@/data/games/careerEconomy';
 import { COACH_COLOR_CLASSES } from '@/lib/constants/careerMp';
+import { SEAT_PAINT } from '@/lib/constants/seatPaint';
 import type { CrowdTokenData } from '@/lib/types/careerMp';
 
 // How much a coach moves in the stand: one step per rung of the stake
@@ -54,12 +55,12 @@ export default function CrowdToken({
         />
       )}
       <span
-        className={`max-w-full truncate text-[7px] font-bold uppercase leading-none tracking-wider ${classes.text}`}
+        className={`max-w-full truncate rounded-[2px] px-0.5 font-sign text-[10px] font-bold uppercase leading-3 text-[#0b0f1c] ${SEAT_PAINT[token.color]}`}
       >
         {token.name}
       </span>
       {token.stake > 0 && (
-        <span className="font-mono text-[7px] font-bold leading-none text-amber-300">
+        <span className="font-sign text-[11px] font-bold leading-none tabular-nums text-amber-300">
           {token.stake}
         </span>
       )}

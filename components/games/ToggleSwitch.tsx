@@ -1,3 +1,6 @@
+import BrassToggle from '@/components/games/career/switchboard/BrassToggle';
+import { useCareerFrames } from '@/components/games/career/careerFrames';
+
 export default function ToggleSwitch({
   checked,
   label,
@@ -7,6 +10,10 @@ export default function ToggleSwitch({
   label: string;
   onChange: () => void;
 }) {
+  const street = useCareerFrames() === 'street';
+  if (street) {
+    return <BrassToggle checked={checked} label={label} onChange={onChange} />;
+  }
   return (
     <button
       type="button"

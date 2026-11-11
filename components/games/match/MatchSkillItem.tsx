@@ -46,7 +46,7 @@ export default function MatchSkillItem({
             className={`h-1.5 w-1.5 rounded-full ${
               i < level
                 ? atMax
-                  ? 'bg-emerald-300'
+                  ? 'bg-emerald-300 '
                   : 'bg-amber-400'
                 : 'bg-slate-700'
             }`}

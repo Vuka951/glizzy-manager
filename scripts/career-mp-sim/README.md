@@ -27,13 +27,26 @@ Arguments: coaches, years. Coaches from 2 to 8 (`MIN_COACHES` /
 The smoke asserts that the paper closes straight to the bracket, that the
 round of 16 is seeded by the table as it stood at the paper and seats the
 whole league, and that every cup places all 16. Every run also starts with
-reducer-level roster checks: any number of coaches from 2 to 8 plays the whole
-16-character roster, with every lobby pick in the league.
+reducer-level roster checks: any number of coaches from 2 to 8 plays the
+room's whole generated league of sixteen, exactly what the lobby offered, with
+every lobby pick in it, and a stored `leagueSize` setting from an older room
+is dropped.
+
+Every room generates its own league of sixteen from a seed (`room.roster`),
+and the lobby view's `roster` is that league. The smoke reads its slugs from
+that view. It checks that new faces
+(`rerollLeague`) keep every pick where it stood, that a written name
+(`nameCharacter`) seats the coach over his pick or the last free face and is
+refused when too short (`bad-character-name`) or already in the league
+(`character-name-taken`), and that a room stored without a roster (the old
+fixed roster) polls and joins as `not-found` and drops off the board.
+`currentRoom` also reads a room drawn for a league of twenty as gone.
 
 Coaches join by name only and pick a character in the lobby, so the smoke
 seats every coach through the `pickCharacter` action before the start. It also
 checks the lobby pick at reducer level: coaches join with no character, a taken
-or unknown slug is refused (`character-taken`, `bad-slug`), a coach can change
+slug, or one the lobby does not offer, is refused (`character-taken`,
+`bad-slug`), a coach can change
 the pick (which drops ready and frees the old face), `start` is refused with
 `missing-slug` until everyone has picked and with `not-ready` until every
 coach but the host is ready, a pick after the start is refused
@@ -44,9 +57,9 @@ starts, and every one of 8 lobby picks is in the league.
 
 Create and join take `{ coachName, color?, settings? }`. The character is the
 `pickCharacter` lobby action. An old client that still sends `slug` with the
-name is tolerated: a free, valid slug seats as the first pick and anything else
-is dropped, so the join never fails over it. browser-shots, leave-test,
-close-modal-check and prematch-shot still post `slug` on join and rely on that;
+name is tolerated: a free slug the lobby offers seats as the first pick and
+anything else is dropped, so the join never fails over it. The scripts that
+need characters pick them from the view's `roster` with `pickCharacter`;
 lobby-shots picks inside the room like the playtest.
 
 ## Room creation limits
@@ -88,9 +101,9 @@ Screenshots land in `scripts/career-mp-sim/output/` (gitignored) unless
 at the entry file of a puppeteer-core installed outside the repo.
 
 The playtest opens the room from a form with no character select, blocks the
-host's stamp until every coach has picked, has B open the picker with The Wolf
-crossed out (`02-lobby-pick-b-taken`), pick Daniel and change to The Egg Man, and seats
-the third coach over the API with a refused taken pick first. From season 2 on
+host's stamp until every coach has picked, has B open the picker with the
+host's character crossed out (`02-lobby-pick-b-taken`), pick one character and
+change to another, and seats the third coach over the API with a refused taken pick first. From season 2 on
 it can still stop on `no-funds` for B's plot and bet: B is broke by then in the
 current economy, which has nothing to do with the lobby.
 

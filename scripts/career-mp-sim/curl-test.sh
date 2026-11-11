@@ -3,16 +3,18 @@ set -u
 B=http://localhost:3000/api/career-mp
 NOW=$(date +%s000)
 echo "== create"
-C=$(curl -s -X POST $B/rooms -H 'content-type: application/json' -H "x-career-mp-now: $NOW" -d '{"coachName":"Vuka","settings":{"windowSeconds":60,"paperSeconds":60}}')
+C=$(curl -s -X POST $B/rooms -H 'content-type: application/json' -H "x-career-mp-now: $NOW" -d '{"coachName":"Alpha","settings":{"windowSeconds":60,"paperSeconds":60}}')
 echo "$C" | jq -c '{code, coachId, status: .view.status, version: .view.version, coaches: (.view.coaches|length), slug: .view.coaches[0].slug}'
 CODE=$(echo "$C" | jq -r .code); TA=$(echo "$C" | jq -r .token); A=$(echo "$C" | jq -r .coachId)
+# The room's own generated league, as the lobby offers it
+S0=$(echo "$C" | jq -r '.view.roster[0].slug'); S1=$(echo "$C" | jq -r '.view.roster[1].slug'); S2=$(echo "$C" | jq -r '.view.roster[2].slug')
 echo "== join by name only"
-J=$(curl -s -X POST $B/rooms/$CODE/join -H 'content-type: application/json' -H "x-career-mp-now: $NOW" -d '{"coachName":"Cone"}')
+J=$(curl -s -X POST $B/rooms/$CODE/join -H 'content-type: application/json' -H "x-career-mp-now: $NOW" -d '{"coachName":"Bravo"}')
 echo "$J" | jq -c '{coachId, version: .view.version, coaches: [.view.coaches[] | {name, color, slug}]}'
 TB=$(echo "$J" | jq -r .token); BID=$(echo "$J" | jq -r .coachId)
 V=$(echo "$J" | jq -r .view.version)
 echo "== join with taken name -> expect 409"
-curl -s -o /dev/null -w "%{http_code}\n" -X POST $B/rooms/$CODE/join -H 'content-type: application/json' -d '{"coachName":"cone"}'
+curl -s -o /dev/null -w "%{http_code}\n" -X POST $B/rooms/$CODE/join -H 'content-type: application/json' -d '{"coachName":"bravo"}'
 echo "== GET since=$V -> expect unchanged"
 curl -s "$B/rooms/$CODE?since=$V" -H "x-coach-token: $TA" -H "x-career-mp-now: $NOW" | jq -c .
 echo "== GET without token -> 401"
@@ -22,21 +24,21 @@ code() { echo "$1" | tail -1; }
 body() { echo "$1" | sed '$d'; }
 echo "== start before anyone picked -> expect 400 missing-slug"
 R=$(act $TA '{"type":"start"}'); echo "$(code "$R") $(body "$R" | jq -r .error)"
-echo "== lobby pick: A picks vuka -> 200"
-R=$(act $TA '{"type":"pickCharacter","slug":"vuka"}'); echo "$(code "$R") $(body "$R" | jq -c '[.view.coaches[] | {name, slug}]')"
+echo "== lobby pick: A picks $S0 -> 200"
+R=$(act $TA "{\"type\":\"pickCharacter\",\"slug\":\"$S0\"}"); echo "$(code "$R") $(body "$R" | jq -c '[.view.coaches[] | {name, slug}]')"
 V=$(body "$R" | jq -r .view.version)
-echo "== B picks vuka -> expect 409 character-taken"
-R=$(act $TB '{"type":"pickCharacter","slug":"vuka"}'); echo "$(code "$R") $(body "$R" | jq -r .error)"
+echo "== B picks $S0 -> expect 409 character-taken"
+R=$(act $TB "{\"type\":\"pickCharacter\",\"slug\":\"$S0\"}"); echo "$(code "$R") $(body "$R" | jq -r .error)"
 echo "== B picks an unknown slug -> expect 400 bad-slug"
 R=$(act $TB '{"type":"pickCharacter","slug":"nobody"}'); echo "$(code "$R") $(body "$R" | jq -r .error)"
 echo "== start while B has not picked -> expect 400 missing-slug"
 R=$(act $TA '{"type":"start"}'); echo "$(code "$R") $(body "$R" | jq -r .error)"
-echo "== B picks dax, then changes to cone -> 200 cone"
-R=$(act $TB '{"type":"pickCharacter","slug":"dax"}'); V=$(body "$R" | jq -r .view.version)
-R=$(act $TB '{"type":"pickCharacter","slug":"cone"}'); echo "$(code "$R") $(body "$R" | jq -c '[.view.coaches[] | {name, slug}]')"
+echo "== B picks $S1, then changes to $S2 -> 200 $S2"
+R=$(act $TB "{\"type\":\"pickCharacter\",\"slug\":\"$S1\"}"); V=$(body "$R" | jq -r .view.version)
+R=$(act $TB "{\"type\":\"pickCharacter\",\"slug\":\"$S2\"}"); echo "$(code "$R") $(body "$R" | jq -c '[.view.coaches[] | {name, slug}]')"
 V=$(body "$R" | jq -r .view.version)
 echo "== old client joins with a taken slug -> expect 200 and no character, then leaves"
-O=$(curl -s -X POST $B/rooms/$CODE/join -H 'content-type: application/json' -H "x-career-mp-now: $NOW" -d '{"coachName":"Oldie","slug":"vuka"}')
+O=$(curl -s -X POST $B/rooms/$CODE/join -H 'content-type: application/json' -H "x-career-mp-now: $NOW" -d "{\"coachName\":\"Oldie\",\"slug\":\"$S0\"}")
 echo "$O" | jq -c '[.view.coaches[] | {name, slug}]'
 TO=$(echo "$O" | jq -r .token); V=$(echo "$O" | jq -r .view.version)
 R=$(act $TO '{"type":"leave"}'); V=$(body "$R" | jq -r .view.version); echo "left: $(code "$R")"
@@ -50,7 +52,7 @@ ST=$(curl -s -X POST $B/rooms/$CODE/actions -H 'content-type: application/json' 
 echo "$ST" | jq -c '{status: .view.status, phase: .view.phase, version: .view.version, deadlineIn: ((.view.phase.deadline - .view.now)/1000), mail: (.view.career.mail|length), slug: .view.career.playerSlug, balance: .view.career.balance}'
 V=$(echo "$ST" | jq -r .view.version)
 echo "== pick after the start -> expect 409 league-started"
-R=$(act $TB '{"type":"pickCharacter","slug":"dax"}'); echo "$(code "$R") $(body "$R" | jq -r .error)"
+R=$(act $TB "{\"type\":\"pickCharacter\",\"slug\":\"$S1\"}"); echo "$(code "$R") $(body "$R" | jq -r .error)"
 V=$(curl -s "$B/rooms/$CODE" -H "x-coach-token: $TA" -H "x-career-mp-now: $NOW" | jq -r .version)
 echo "== start by non-host -> 403 (phase is window now so it is bad-phase 400)"
 curl -s -o /dev/null -w "%{http_code}\n" -X POST $B/rooms/$CODE/actions -H 'content-type: application/json' -H "x-coach-token: $TB" -d "{\"action\":{\"type\":\"start\"},\"expectVersion\":$V}"

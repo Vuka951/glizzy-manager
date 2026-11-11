@@ -24,8 +24,8 @@ function StreakCard({
   const hot = row.kind === 'w';
   return (
     <div
-      className={`flex items-center gap-4 rounded-xl border p-4 opacity-0 animate-[introslide_0.45s_ease-out_forwards] ${
-        hot ? 'border-green-400/30 bg-green-400/5' : 'border-red-400/30 bg-red-400/5'
+      className={`flex items-center gap-4 rounded-[4px] p-4 opacity-0 animate-[introslide_0.45s_ease-out_forwards] ${
+        hot ? 'bg-[#0e2e1c]' : 'bg-[#3a1114]'
       } ${delayClass}`}
     >
       <span className="relative shrink-0">
@@ -38,12 +38,12 @@ function StreakCard({
       </span>
       <div className="flex min-w-0 flex-col gap-1">
         <span
-          className={`text-[9px] font-bold uppercase tracking-widest ${hot ? 'text-green-300' : 'text-red-300'}`}
+          className={`font-sign text-[13px] font-bold uppercase leading-tight tracking-[0.1em] ${hot ? 'text-green-300' : 'text-red-300'}`}
         >
           {hot ? B.streakHot : B.streakCold}
         </span>
         <span
-          className={`text-4xl font-black leading-none ${hot ? 'text-green-300' : 'text-red-300'}`}
+          className={`font-sign text-5xl font-extrabold leading-none tabular-nums ${hot ? 'text-green-300' : 'text-red-300'}`}
         >
           {row.kind.toUpperCase()}
           {row.length}
@@ -67,11 +67,11 @@ export default function BroadcastStreakSlide({
 }) {
   return (
     <div
-      className={`grid min-h-56 content-center gap-3 rounded-xl border border-red-300/20 bg-red-300/5 p-4 ${
+      className={`grid min-h-56 content-center gap-3 bg-[#170d10] p-4 ${
         rows.length > 1 ? 'sm:grid-cols-2' : ''
       }`}
     >
-      <p className="text-center text-[9px] font-bold uppercase tracking-widest text-red-300 sm:col-span-full">
+      <p className="text-center font-sign text-[15px] font-bold uppercase leading-tight tracking-[0.1em] text-red-300 sm:col-span-full">
         <span className="mr-1">🔥</span>
         {B.streaks}
       </p>

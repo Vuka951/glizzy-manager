@@ -10,10 +10,12 @@ import {
 } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import CareerIconButton from '@/components/games/career/CareerIconButton';
+import CareerChip from '@/components/games/career/CareerChip';
+import CareerButton from '@/components/games/career/CareerButton';
 import ActionIcon from '@/components/icons/ActionIcon';
-import { CLOSED_PARAM } from '@/components/games/career-mp/RoomClosedNotice';
-import FullscreenButton from '@/components/games/FullscreenButton';
 import GameSettingsModal from '@/components/games/GameSettingsModal';
+import useAmbientMotion from '@/components/games/useAmbientMotion';
 import GearButton from '@/components/games/GearButton';
 import PortraitHead from '@/components/games/PortraitHead';
 import ActionCutscene, {
@@ -23,9 +25,14 @@ import ActionReceipt, {
   type ActionReceiptToast,
 } from '@/components/games/career/ActionReceipt';
 import CareerTable from '@/components/games/career/CareerTable';
+import CareerToast from '@/components/games/career/CareerToast';
+import BrassPlate from '@/components/games/career/street/BrassPlate';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
+import StreetBoard from '@/components/games/career/street/StreetBoard';
 import CareerWalletChip from '@/components/games/career/CareerWalletChip';
 import CharacterDossier from '@/components/games/career/CharacterDossier';
 import ElectionNightCutscene from '@/components/games/career/ElectionNightCutscene';
+import QuoteCutscene from '@/components/games/career/QuoteCutscene';
 import MetersInfoPanel from '@/components/games/career/MetersInfoPanel';
 import NewspaperSpread from '@/components/games/career/NewspaperSpread';
 import SabotageHitReel from '@/components/games/career/SabotageHitReel';
@@ -35,41 +42,59 @@ import SponsorInfoPanel from '@/components/games/career/SponsorInfoPanel';
 import SponsorModal from '@/components/games/career/SponsorModal';
 import YearCalendar from '@/components/games/career/YearCalendar';
 import { useSeasonMusic } from '@/components/games/career/useSeasonMusic';
+import BoardClock from '@/components/games/career-mp/BoardClock';
 import CareerMpLobby from '@/components/games/career-mp/CareerMpLobby';
 import CoachBar from '@/components/games/career-mp/CoachBar';
-import { CoachColorsContext } from '@/components/games/career-mp/coachColors';
 import ExpansionIntro from '@/components/games/career-mp/ExpansionIntro';
+import type { GlizzyBetTicket } from '@/components/games/career/GlizzflationBetDesk';
 import FinalReport from '@/components/games/career-mp/FinalReport';
 import PreMatchBets from '@/components/games/career-mp/PreMatchBets';
-import CloseRoomButton from '@/components/games/career-mp/CloseRoomButton';
-import RejoinLinkCard from '@/components/games/career-mp/RejoinLinkCard';
 import ReopenVote from '@/components/games/career-mp/ReopenVote';
 import RivalPickDialog from '@/components/games/career-mp/RivalPickDialog';
+import LawBallotDialog from '@/components/games/career/LawBallotDialog';
+import LawVoteCutscene from '@/components/games/career/LawVoteCutscene';
 import RoomLobby from '@/components/games/career-mp/RoomLobby';
 import RoomQuoteCues from '@/components/games/career-mp/RoomQuoteCues';
 import RoundBoard from '@/components/games/career-mp/RoundBoard';
 import SeasonEndFlow from '@/components/games/career-mp/SeasonEndFlow';
 import SyncedMatchStage from '@/components/games/career-mp/SyncedMatchStage';
-import { useRoomView } from '@/components/games/career-mp/useRoomView';
-import { OVERLORD_POINTS } from '@/data/games/careerEconomy';
+import { useCareerMpView } from '@/components/games/career-mp/useCareerMpView';
+import CloseRoomButton from '@/components/games/rooms/CloseRoomButton';
+import RejoinLinkCard from '@/components/games/rooms/RejoinLinkCard';
+import { SeatColorsContext } from '@/components/games/rooms/seatColors';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
 import { TOKEN_STORAGE_PREFIX } from '@/lib/constants/careerMp';
-import { RIVALS_PATH } from '@/lib/constants/routes';
+import { ROOM_CLOSED_PARAM } from '@/lib/constants/rooms';
+import { RIVALS_PATH, rivalsRoomPath } from '@/lib/constants/routes';
 import {
   clearToken,
-  noToken,
   readToken,
   storeToken,
   subscribeToken,
 } from '@/lib/queries/careerMp';
 import type { CoachTagMap, Receipt, RoomAction } from '@/lib/types/careerMp';
-import { careerPoints, rankBySeeding } from '@/lib/utils/careerPoints';
+import type { QuotePlayback } from '@/lib/utils/quoteCutsceneTriggers';
+import {
+  isConstitutionCard,
+  pickedCard,
+  primeMinister,
+} from '@/lib/utils/careerLaws';
+import { leagueCharacters } from '@/lib/utils/duelCharacters';
+import {
+  careerPoints,
+  overlordGoal,
+  rankBySeeding,
+} from '@/lib/utils/careerPoints';
 import { receiptLines } from '@/lib/utils/careerReceipt';
 import { achievementStore } from '@/lib/utils/achievements';
 import { careerAchievementsUnlocked } from '@/lib/utils/careerAchievements';
 import type { SavedCareer } from '@/lib/utils/careerSave';
 import { scoutLevel, scoutReveal } from '@/lib/utils/careerScouting';
+import {
+  adoptGameFullscreen,
+  queueGameFullscreen,
+} from '@/lib/utils/fullscreen';
 import { seasonName } from '@/lib/utils/localeNames';
 import { renderMessage } from '@/lib/utils/messageText';
 import { roomErrorCode, roomErrorText } from '@/lib/utils/roomErrorText';
@@ -117,18 +142,14 @@ function receiptToToast(receipt: Receipt): ActionReceiptToast {
   };
 }
 
-export default function CareerMpRoom({
-  code,
-  characters,
-}: {
-  code: string;
-  characters: DuelCharacter[];
-}) {
+export default function CareerMpRoom({ code }: { code: string }) {
   const cardRef = useRef<HTMLDivElement | null>(null);
-  const token = useSyncExternalStore(
+  // Undefined until the browser has read its storage: the server cannot know
+  // the seat, and the join form must not flash at a coach who already has one
+  const token = useSyncExternalStore<string | null | undefined>(
     subscribeToken,
     () => readToken(code),
-    noToken
+    () => undefined
   );
   useEffect(() => {
     const fromHash = tokenFromHash();
@@ -136,6 +157,14 @@ export default function CareerMpRoom({
     storeToken(code, fromHash);
     window.history.replaceState(null, '', window.location.pathname);
   }, [code]);
+  // Entering the room is the start: the game card only mounts once the
+  // league runs, so the expanded view waits for it
+  useEffect(() => {
+    queueGameFullscreen({ fresh: true });
+  }, [code]);
+  useEffect(() => {
+    adoptGameFullscreen(cardRef.current);
+  });
   const router = useRouter();
   const {
     view,
@@ -146,18 +175,22 @@ export default function CareerMpRoom({
     send,
     sending,
     lastError,
-  } = useRoomView(code, token);
+  } = useCareerMpView(code, token ?? null);
   const [toast, setToast] = useState<ActionReceiptToast | null>(null);
   const [cutscene, setCutscene] = useState<ActionCutsceneState | null>(null);
   const [showTable, setShowTable] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showLink, setShowLink] = useState(false);
+  // The issue that opened the league, read again from the kiosk
+  const [expansionReread, setExpansionReread] = useState(false);
   const [dossierSlug, setDossierSlug] = useState<string | null>(null);
   const [dossierInfo, setDossierInfo] = useState<
     'sponsors' | 'meters' | null
   >(null);
   const [electionOpen, setElectionOpen] = useState(false);
+  // The night's stories air once the count closes on this screen
+  const [electionScenes, setElectionScenes] = useState<QuotePlayback[]>([]);
   // The count this browser has already opened by itself, so it opens once
   // and not on every poll
   const [electionAutoOpened, setElectionAutoOpened] = useState<number | null>(
@@ -168,6 +201,7 @@ export default function CareerMpRoom({
     typeof window === 'undefined' ? {} : readAcks(code)
   );
   const [introStep, setIntroStep] = useState(0);
+  const [introScenesSeen, setIntroScenesSeen] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // The same trophies as single player, read off the coach's own view of
@@ -183,6 +217,10 @@ export default function CareerMpRoom({
     );
   }, [view?.career]);
 
+  // The room's league is generated, so its names are registered here, before
+  // any screen below asks for one by slug
+  const roster = view?.roster;
+  const characters = useMemo(() => leagueCharacters(roster ?? []), [roster]);
   const characterBySlug = useMemo(
     () => new Map(characters.map((c) => [c.slug, c])),
     [characters]
@@ -196,6 +234,7 @@ export default function CareerMpRoom({
     return out;
   }, [view?.coaches]);
 
+  const ambientMotion = useAmbientMotion();
   const musicActive = Boolean(view && view.status !== 'lobby');
   useSeasonMusic(view?.career?.season ?? 0, musicActive);
 
@@ -240,7 +279,7 @@ export default function CareerMpRoom({
   useEffect(() => {
     if (!closed) return;
     clearToken(code);
-    router.replace(`${RIVALS_PATH}?${CLOSED_PARAM}=1`);
+    router.replace(`${RIVALS_PATH}?${ROOM_CLOSED_PARAM}=1`);
   }, [closed, code, router]);
 
   const ack = useCallback(
@@ -258,7 +297,7 @@ export default function CareerMpRoom({
     [ack]
   );
 
-  if (!token) {
+  if (token === null) {
     return (
       <div className="flex w-full flex-col items-center gap-4">
         <CareerMpLobby code={code} onJoined={() => undefined} />
@@ -268,58 +307,49 @@ export default function CareerMpRoom({
   if (error && (!view || fatal)) {
     const key = roomErrorCode(error);
     return (
-      <div className="flex w-full flex-col items-center gap-4 rounded-3xl border border-red-500/30 bg-slate-950/70 p-6 text-center">
-        <p className="text-sm font-semibold text-red-200">
-          {roomErrorText(key)}
-        </p>
-        {key === 'unauthorized' && (
-          <button
-            onClick={() => clearToken(code)}
-            className="rounded-xl border border-sky-200/20 bg-slate-800/60 px-5 py-2 text-xs font-semibold text-slate-200 transition hover:border-sky-200/45 hover:text-white"
+      <StreetBoard className="w-full">
+        <div className="flex flex-col items-center gap-3 rounded-[4px] p-4 text-center">
+          <PaperSheet className="w-full max-w-md rotate-[-0.4deg] px-4 py-3 font-serif text-[15px] font-semibold text-red-300">
+            {roomErrorText(key)}
+          </PaperSheet>
+          {key === 'unauthorized' && (
+            <CareerButton
+              onClick={() => clearToken(code)}
+              className="min-h-11"
+            >
+              {MP.lobby.join}
+            </CareerButton>
+          )}
+          <Link
+            href={RIVALS_PATH}
+            className="inline-flex min-h-11 items-center font-sign text-[15px] font-semibold uppercase tracking-[0.06em] text-slate-300 underline-offset-4 hover:underline"
           >
-            {MP.lobby.join}
-          </button>
-        )}
-        <Link
-          href={RIVALS_PATH}
-          className="text-xs text-slate-400 underline-offset-2 hover:underline"
-        >
-          {MP.lobby.title}
-        </Link>
-      </div>
+            {MP.lobby.title}
+          </Link>
+        </div>
+      </StreetBoard>
     );
   }
-  if (!view || isLoading) {
+  if (token === undefined || !view || isLoading || view.status === 'closed') {
     return (
-      <div className="flex w-full items-center justify-center rounded-3xl border border-frost-border/40 bg-slate-950/70 p-10">
-        <span className="animate-pulse text-[10px] font-bold uppercase tracking-[0.35em] text-sky-300">
+      <StreetBoard className="flex w-full items-center justify-center p-10">
+        <BrassPlate className="motion-safe:animate-pulse">
           {MP.lobby.sending}
-        </span>
-      </div>
-    );
-  }
-
-  if (view.status === 'closed') {
-    return (
-      <div className="flex w-full items-center justify-center rounded-3xl border border-frost-border/40 bg-slate-950/70 p-10">
-        <span className="animate-pulse text-[10px] font-bold uppercase tracking-[0.35em] text-sky-300">
-          {MP.lobby.sending}
-        </span>
-      </div>
+        </BrassPlate>
+      </StreetBoard>
     );
   }
 
   if (view.status === 'lobby') {
     return (
-      <CoachColorsContext.Provider value={coaches}>
+      <SeatColorsContext.Provider value={coaches}>
         <RoomLobby
           view={view}
           characters={characters}
-          token={token}
           busy={sending}
           send={actWithError}
         />
-      </CoachColorsContext.Provider>
+      </SeatColorsContext.Provider>
     );
   }
 
@@ -329,6 +359,16 @@ export default function CareerMpRoom({
     ? characterBySlug.get(career.playerSlug)
     : null;
   if (!career || !playerCharacter || !me) return null;
+  const otherGlizzyBets: GlizzyBetTicket[] = view.coaches
+    .filter((c) => c.id !== me.id && c.slug)
+    .map((c) => ({
+      coachId: c.id,
+      name: c.name,
+      color: c.color,
+      slug: c.slug as string,
+      bet: c.glizzyBet ?? null,
+      last: c.lastGlizzyBet ?? null,
+    }));
   const playerSponsorId =
     career.characters[career.playerSlug]?.sponsor?.sponsorId ?? null;
   // One issue, one reel: the paper's own year and season name it
@@ -349,18 +389,34 @@ export default function CareerMpRoom({
     career.year === 1 &&
     career.season === 0 &&
     acks.expansion !== view.code;
-  // The window's opening scenes, once per window on this browser
+  // The partner vote holds the room on the election night broadcast
+  const coalitionPhase = view.phase.kind === 'coalition';
+  // The window's opening scenes, once per window on this browser, after the
+  // broadcast when the count is still on screen from the vote
   const intro =
     !expansionPending &&
+    !electionOpen &&
     view.phase.kind === 'window' &&
     view.windowIntro &&
     acks.intro !== view.windowIntro.key &&
-    view.windowIntro.receipts.length > 0
+    (view.windowIntro.receipts.length > 0 ||
+      (view.windowIntro.scenes?.length ?? 0) > 0)
       ? view.windowIntro
       : null;
-  const introReceipt = intro
-    ? intro.receipts[Math.min(introStep, intro.receipts.length - 1)]
-    : null;
+  // The Yellow Party's car opens the window before any receipt
+  const introScenes =
+    intro && (intro.scenes?.length ?? 0) > 0 && introScenesSeen !== intro.key
+      ? (intro.scenes ?? [])
+      : null;
+  const introReceipt =
+    intro && !introScenes && intro.receipts.length > 0
+      ? intro.receipts[Math.min(introStep, intro.receipts.length - 1)]
+      : null;
+  const finishIntroScenes = () => {
+    if (!intro) return;
+    setIntroScenesSeen(intro.key);
+    if (intro.receipts.length === 0) ack('intro', intro.key);
+  };
   const nextIntro = () => {
     if (!intro) return;
     if (introStep + 1 >= intro.receipts.length) {
@@ -379,7 +435,7 @@ export default function CareerMpRoom({
   // The count opens by itself once the window's own scenes are through,
   // exactly as the button would open it
   const electionAutoYear =
-    electionPending && !expansionPending && intro === null
+    (electionPending || coalitionPhase) && !expansionPending && intro === null
       ? (view.lastElection?.year ?? null)
       : null;
   if (electionAutoYear !== null && electionAutoYear !== electionAutoOpened) {
@@ -387,6 +443,25 @@ export default function CareerMpRoom({
     setElectionOpen(true);
   }
   const rivalPending = (career.rivalChoice?.length ?? 0) > 0;
+  // The law vote holds the room on its ballot; once it closes, the verdict
+  // shows once on this browser when the window opens, or over the report
+  // when the vote was one-party rule
+  const lawsPhase = view.phase.kind === 'laws';
+  const lastLawVote = career.parliament?.lawVotes?.at(-1) ?? null;
+  const lawVoteKey = lastLawVote
+    ? `${lastLawVote.year}-${lastLawVote.season}`
+    : '';
+  const constitutionVote =
+    lastLawVote?.outcome === 'passed' &&
+    isConstitutionCard(pickedCard(lastLawVote));
+  const lawBallotShown = lawsPhase
+    ? (career.parliament?.lawBallot ?? null)
+    : ((view.phase.kind === 'window' && !expansionPending) ||
+          (view.phase.kind === 'finished' && constitutionVote)) &&
+        lastLawVote?.year === career.year &&
+        acks.laws !== lawVoteKey
+      ? lastLawVote
+      : null;
 
   const errorCode = lastError ? roomErrorCode(lastError) : null;
   const errorText =
@@ -402,55 +477,55 @@ export default function CareerMpRoom({
 
   const topBar = (
     <div className="flex w-full flex-wrap items-center gap-2">
-      <button
+      <CareerChip
         onClick={() => setShowCalendar(true)}
         title={CAREER.actions.calendar}
-        className="inline-flex items-center gap-1.5 rounded-full border border-sky-200/15 bg-slate-950/70 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-200 backdrop-blur-sm transition hover:border-sky-200/40"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 uppercase"
       >
-        <ActionIcon kind="calendar" className="h-3.5 w-3.5 text-sky-300" />
+        <ActionIcon kind="calendar" className="h-3.5 w-3.5" />
         {calendarLabel}
-      </button>
-      <button
+      </CareerChip>
+      <CareerChip
         onClick={() => setDossierSlug(career.playerSlug)}
         title={CAREER.meters.title}
-        className="inline-flex items-center gap-1.5 rounded-full border border-sky-200/15 bg-slate-950/70 py-1 pl-1.5 pr-1.5 text-[10px] font-bold uppercase tracking-widest text-sky-300 backdrop-blur-sm transition hover:border-sky-200/40 hover:text-white sm:pr-3"
+        className="inline-flex items-center gap-1.5 py-1 pl-1.5 pr-1.5 uppercase sm:pr-3"
       >
         <PortraitHead character={playerCharacter} className="h-4 w-4" />
         <span className="hidden sm:inline">
           {fmt(CAREER.hud.coach, { name: playerCharacter.name })}
         </span>
-      </button>
+      </CareerChip>
       <CareerWalletChip balance={career.balance} />
-      <button
+      <CareerIconButton
+        label={CAREER.table.title}
         onClick={() => setShowTable(true)}
-        title={CAREER.table.title}
-        className="rounded-full border border-sky-200/15 bg-slate-950/70 p-2 text-sky-300 backdrop-blur-sm transition hover:border-sky-200/40 hover:text-white"
       >
         <ActionIcon kind="table" className="h-3.5 w-3.5" />
-      </button>
+      </CareerIconButton>
       <span className="ml-auto flex items-center gap-2">
-        <button
+        <CareerChip
           onClick={() => setShowLink(true)}
           title={MP.coachBar.link}
-          className="rounded-full border border-sky-200/15 bg-slate-900/70 px-2.5 py-1.5 font-mono text-[10px] font-bold tracking-[0.2em] text-slate-300 backdrop-blur-sm transition hover:border-sky-200/40 hover:text-white"
+          className="px-2.5 py-1.5 tabular-nums"
         >
           {view.code}
-        </button>
-        <FullscreenButton targetRef={cardRef} />
+        </CareerChip>
         <GearButton onClick={() => setShowSettings(true)} />
       </span>
     </div>
   );
 
   const coachBar = (
-    <div className="pointer-events-none absolute inset-x-2 bottom-2 z-40 flex justify-center">
-      <div className="pointer-events-auto">
-        <CoachBar
-          view={view}
-          serverOffset={serverOffset}
-          busy={sending}
-          onDone={(done) => actWithError({ type: 'setDone', done })}
-        />
+    <div className="pointer-events-none sticky bottom-0 z-40 h-0">
+      <div className="absolute inset-x-2 bottom-2 flex justify-center">
+        <div className="pointer-events-auto">
+          <CoachBar
+            view={view}
+            serverOffset={serverOffset}
+            busy={sending}
+            onDone={(done) => actWithError({ type: 'setDone', done })}
+          />
+        </div>
       </div>
     </div>
   );
@@ -458,7 +533,11 @@ export default function CareerMpRoom({
   const stage = (children: React.ReactNode) => (
     <div className="relative w-full">
       <SeasonStage season={career.season} topBar={topBar}>
-        <div className="flex w-full flex-col items-center gap-4 pb-12">
+        <div
+          className={`flex w-full flex-col items-center gap-4 pt-2 sm:pt-0 ${
+            view.phase.kind === 'match-clip' ? '' : 'pb-12'
+          }`}
+        >
           {children}
         </div>
       </SeasonStage>
@@ -467,17 +546,21 @@ export default function CareerMpRoom({
   );
 
   return (
-    <CoachColorsContext.Provider value={coaches}>
+    <SeatColorsContext.Provider value={coaches}>
       <div
         ref={cardRef}
-        className="group relative w-full overflow-hidden rounded-3xl border border-frost-border/40 bg-gradient-to-br from-card-strong/60 via-card-deep/80 to-card-strong/60 shadow-2xl [&:fullscreen]:flex [&:fullscreen]:flex-col [&:fullscreen]:overflow-y-auto [&:fullscreen]:rounded-none [&:fullscreen]:border-0 [&:fullscreen]:bg-background"
+        data-motion={ambientMotion ? 'full' : 'lite'}
+        className="group relative w-full overflow-clip rounded-[9px] bg-[#0b1120] shadow-[0_0_0_1px_#160c05,0_26px_50px_-14px_rgb(0_0_0/0.9)] fullscreen:flex fullscreen:flex-col fullscreen:overflow-y-auto fullscreen:rounded-none fullscreen:border-0 fullscreen:bg-background fullscreen:fixed fullscreen:inset-0 fullscreen:z-[80] fullscreen:h-[calc(100dvh/var(--game-zoom,1))] fullscreen:overscroll-contain"
       >
-        <div className="relative z-10 flex flex-col items-center text-center">
+        {/* Raised while an overlay is open, or the site's sticky header covers its sign */}
+        <div className="relative z-10 flex flex-col items-center text-center has-[.fixed]:z-[60]">
           {showSettings && (
             <GameSettingsModal
+              fullscreenTarget={cardRef}
               sponsorId={playerSponsorId}
               achievementGame="manager"
               broadcastToggles={['commentator', 'cutscenes']}
+              townDisplay
               onClose={() => setShowSettings(false)}
             />
           )}
@@ -488,14 +571,15 @@ export default function CareerMpRoom({
               onClose={() => setShowLink(false)}
             >
               <div className="flex w-full flex-col gap-4">
-                <p className="text-[11px] text-slate-400">{MP.room.hint}</p>
-                <RejoinLinkCard code={view.code} token={token} />
+                <RejoinLinkCard
+                  roomPath={rivalsRoomPath(view.code)}
+                  token={token}
+                />
                 {view.hostCoachId === view.coachId && (
-                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red-400/15 bg-slate-950/70 p-3">
-                    <span className="text-[11px] text-slate-400">
-                      {MP.close.hint}
-                    </span>
+                  <div className="flex justify-end">
                     <CloseRoomButton
+                      confirm={MP.close.confirm}
+                      hint={MP.close.hint}
                       busy={sending}
                       onClose={() => {
                         setShowLink(false);
@@ -524,15 +608,17 @@ export default function CareerMpRoom({
               wide
               headerExtra={
                 <span className="flex flex-col items-end text-right">
-                  <span className="truncate text-[9px] font-bold uppercase tracking-widest text-amber-300">
-                    {plural(CAREER.table.goal, OVERLORD_POINTS, { points: OVERLORD_POINTS })}
+                  <span className="truncate font-sign text-[12px] font-bold uppercase tracking-[0.06em] text-[#fcd34d]">
+                    {plural(CAREER.table.goal, overlordGoal(career), {
+                      points: overlordGoal(career),
+                    })}
                   </span>
-                  <span className="truncate text-[9px] font-semibold text-slate-400">
-                    {plural(CAREER.table.goalProgress, OVERLORD_POINTS, {
+                  <span className="truncate font-sign text-[12px] font-semibold tabular-nums text-slate-300">
+                    {plural(CAREER.table.goalProgress, overlordGoal(career), {
                       points: careerPoints(
                         career.characters[career.playerSlug]
                       ),
-                      goal: OVERLORD_POINTS,
+                      goal: overlordGoal(career),
                       place: ordinal(placeOf(career.playerSlug)),
                     })}
                   </span>
@@ -546,6 +632,7 @@ export default function CareerMpRoom({
                 playerSlug={career.playerSlug}
                 lastCupRanks={tableRanks}
                 rivalSlug={career.rivalSlug}
+                primeMinisterSlug={primeMinister(career)}
                 onSelect={setDossierSlug}
                 coaches={coaches}
               />
@@ -574,6 +661,7 @@ export default function CareerMpRoom({
                   scoutLevel={scoutLevel(career.characters[career.playerSlug])}
                   isPlayer={dossierSlug === career.playerSlug}
                   isRival={dossierSlug === career.rivalSlug}
+                  isPrimeMinister={dossierSlug === primeMinister(career)}
                   year={career.year}
                   onSponsorInfo={
                     dossierSlug === career.playerSlug
@@ -607,11 +695,23 @@ export default function CareerMpRoom({
               <MetersInfoPanel />
             </SponsorModal>
           )}
-          {expansionPending && (
+          {(expansionPending || expansionReread) && (
             <ExpansionIntro
               coaches={view.coaches}
               characterBySlug={characterBySlug}
-              onDone={() => ack('expansion', view.code)}
+              points={overlordGoal(career)}
+              onDone={() =>
+                expansionPending
+                  ? ack('expansion', view.code)
+                  : setExpansionReread(false)
+              }
+            />
+          )}
+          {introScenes && (
+            <QuoteCutscene
+              queue={introScenes}
+              characterBySlug={characterBySlug}
+              onDone={finishIntroScenes}
             />
           )}
           {introReceipt &&
@@ -628,11 +728,9 @@ export default function CareerMpRoom({
                 onClose={nextIntro}
               />
             ) : (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#060912]/75 p-4">
                 <div className="flex flex-col items-center gap-3">
-                  <span className="text-[9px] font-bold uppercase tracking-[0.35em] text-sky-300">
-                    {MP.window.introTitle}
-                  </span>
+                  <BrassPlate>{MP.window.introTitle}</BrassPlate>
                   <ActionReceipt
                     toast={receiptToToast(introReceipt)}
                     onDismiss={nextIntro}
@@ -641,16 +739,56 @@ export default function CareerMpRoom({
               </div>
             ))}
 
-          {electionOpen && view.lastElection && (
+          {(electionOpen || coalitionPhase) && view.lastElection && (
             <ElectionNightCutscene
               result={view.lastElection.result}
+              premier={view.lastElection.premier ?? null}
               playerSponsor={playerSponsorId}
+              playerSlug={career.playerSlug}
+              characterBySlug={characterBySlug}
+              onVote={(key) => actWithError({ type: 'voteCoalition', key })}
+              deadline={
+                view.phase.kind === 'coalition' ? view.phase.deadline : null
+              }
+              serverOffset={serverOffset}
               onClose={() => {
+                if (coalitionPhase) return;
                 setElectionOpen(false);
+                if (
+                  view.lastElection &&
+                  acks.election !== String(view.lastElection.year)
+                ) {
+                  setElectionScenes(view.lastElection.scenes ?? []);
+                }
                 ack('election', String(view.lastElection?.year ?? ''));
               }}
             />
           )}
+          {lawBallotShown &&
+            career.parliament &&
+            (lawBallotShown.outcome === null ? (
+              <LawBallotDialog
+                ballot={lawBallotShown}
+                playerSlug={career.playerSlug}
+                characterBySlug={characterBySlug}
+                laws={career.parliament.laws ?? []}
+                deadline={
+                  view.phase.kind === 'laws' ? view.phase.deadline : null
+                }
+                serverOffset={serverOffset}
+                onPick={(index) => actWithError({ type: 'pickLaw', index })}
+                onVote={(vote) => actWithError({ type: 'voteLaw', vote })}
+              />
+            ) : (
+              <LawVoteCutscene
+                key={lawVoteKey}
+                ballot={lawBallotShown}
+                seats={career.parliament.seats}
+                characterBySlug={characterBySlug}
+                viewerSlug={career.playerSlug}
+                onClose={() => ack('laws', lawVoteKey)}
+              />
+            ))}
           {rivalOpen && rivalPending && (
             <RivalPickDialog
               candidates={career.rivalChoice ?? []}
@@ -662,6 +800,13 @@ export default function CareerMpRoom({
               }}
             />
           )}
+          {electionScenes.length > 0 && (
+            <QuoteCutscene
+              queue={electionScenes}
+              characterBySlug={characterBySlug}
+              onDone={() => setElectionScenes([])}
+            />
+          )}
           <RoomQuoteCues
             view={view}
             serverOffset={serverOffset}
@@ -670,6 +815,9 @@ export default function CareerMpRoom({
               expansionPending ||
               intro !== null ||
               electionOpen ||
+              electionScenes.length > 0 ||
+              coalitionPhase ||
+              lawBallotShown !== null ||
               (view.phase.kind === 'paper' && acks.hitReel !== issueKey)
             }
             ackedSeq={Number(acks.quotes ?? 0)}
@@ -699,6 +847,13 @@ export default function CareerMpRoom({
                 onInvest={(id) =>
                   void act({ type: 'invest', investmentId: id })
                 }
+                onBorrow={(amount) => void act({ type: 'borrow', amount })}
+                onRepay={(amount) => void act({ type: 'repay', amount })}
+                onGlizzyBet={(call, stake) =>
+                  void act({ type: 'glizzyBet', call, stake })
+                }
+                onCancelGlizzyBet={() => void act({ type: 'cancelGlizzyBet' })}
+                otherGlizzyBets={otherGlizzyBets}
                 onSabotage={(targetSlug, tier, boostSteps) =>
                   void act({ type: 'sabotage', targetSlug, tier, boostSteps })
                 }
@@ -716,9 +871,32 @@ export default function CareerMpRoom({
                   void act({ type: 'donate', mailId, amount, sponsorId })
                 }
                 hideCupGate
+                extraPapers={
+                  career.year === 1 && career.season === 0
+                    ? [
+                        {
+                          key: 'expansion',
+                          title: MP.expansion.masthead,
+                          sub: MP.expansion.issue,
+                          season: career.season,
+                          headline: MP.expansion.headline,
+                          unread: false,
+                          onOpen: () => setExpansionReread(true),
+                        },
+                      ]
+                    : []
+                }
                 coaches={coaches}
+                room={{ coaches: view.coaches, coachId: view.coachId }}
+                gate={
+                  <CoachBar
+                    view={view}
+                    serverOffset={serverOffset}
+                    busy={sending}
+                    onDone={(done) => actWithError({ type: 'setDone', done })}
+                  />
+                }
               />
-              {coachBar}
             </div>
           )}
 
@@ -783,6 +961,9 @@ export default function CareerMpRoom({
               />
             )}
 
+          {coalitionPhase && stage(null)}
+          {lawsPhase && stage(null)}
+
           {view.phase.kind === 'season-end' &&
             stage(
               <SeasonEndFlow
@@ -810,13 +991,21 @@ export default function CareerMpRoom({
               </FinalReport>
             )}
 
+          {'deadline' in view.phase &&
+            !coalitionPhase &&
+            !lawsPhase && (
+              <BoardClock
+                deadline={view.phase.deadline}
+                serverOffset={serverOffset}
+              />
+            )}
           {errorText && (
-            <div className="fixed bottom-4 left-4 z-50 rounded-xl border border-red-500/50 bg-red-950/90 px-3.5 py-2.5 text-xs font-semibold text-red-200">
-              {errorText}
+            <div className="fixed bottom-20 left-4 z-50">
+              <CareerToast tone="danger">{errorText}</CareerToast>
             </div>
           )}
           {view.phase.kind !== 'window' && toast && (
-            <div className="fixed bottom-4 right-4 z-50">
+            <div className="fixed bottom-20 right-4 z-50">
               <ActionReceipt toast={toast} onDismiss={() => setToast(null)} />
             </div>
           )}
@@ -833,6 +1022,6 @@ export default function CareerMpRoom({
           )}
         </div>
       </div>
-    </CoachColorsContext.Provider>
+    </SeatColorsContext.Provider>
   );
 }

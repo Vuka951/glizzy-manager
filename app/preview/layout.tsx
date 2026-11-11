@@ -12,5 +12,10 @@ export default function PreviewLayout({
   children: React.ReactNode;
 }) {
   if (process.env.NODE_ENV === 'production') notFound();
-  return children;
+  return (
+    <>
+      <span data-dark-only hidden />
+      {children}
+    </>
+  );
 }

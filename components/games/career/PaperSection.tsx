@@ -20,7 +20,7 @@ export default function PaperSection({
   return (
     <section className="flex w-full flex-col gap-3 border-t-2 border-slate-900 pt-2">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.25em] text-slate-700">
+        <h2 className="inline-flex items-center gap-2 font-sign text-[14px] font-bold uppercase tracking-[0.08em] text-slate-700">
           {icon && <Icon name={icon} className="h-3.5 w-3.5 text-red-800" />}
           {action && (
             <ActionIcon kind={action} className="h-3.5 w-3.5 text-red-800" />

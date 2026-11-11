@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import CampaignReport from '@/components/games/career/CampaignReport';
+import ConstitutionCelebration from '@/components/games/career/ConstitutionCelebration';
 import SeasonStage from '@/components/games/career/SeasonStage';
 import FinalReport from '@/components/games/career-mp/FinalReport';
+import { previewRoster } from '@/components/preview/previewRoster';
 import type { DuelCharacter } from '@/data/games/glizzyDuel';
 import { GAMES_UI } from '@/data/games/locale';
 import type { CoachColor } from '@/lib/constants/careerMp';
@@ -16,13 +18,72 @@ import type {
 import { careerPoints, rankBySeeding } from '@/lib/utils/careerPoints';
 import type { SavedCareer, SponsorId } from '@/lib/utils/careerSave';
 
-type Mode = 'sp' | 'mp';
+type Mode =
+  | 'sp'
+  | 'mp'
+  | 'sp-constitution'
+  | 'mp-constitution'
+  | 'mp-constitution-lost'
+  | 'celebration';
 
-const COACHES: { name: string; color: CoachColor; slug: string }[] = [
-  { name: 'Vuka', color: 'sky', slug: 'vuka' },
-  { name: 'Cone', color: 'violet', slug: 'cone' },
-  { name: 'Dax', color: 'lime', slug: 'dax' },
-];
+const PARTY: SponsorId = 'red';
+
+// The same league ended on one-party rule instead of the crown: the Red Party
+// governing alone, the player and two more coaches on its list
+function constitutionCareer(career: SavedCareer): SavedCareer {
+  const characters = { ...career.characters };
+  const others = rankBySeeding(characters, career.playerSlug).filter(
+    (slug) => slug !== career.playerSlug,
+  );
+  [career.playerSlug, ...others.slice(0, 4)].forEach((slug) => {
+    characters[slug] = { ...characters[slug], sponsor: { sponsorId: PARTY } };
+  });
+  const winners = rankBySeeding(characters, career.playerSlug).filter(
+    (slug) => characters[slug].sponsor?.sponsorId === PARTY,
+  );
+  const parliament = career.parliament;
+  return {
+    ...career,
+    characters,
+    overlordSlug: null,
+    overlordWon: false,
+    ...(parliament
+      ? {
+          parliament: {
+            ...parliament,
+            government: [PARTY],
+            seats: { red: 57, yellow: 17, blue: 14, green: 12 },
+            laws: [
+              { id: 'holiday', year: 3, season: 0, government: [PARTY] },
+              { id: 'training-subsidy', year: 5, season: 0, government: [PARTY] },
+              { id: 'lottery', year: 7, season: 0, government: [PARTY] },
+            ],
+            constitution: {
+              party: PARTY,
+              year: career.year,
+              season: 0,
+              winners,
+            },
+          },
+        }
+      : {}),
+  };
+}
+
+const SEEDS = previewRoster();
+
+// Three coaches, each named after the character he plays
+const COACHES: { name: string; color: CoachColor; slug: string }[] = (
+  [
+    [SEEDS[0], 'sky'],
+    [SEEDS[3], 'violet'],
+    [SEEDS[1], 'lime'],
+  ] as const
+).map(([character, color]) => ({
+  name: character.name,
+  color,
+  slug: character.slug,
+}));
 
 const CATEGORIES: LedgerCategory[] = [
   'prize',
@@ -35,8 +96,11 @@ const CATEGORIES: LedgerCategory[] = [
   'plots',
   'fines',
   'donations',
+  'glizzflation',
   'investments',
   'tax',
+  'laws',
+  'interest',
 ];
 
 // Steady numbers, different per coach, so the preview reads the same every time
@@ -52,8 +116,11 @@ function money(seed: number): Record<LedgerCategory, number> {
     plots: -1,
     fines: -1,
     donations: -1,
+    glizzflation: seed % 3 === 0 ? 1 : -1,
     investments: 1,
     tax: -1,
+    laws: seed % 2 === 0 ? 1 : -1,
+    interest: -1,
   };
   return Object.fromEntries(
     CATEGORIES.map((c, i) => [
@@ -99,8 +166,8 @@ function sampleCampaignReport(career: SavedCareer): CampaignReportData {
       sponsors:
         (
           [
-            [{ sponsorId: 'zidari', year: 2 }],
-            [{ sponsorId: 'korporacija', year: 3 }],
+            [{ sponsorId: 'blue', year: 2 }],
+            [{ sponsorId: 'yellow', year: 3 }],
             [],
           ] as { sponsorId: SponsorId; year: number }[][]
         )[i] ?? [],
@@ -134,8 +201,12 @@ function sampleCampaignReport(career: SavedCareer): CampaignReportData {
       champion: r.champion,
     })),
     governments: [
-      { year: 2, government: ['stranka', 'zidari'] },
-      { year: 4, government: ['korporacija', 'ostrvo'] },
+      { year: 2, government: ['red', 'blue'], primeMinister: SEEDS[2].slug },
+      {
+        year: 4,
+        government: ['yellow', 'green'],
+        primeMinister: SEEDS[5].slug,
+      },
     ],
     priceIndex: career.gliziPriceHistory ?? [1],
     h2h,
@@ -157,6 +228,30 @@ export default function FinalReportPreview({
     [characters],
   );
   const report = useMemo(() => sampleCampaignReport(career), [career]);
+  const ruled = useMemo(() => constitutionCareer(career), [career]);
+  const ruledReport = useMemo(
+    () => ({
+      ...sampleCampaignReport(ruled),
+      overlordSlug: '',
+      constitution: ruled.parliament?.constitution ?? null,
+    }),
+    [ruled],
+  );
+  const ruledWinners = (ruled.parliament?.constitution?.winners ?? []).flatMap(
+    (slug) => {
+      const character = characterBySlug.get(slug);
+      return character ? [character] : [];
+    },
+  );
+  const player = characterBySlug.get(career.playerSlug);
+  // The same room read by a coach outside the winning list
+  const outsider = useMemo(() => {
+    const winners = ruled.parliament?.constitution?.winners ?? [];
+    const slug = COACHES.map((c) => c.slug).find(
+      (s) => ruled.characters[s] && !winners.includes(s),
+    ) ?? Object.keys(ruled.characters).find((s) => !winners.includes(s));
+    return slug ? { ...ruled, playerSlug: slug } : ruled;
+  }, [ruled]);
   const coachTags: CoachTagMap = useMemo(
     () =>
       Object.fromEntries(
@@ -172,7 +267,9 @@ export default function FinalReportPreview({
   const topBar = (
     <div className="flex w-full items-center justify-between gap-2 px-3 pt-3">
       <span className="rounded-full border border-sky-200/15 bg-slate-950/70 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
-        {mode === 'sp' ? 'Glizzy Manager' : GAMES_UI.careerMp.catalog.title}
+        {mode === 'sp' || mode === 'sp-constitution' || mode === 'celebration'
+          ? 'Glizzy Manager'
+          : GAMES_UI.careerMp.catalog.title}
       </span>
       <button onClick={() => setMode(null)} className={button}>
         {GAMES_UI.shared.close}
@@ -188,13 +285,55 @@ export default function FinalReportPreview({
         <button onClick={() => setMode('mp')} className={button}>
           Open report (Glizzy Rivals)
         </button>
+        <button onClick={() => setMode('celebration')} className={button}>
+          New constitution (ending)
+        </button>
+        <button onClick={() => setMode('sp-constitution')} className={button}>
+          New constitution (single player)
+        </button>
+        <button onClick={() => setMode('mp-constitution')} className={button}>
+          New constitution (Glizzy Rivals)
+        </button>
+        <button
+          onClick={() => setMode('mp-constitution-lost')}
+          className={button}
+        >
+          New constitution (Glizzy Rivals, off the list)
+        </button>
       </div>
       {mode && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950">
           <div className="mx-auto w-full max-w-5xl">
             <SeasonStage season={career.season} topBar={topBar}>
               <div className="flex w-full flex-col items-center gap-4 pb-12">
-                {mode === 'sp' ? (
+                {mode === 'celebration' && player && ruled.parliament?.constitution ? (
+                  <ConstitutionCelebration
+                    party={PARTY}
+                    winners={ruledWinners}
+                    player={player}
+                    playerPlace={
+                      rankBySeeding(ruled.characters, ruled.playerSlug).indexOf(
+                        ruled.playerSlug,
+                      ) + 1
+                    }
+                    onContinue={() => setMode('sp-constitution')}
+                  />
+                ) : mode === 'sp-constitution' ? (
+                  <CampaignReport
+                    career={ruled}
+                    characters={characters}
+                    overlordSlug={null}
+                    onNewCareer={() => setMode(null)}
+                  />
+                ) : mode === 'mp-constitution' ||
+                  mode === 'mp-constitution-lost' ? (
+                  <FinalReport
+                    report={ruledReport}
+                    characterBySlug={characterBySlug}
+                    career={mode === 'mp-constitution' ? ruled : outsider}
+                    coaches={coachTags}
+                  />
+                ) : mode === 'sp' ? (
                   <CampaignReport
                     career={career}
                     characters={characters}

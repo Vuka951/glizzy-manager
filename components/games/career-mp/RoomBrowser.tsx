@@ -3,7 +3,12 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import CoachTag from '@/components/games/career-mp/CoachTag';
+import GameModal from '@/components/games/GameModal';
+import CareerButton from '@/components/games/career/CareerButton';
+import PaperSheet from '@/components/games/career/street/PaperSheet';
+import CorkPanel from '@/components/games/career-mp/CorkPanel';
+import NoticePin from '@/components/games/career-mp/NoticePin';
+import SeatTag from '@/components/games/rooms/SeatTag';
 import { GAMES_UI } from '@/data/games/locale';
 import { MAX_COACHES } from '@/lib/constants/careerMp';
 import { rivalsRoomPath } from '@/lib/constants/routes';
@@ -15,10 +20,12 @@ import {
 } from '@/lib/queries/careerMp';
 import type { RoomSummary } from '@/lib/types/careerMp';
 import { fmt } from '@/lib/utils/format';
+import { queueGameFullscreen } from '@/lib/utils/fullscreen';
 
 const B = GAMES_UI.careerMp.browser;
 const SEASONS = GAMES_UI.shared.seasons;
 const REFRESH_MS = 5000;
+const TILTS = ['rotate-[-0.8deg]', 'rotate-[0.6deg]', 'rotate-[0.3deg]', 'rotate-[-0.5deg]'];
 
 function mySeats() {
   return [...knownRoomCodes()].sort().join(',');
@@ -39,8 +46,9 @@ function where(room: RoomSummary) {
   });
 }
 
-// The notice board, opened from the entry form: every open room, the ones
-// this browser already sits in first, so a coach can come back or hop in
+// The notice board, opened from the entry form: every open room is a notice
+// pinned to the cork, the ones this browser already sits in first and on a red
+// pin, so a coach can come back or hop in
 export default function RoomBrowser({
   onJoin,
   onClose,
@@ -68,62 +76,44 @@ export default function RoomBrowser({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-3 backdrop-blur-sm">
-      <button
-        aria-label={GAMES_UI.shared.close}
-        onClick={onClose}
-        className="absolute inset-0 cursor-default"
-      />
-      <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rotate-[0.3deg] rounded-sm bg-amber-50 p-5 text-left text-slate-900 shadow-2xl animate-[bubblein_0.3s_ease-out] sm:p-7">
-        <div className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-slate-900 pb-2">
-          <p className="text-base font-black uppercase leading-none tracking-[0.15em]">
-            {B.title}
-          </p>
-          <button
-            onClick={onClose}
-            className="text-[11px] font-bold text-slate-500 underline decoration-slate-900/30 underline-offset-4 transition hover:text-red-700"
-          >
-            {GAMES_UI.shared.close}
-          </button>
-        </div>
+    <GameModal title={B.title} wide flush onClose={onClose}>
+      <CorkPanel className="min-h-full p-3 sm:p-4">
         {rooms.length === 0 ? (
-          <p className="py-5 text-center text-xs italic text-slate-500">
+          <PaperSheet className="mx-auto max-w-xs rotate-[-1deg] px-4 pb-4 pt-6 text-center font-serif text-[14px] text-slate-300">
+            <NoticePin tone="brass" />
             {B.empty}
-          </p>
+          </PaperSheet>
         ) : (
-          <ul className="divide-y divide-slate-900/20">
-            {rooms.map((room) => {
+          <ul className="grid gap-4 sm:grid-cols-2">
+            {rooms.map((room, i) => {
               const seated = mine.has(room.code);
               const open = room.status === 'lobby';
               const full = room.coaches.length >= MAX_COACHES;
               return (
-                <li
-                  key={room.code}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3"
-                >
-                  <div className="flex min-w-32 flex-col">
-                    <span className="font-mono text-base font-black tracking-[0.2em]">
+                <li key={room.code}>
+                  <PaperSheet
+                    className={`flex h-full flex-col gap-1.5 px-3 pb-3 pt-5 ${TILTS[i % TILTS.length]}`}
+                  >
+                    <NoticePin tone={seated ? 'red' : 'brass'} />
+                    <span className="border-b-[3px] border-double border-[#1c1408]/70 pb-0.5 font-sign text-2xl font-bold leading-tight tabular-nums tracking-[0.16em] text-slate-100">
                       {room.code}
                     </span>
-                    <span className="text-[10px] text-slate-600">
+                    <span className="font-serif text-[12px] leading-snug text-slate-400">
                       {where(room)}
                       {' · '}
                       {lastActive(room.updatedAt)}
                     </span>
-                  </div>
-                  <div className="flex min-w-0 flex-1 flex-col gap-1">
-                    <div className="flex flex-wrap items-center gap-1">
+                    <span className="flex flex-wrap items-center gap-1">
                       {room.coaches.map((coach) => (
-                        <CoachTag
+                        <SeatTag
                           key={coach.id}
                           name={coach.name}
                           color={coach.color}
                           connected={coach.connected}
-                          onPaper
                         />
                       ))}
-                    </div>
-                    <span className="text-[10px] text-slate-600">
+                    </span>
+                    <span className="font-serif text-[12px] leading-snug text-slate-400">
                       {fmt(B.coaches, {
                         count: room.coaches.length,
                         max: MAX_COACHES,
@@ -131,32 +121,39 @@ export default function RoomBrowser({
                       {room.hostName &&
                         `, ${fmt(B.host, { name: room.hostName })}`}
                     </span>
-                  </div>
-                  {seated ? (
-                    <Link
-                      href={rivalsRoomPath(room.code)}
-                      className="rounded-sm bg-slate-900 px-3 py-1 text-[11px] font-black uppercase tracking-widest text-amber-50 transition hover:bg-red-700"
-                    >
-                      {B.resume}
-                    </Link>
-                  ) : open && !full ? (
-                    <button
-                      onClick={() => onJoin(room.code)}
-                      className="rounded-sm border-2 border-slate-900 px-3 py-0.5 text-[11px] font-black uppercase tracking-widest text-slate-900 transition hover:border-red-700 hover:text-red-700"
-                    >
-                      {B.join}
-                    </button>
-                  ) : (
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                      {open ? B.full : B.inProgress}
+                    <span className="mt-auto flex justify-end pt-1">
+                      {seated ? (
+                        <Link
+                          href={rivalsRoomPath(room.code)}
+                          onClick={() =>
+                            queueGameFullscreen({ fresh: true, gesture: true })
+                          }
+                          className="inline-flex min-h-11 items-center rounded-[4px] border-2 border-[#ffffff] bg-[#1e40af] px-4 text-[11px] font-black uppercase tracking-[0.2em] text-[#ffffff] shadow-[0_3px_0_rgba(2,6,23,0.65)] transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1e3a8a] active:translate-y-[2px] motion-reduce:transition-none"
+                        >
+                          {B.resume}
+                        </Link>
+                      ) : open && !full ? (
+                        <CareerButton
+                          onClick={() => onJoin(room.code)}
+                          className="min-h-11"
+                        >
+                          {B.join}
+                        </CareerButton>
+                      ) : (
+                        <span className="inline-flex min-h-11 items-center">
+                          <span className="rotate-[-3deg] rounded-[3px] border-2 border-[#6b5b42] px-2 py-0.5 font-sign text-[13px] font-bold uppercase tracking-[0.1em] text-slate-500">
+                            {open ? B.full : B.inProgress}
+                          </span>
+                        </span>
+                      )}
                     </span>
-                  )}
+                  </PaperSheet>
                 </li>
               );
             })}
           </ul>
         )}
-      </div>
-    </div>
+      </CorkPanel>
+    </GameModal>
   );
 }

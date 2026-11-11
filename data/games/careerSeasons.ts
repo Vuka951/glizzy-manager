@@ -5,15 +5,12 @@ export const SEASON_COUNT = 4;
 // arrays, whose data/games/locales/sr.json order is Frozen, Bloody, Summer, Eggplant.
 export const SEASON_THEME_INDEX = [0, 3, 2, 1] as const;
 
-// "In form" rosters, one per season in calendar order. Each character is in
-// form in one quarter of the offseason calendar's months (Jan-Mar, Apr-Jun,
-// Jul-Sep, Oct-Dec); the rest keep their lore season
-export const SEASON_BUFF_ROSTERS: readonly (readonly string[])[] = [
-  ['vuka', 'steva', 'halvard'],
-  ['dax'],
-  ['dusan', 'kosta', 'cone'],
-  ['nikola', 'zeka'],
-];
+// Who is in form when: each character is in form in one quarter of the
+// offseason calendar's months (Jan-Mar, Apr-Jun, Jul-Sep, Oct-Dec) at this
+// chance, rolled from his name, the quarter weighted by these; the rest keep
+// their lore season
+export const SEASON_BUFF_CHANCE = 9 / 16;
+export const SEASON_BUFF_WEIGHTS: readonly number[] = [3, 1, 3, 2];
 
 export type SeasonPriceCategory =
   | 'training'

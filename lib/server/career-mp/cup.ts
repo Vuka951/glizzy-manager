@@ -2,26 +2,25 @@ import {
   CAREER_BET_FALLBACK_ODDS,
   CAREER_BET_STAKE,
   CAREER_BET_STAKES,
-  PRIZE_MONEY,
 } from '@/data/games/careerEconomy';
 import {
   FAVOR_TARGET_EGO,
   FAVOR_TARGET_STRESS,
   FAVOR_VOTE_COST,
+  type ElectionResult,
 } from '@/data/games/careerElections';
+import {
+  COALITION_COUNT_ALLOWANCE_MS,
+  DEFAULT_COALITION_SECONDS,
+} from '@/lib/constants/careerMp';
 import { livesForLevel } from '@/data/games/careerTraining';
-import { ActionError } from '@/lib/server/career-mp/errors';
 import { withLedger } from '@/lib/server/career-mp/ledger';
 import {
   careerFor,
   mergeShared,
   sharedCareer,
 } from '@/lib/server/career-mp/lens';
-import {
-  clipEndsAt,
-  clipResultAt,
-  newPlayback,
-} from '@/lib/server/career-mp/playback';
+import { matchPlayback } from '@/lib/server/career-mp/playback';
 import {
   attachQuotes,
   cueMatchResult,
@@ -35,34 +34,45 @@ import type {
   LeagueState,
   Room,
 } from '@/lib/server/career-mp/room';
+import { ActionError } from '@/lib/server/rooms/errors';
+import { logEvent } from '@/lib/server/rooms/log';
+import { clipEndsAt, clipResultAt } from '@/lib/server/rooms/playback';
 import {
-  connectedCoachIds,
+  connectedSeatIds,
   deadlineFor,
-  logEvent,
   majorityOf,
-} from '@/lib/server/career-mp/roomOps';
+} from '@/lib/server/rooms/presence';
 import type { PhaseState, Stage } from '@/lib/types/careerMp';
 import {
   applyElection,
   bookAiRemoval,
   bookRemoval,
   canRemove,
-  electionResult,
-  electionVotes,
   favorPending,
   favorsLeft,
-  governmentSeats,
   isElectionYear,
   removalFor,
   roundParticipants,
-  seatParams,
 } from '@/lib/utils/careerElections';
+import {
+  coalitionOpen,
+  countElection,
+  electionNews,
+  settleElection,
+} from '@/lib/utils/careerCoalition';
+import { electionScenes } from '@/lib/utils/careerElectionScenes';
+import { electionPremier } from '@/lib/utils/careerPremier';
 import {
   derbyWinLetter,
   electionLetter,
+  glizzyMarketLetter,
   favorLetter,
-  leagueNews,
 } from '@/lib/utils/careerMail';
+import { openLaws } from '@/lib/server/career-mp/laws';
+import {
+  constitutionWin,
+  cupPrizeFor,
+} from '@/lib/utils/careerLaws';
 import {
   applyH2h,
   applyMatchToCharacters,
@@ -73,6 +83,7 @@ import { careerBettingUnlocked, matchOdds } from '@/lib/utils/careerOdds';
 import {
   careerPoints,
   crownedLeader,
+  overlordGoal,
   rankBySeeding,
 } from '@/lib/utils/careerPoints';
 import {
@@ -80,12 +91,10 @@ import {
   cupRecapLeagueNews,
 } from '@/lib/utils/careerRecap';
 import { applyDerbyMeters, rivalCandidates } from '@/lib/utils/careerRivals';
-import type {
-  CharacterCareerState,
-  NewsItem,
-} from '@/lib/utils/careerSave';
+import type { CharacterCareerState, NewsItem } from '@/lib/utils/careerSave';
 import { seededRounds } from '@/lib/utils/careerSeeding';
 import { sponsorPayout } from '@/lib/utils/careerSponsors';
+import type { QuoteEvent } from '@/lib/utils/quoteCutsceneTriggers';
 import {
   cupBetKey,
   cupMatchWinner,
@@ -147,10 +156,6 @@ function stageMatch(
   return m && m.a && m.b ? { a: m.a, b: m.b, result: m.result } : null;
 }
 
-function betKeyFor(stage: Stage, index: number): string {
-  return cupBetKey(stage.round, index);
-}
-
 function betOf(cs: CoachState, stage: Stage, index: number): CupMatchBet | undefined {
   return cs.matchBets[cupBetKey(stage.round, index)];
 }
@@ -194,10 +199,6 @@ export function openMatchBets(
   return { ...reset, phase };
 }
 
-// The paper closes on the bracket draw: the table seeds the round of sixteen
-export function closePaper(room: Room, now: number): Room {
-  return seedBracket(room, now);
-}
 
 // The single-player simFor: police warrants and party removals scripted in
 function simFor(l: LeagueState, match: CupMatch): CupMatchResult {
@@ -230,7 +231,7 @@ export function closeMatchBets(room: Room, now: number): Room {
     kind: 'match-clip',
     stage,
     index,
-    playback: newPlayback(result, now),
+    playback: matchPlayback(result, now),
     result,
   };
   // The news the result cues is booked now, off the men as they walk in,
@@ -437,7 +438,8 @@ function afterClip(room: Room, stage: Stage, index: number, now: number): Room {
   return endRound(room, stage.round, now);
 }
 
-function seedBracket(room: Room, now: number): Room {
+// The paper is read and the table seeds the bracket
+export function closePaper(room: Room, now: number): Room {
   const l = league(room);
   if (!l.cupStartRanks) throw new ActionError('bad-room');
   const rounds = seededRounds(l.cupStartRanks);
@@ -562,6 +564,7 @@ export function finishCup(room: Room, now: number): Room {
   const standings = cupStandings(cup.rounds);
   const champion = standings[0]?.slug ?? null;
   const placeBySlug = new Map(standings.map((s) => [s.slug, s.place]));
+  const finished: QuoteEvent[] = [{ kind: 'cup-finished', standings }];
   const characters = Object.fromEntries(
     Object.entries(l.characters).map(([slug, chStart]) => {
       const place = placeBySlug.get(slug) ?? 0;
@@ -587,11 +590,11 @@ export function finishCup(room: Room, now: number): Room {
   // Derbies are the whole room's business: every coach's derby story goes
   // into the shared paper, one per pairing, the winner's angle first
   const derbies = new Map<string, NewsItem>();
+  // Every placed coach's prize, human or AI
   Object.entries(l.coachStates).forEach(([coachId, cs]) => {
     const place = placeBySlug.get(cs.slug) ?? 0;
     places[coachId] = place;
-    const prize =
-      place >= 1 && place <= PRIZE_MONEY.length ? PRIZE_MONEY[place - 1] : 0;
+    const prize = cupPrizeFor(place);
     const contract = characters[cs.slug].sponsor;
     const wins = cup.rounds
       .flat()
@@ -623,8 +626,16 @@ export function finishCup(room: Room, now: number): Room {
     next = withLedger(next, l.year, l.season, 'sponsor', income);
     coachStates[coachId] = next;
   });
+  const humanSlugs = new Set(Object.values(coachStates).map((cs) => cs.slug));
+  const paidOut = { ...characters };
+  placeBySlug.forEach((place, slug) => {
+    const prize = cupPrizeFor(place);
+    if (humanSlugs.has(slug) || !paidOut[slug] || prize <= 0) return;
+    paidOut[slug] = { ...paidOut[slug], money: (paidOut[slug].money ?? 0) + prize };
+  });
   l = {
     ...l,
+    characters: paidOut,
     coachStates,
     leagueRecap: {
       head: leagueRecap.head,
@@ -638,9 +649,9 @@ export function finishCup(room: Room, now: number): Room {
         year: l.year,
         season: l.season,
         champion: champion ?? '',
-        ranks: rankBySeeding(characters, new Set(l.humanSlugs)),
+        ranks: rankBySeeding(paidOut, new Set(l.humanSlugs)),
         points: Object.fromEntries(
-          Object.entries(characters).map(([slug, ch]) => [slug, careerPoints(ch)]),
+          Object.entries(paidOut).map(([slug, ch]) => [slug, careerPoints(ch)]),
         ),
         places,
       },
@@ -656,25 +667,27 @@ export function finishCup(room: Room, now: number): Room {
           deadline: deadlineFor(room.settings.seasonEndSeconds, now),
         },
       },
-      [{ kind: 'cup-finished', standings }],
+      finished,
     ),
   );
   return logEvent(next, now, 'cup-finished', { champion: champion ?? '' });
 }
 
 // Season over: the logs archive, the year wraps with its election, rival
-// shortlists and suspect files, and the crown ends the campaign
+// shortlists and suspect files, and the crown ends the campaign. A count
+// whose partner vote waits on a human opens the coalition phase first
 export function closeSeasonEnd(room: Room, now: number): Room {
   let l = league(room);
-  const crowned = l.overlordSlug
-    ? null
-    : crownedLeader(l.characters, new Set(l.humanSlugs));
+  const crowned =
+    l.overlordSlug || constitutionWin(l.parliament)
+      ? null
+      : crownedLeader(l.characters, new Set(l.humanSlugs), overlordGoal(l));
   const wrapped = l.season === SEASON_COUNT - 1;
   const electionDue = wrapped && isElectionYear(l.year);
   const recapNews = [...l.leagueRecap.head, ...l.leagueRecap.tail];
   const year = l.year;
   const season = l.season;
-  let coachStates: Record<string, CoachState> = {};
+  const coachStates: Record<string, CoachState> = {};
   Object.entries(l.coachStates).forEach(([coachId, cs]) => {
     const logsByYear = { ...cs.logsByYear };
     const yearLogs = (logsByYear[year] ?? [[], [], [], []]).map((s) => [...s]);
@@ -687,41 +700,100 @@ export function closeSeasonEnd(room: Room, now: number): Room {
     coachStates,
     lastIssue: recapNews.length > 0 ? { news: recapNews, year, season } : l.lastIssue,
     lastIssueRecap: recapNews.length > 0,
+    prevIssue:
+      recapNews.length > 0 && !l.lastIssueRecap ? l.lastIssue : undefined,
     lastCupRanks: rankBySeeding(l.characters, new Set(l.humanSlugs)),
     cup: null,
     ...(crowned ? { overlordSlug: crowned } : {}),
   };
-  if (electionDue) {
+  const next: Room = { ...room, league: l };
+  // After the Frozen cup of a law year the chamber votes before the window
+  if (!electionDue && !crowned) {
+    const laws = openLaws(next, now);
+    return laws.open ? laws.room : wrapYear(laws.room, null, null, now);
+  }
+  if (!electionDue) return wrapYear(next, null, crowned, now);
+  const shared = sharedCareer(l, 'offseason');
+  const result = countElection(shared);
+  if (!coalitionOpen(result)) return wrapYear(next, result, crowned, now);
+  // A crowned campaign does not wait on a vote
+  if (crowned) {
+    return wrapYear(next, settleElection(shared, result), crowned, now);
+  }
+  const seconds =
+    room.settings.coalitionSeconds === undefined
+      ? DEFAULT_COALITION_SECONDS
+      : room.settings.coalitionSeconds;
+  const deadline = deadlineFor(seconds, now);
+  return attachQuotes(
+    logEvent(
+      {
+        ...next,
+        league: { ...l, lastElection: { year, result } },
+        phase: {
+          kind: 'coalition',
+          deadline:
+            deadline === null ? null : deadline + COALITION_COUNT_ALLOWANCE_MS,
+        },
+      },
+      now,
+      'coalition-open',
+      { leader: result.coalition?.leader ?? '' },
+    ),
+  );
+}
+
+// The year turns: the count becomes the chamber with its paper story and
+// letters, every coach gets a rival shortlist, and the crown ends the
+// campaign or the next window opens
+export function wrapYear(
+  room: Room,
+  result: ElectionResult | null,
+  crowned: string | null,
+  now: number,
+): Room {
+  let l = league(room);
+  const year = l.year;
+  const season = l.season;
+  const wrapped = season === SEASON_COUNT - 1;
+  // One-party rule passed in this season's law vote ends the campaign too
+  const constitution = constitutionWin(l.parliament);
+  const enacted =
+    constitution?.year === year && constitution.season === season
+      ? constitution
+      : null;
+  let coachStates: Record<string, CoachState> = {};
+  if (result) {
+    // The count closes the year, so the government takes office in the next
+    // one, the year single player's election night records
+    const inOffice = year + 1;
     const shared = sharedCareer(l, 'offseason');
-    const result = electionResult(electionVotes(shared));
+    const scenes = electionScenes(shared, result);
+    const premier = electionPremier(shared, result);
     const applied = applyElection(shared, result);
-    l = mergeShared(l, applied);
+    l = mergeShared(l, {
+      ...applied,
+      parliament: applied.parliament && {
+        ...applied.parliament,
+        electedYear: inOffice,
+      },
+    });
     l = {
       ...l,
-      lastElection: { year, result },
-      governments: [...l.governments, { year, government: result.government }],
-      newsQueue: [
-        ...l.newsQueue,
+      lastElection: { year, result, scenes, premier },
+      governments: [
+        ...l.governments,
         {
-          ...leagueNews(
-            result.government.length === 1
-              ? 'election-result-alone'
-              : 'election-result',
-            '',
-            {
-              ...seatParams(result.seats),
-              government: result.government.join(','),
-              parties: result.government.join(','),
-              seats: governmentSeats(result),
-            },
-            'election-result',
-            { parties: 'sponsorCoalition' },
-          ),
-          slugs: [],
+          year: inOffice,
+          government: result.government,
+          primeMinister: applied.parliament?.primeMinister ?? null,
         },
       ],
+      newsQueue: [
+        ...l.newsQueue,
+        { ...electionNews(result, '', premier), slugs: [] },
+      ],
     };
-    coachStates = {};
     Object.entries(l.coachStates).forEach(([coachId, cs]) => {
       const career = careerFor(l, coachId, 'offseason');
       const ch = career.characters[cs.slug];
@@ -731,7 +803,18 @@ export function closeSeasonEnd(room: Room, now: number): Room {
         ...cs,
         mail: [
           ...cs.mail,
-          electionLetter(year, season, status),
+          electionLetter(
+            year,
+            season,
+            status,
+            premier && {
+              slug: premier.slug,
+              you: premier.slug === cs.slug,
+            },
+          ),
+          ...(career.parliament?.elections === 1
+            ? [glizzyMarketLetter(year, season)]
+            : []),
           ...(ch.sponsor && left > 0
             ? [favorLetter(year, season, ch.sponsor.sponsorId, left)]
             : []),
@@ -758,14 +841,16 @@ export function closeSeasonEnd(room: Room, now: number): Room {
     l = { ...l, coachStates };
   }
   let next: Room = { ...room, league: l };
-  if (crowned) {
+  if (crowned || enacted) {
     next = {
       ...next,
       status: 'finished',
       phase: { kind: 'finished', reopenVotes: [] },
     };
     next = { ...next, report: buildReport(next) };
-    return logEvent(next, now, 'overlord', { slug: crowned });
+    return crowned
+      ? logEvent(next, now, 'overlord', { slug: crowned })
+      : logEvent(next, now, 'constitution', { party: enacted?.party ?? '' });
   }
   return openWindow(next, now);
 }
@@ -817,7 +902,7 @@ export function placeBet(
     }
     return withLedger(updated, l.year, l.season, 'bets', -stake);
   });
-  next = logEvent(next, now, 'bet', { coach: coachId, key: betKeyFor(stage, index) });
+  next = logEvent(next, now, 'bet', { coach: coachId, key: cupBetKey(stage.round, index) });
   return next;
 }
 
@@ -970,7 +1055,7 @@ export function voteSkipClip(room: Room, coachId: string, now: number): Room {
   if (playback.skippedAt !== undefined || playback.skipVotes.includes(coachId))
     return room;
   const votes = [...playback.skipVotes, coachId];
-  const connected = connectedCoachIds(room, now);
+  const connected = connectedSeatIds(room.coaches, now);
   const counted = votes.filter((id) => connected.includes(id)).length;
   const skipped = counted >= majorityOf(Math.max(1, connected.length));
   return {
@@ -996,7 +1081,7 @@ function cupPhase(room: Room): boolean {
 }
 
 function everyConnectedVoted(room: Room, votes: string[], now: number): boolean {
-  const connected = connectedCoachIds(room, now);
+  const connected = connectedSeatIds(room.coaches, now);
   const voters = connected.length > 0 ? connected : Object.keys(room.coaches);
   return voters.every((id) => votes.includes(id));
 }
@@ -1044,7 +1129,7 @@ export function voteReopen(
     ? [...new Set([...room.phase.reopenVotes, coachId])]
     : room.phase.reopenVotes.filter((id) => id !== coachId);
   const next: Room = { ...room, phase: { kind: 'finished', reopenVotes: votes } };
-  const connected = connectedCoachIds(room, now);
+  const connected = connectedSeatIds(room.coaches, now);
   const voters = connected.length > 0 ? connected : Object.keys(room.coaches);
   const counted = votes.filter((id) => voters.includes(id)).length;
   if (on && counted >= majorityOf(voters.length)) return reopenRoom(next, now);
@@ -1060,6 +1145,8 @@ export function phaseExpired(room: Room, now: number): boolean {
     case 'paper':
     case 'cup-pre':
     case 'season-end':
+    case 'coalition':
+    case 'laws':
     case 'match-bets':
       return phase.deadline !== null && now >= phase.deadline;
     case 'match-clip':
